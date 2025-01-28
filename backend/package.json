@@ -17,6 +17,10 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@slack/bolt": "^4.2.0",
+    "body-parser": "^2.0.2",
+    "dotenv": "^16.4.7",
+    "express": "^5.0.1",
     "nodemon": "^3.1.9"
   }
 }
