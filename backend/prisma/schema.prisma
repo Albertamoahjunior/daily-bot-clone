@@ -12,3 +12,29 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Standup {
+  id          String      @id
+  questions   Json    
+  answers     Json     
+  date        DateTime 
+  teamId      String  
+  responded   String[] 
+  team        Team?    @relation(fields: [teamId], references: [id])
+}
+
+model Team {
+  id       String    @id 
+  name     String   
+  members  Member[]  
+  standups Standup[] 
+}
+
+model Member{
+  id       String    @id  
+  teamId   String  
+  name     String
+  team     Team?    @relation(fields: [teamId], references: [id])
+  email String
+}
+
