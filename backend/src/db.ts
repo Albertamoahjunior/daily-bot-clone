@@ -2,83 +2,197 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function addTeam(name: string, id: string, members: string[]) {
-  try {
-    const newTeam = await prisma.team.create({
-      data: {
-        id,
-        name
-      }
+//create team
+async function createTeam(teamId: string, teamName: string, timeZone: string) {
+  const team = await prisma.team.create({
+    data: {
+      id: teamId,
+      teamName,
+      timezone: timeZone,
+    },
+  });
+  return team;
+}
+
+//add members 
+async function addMembersToTeam(teamId: string, memberIds: string[]) {
+  //update team with members
+  
+  const updatedTeam = await prisma.team.update({
+    where: { id: teamId },
+    data: {
+      members: memberIds,
+    },
+  });
+
+  //after update members with the team ids
+  for (const memberId of memberIds) {
+    await prisma.member.update({
+      where: { id: memberId },
+      data: { teams: { push: teamId } },
     });
-
-    console.log(`Created team "${name}" with ID: ${newTeam.id}`);
-    return newTeam;
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.includes('Unique constraint')) {
-        throw new Error(`Team with ID ${id} already exists`);
-      }
-      throw new Error(`Failed to create team: ${error.message}`);
-    }
-    throw error;
   }
+  return updatedTeam;
 }
 
-//function to create members and then update team with their ids
-async function addStandup(id: string, questions: [{}], answers: [{}], date: Date, teamId: string, responded:[]){
-    try {
-        const newStandup = await prisma.standup.create({
-        data: {
-            id,
-            questions,
-            answers,
-            date,
-            teamId,
-            responded
-        }
-        });
-    
-        console.log(`Created standup with ID: ${newStandup.id}`);
-        return newStandup;
-    } catch (error) {
-        if (error instanceof Error) {
-        if (error.message.includes('Unique constraint')) {
-            throw new Error(`Standup with ID ${id} already exists`);
-        }
-        throw new Error(`Failed to create standup: ${error.message}`);
-        }
-        throw error;
-    }
+//remove member from team
+async function removeMembersFromTeam(teamId: string, memberIds: string[]) {
+  //update team to remove members
+  const updatedTeam = await prisma.team.update({
+    where: { id: teamId },
+    data: {
+      members: {
+        set: (await prisma.team.findUnique({
+          where: { id: teamId },
+          select: { members: true },
+        }))?.members.filter(member => !memberIds.includes(member)) || [],
+      },
+    },
+  });
+
+  //update members to remove the team id
+  for (const memberId of memberIds) {
+    await prisma.member.update({
+      where: { id: memberId },
+      data: {
+        teams: {
+          set: (await prisma.member.findUnique({
+            where: { id: memberId },
+            select: { teams: true },
+          }))?.teams.filter(team => team !== teamId) || [],
+        },
+      },
+    });
+  }
+  return updatedTeam;
 }
 
-//function to create members
-async function addMember(name: string, id: string, teamId: string, email: string) {
-    try {
-        const newMember = await prisma.member.create({
-            data: {
-                id,
-                name,
-                teamId,
-                email
-            }
-        });
-    
-        console.log(`Created member "${name}" with ID: ${newMember.id}`);
-        return newMember;
-    } catch (error) {
-        if (error instanceof Error) {
-            if (error.message.includes('Unique constraint')) {
-                throw new Error(`Member with ID ${id} already exists`);
-            }
-            throw new Error(`Failed to create member: ${error.message}`);
-        }
-        throw error;
-    }
+//create members in a batch
+async function createMembers(members: { id: string; memberName: string }[]) {
+  const createdMembers = await prisma.member.createMany({
+    data: members,
+  });
+  return createdMembers;
 }
 
 
 
+//get members endpoint
+async function getMembers() {
+  const members = await prisma.member.findMany({
+    select: {
+      id: true,
+    },
+  });
+  return members;
+}
+
+//get a member
+async function getMember(memberId: string) {
+  const member = await prisma.member.findUnique({
+    where: { id: memberId },
+  });
+  return member;
+}
 
 
-export { addTeam, addStandup};
 
+//get teams 
+async function getTeams() {
+  const teams = await prisma.team.findMany({
+    select: {
+      id: true,
+      teamName: true,
+      members: true,
+    },
+  });
+  return teams;
+}
+
+//get a team
+async function getTeam(teamId: string) {
+  const team = await prisma.team.findUnique({
+    where: { id: teamId },
+    select: {
+      id: true,
+      teamName: true,
+      timezone: true,
+      members: true,
+    },
+  });
+  return team;
+}
+
+//remove team 
+async function removeTeam(teamId: string) {
+  await prisma.team.delete({
+    where: { id: teamId },
+  });
+}
+
+//create a standup setup for a team
+async function createStandupSetup(
+  teamId: string,
+  standupDays: string[],
+  reminderTimes: string[]
+) {
+  //check if standup for a team already exists and then delete it
+  await prisma.standup.deleteMany({
+    where: { teamId },
+  });
+
+  const standup = await prisma.standup.create({
+    data: {
+      teamId,
+      standupDays,
+      reminderTimes,
+    },
+  });
+  return standup;
+}
+
+//add standup questions for a team
+async function createStandupQuestions(
+  teamId: string,
+  questions: {
+    questionText: string;
+    options: string[];
+    questionType: string;
+    required: boolean;
+  }[]
+) {
+  const standupQuestions = await prisma.standupQuestion.createMany({
+    data: questions.map(question => ({
+      teamId,
+      ...question,
+    })),
+  });
+  return standupQuestions;
+}
+
+//function to add standup response
+async function createStandupResponses(
+  responses: { questionId: string; userId: string; answer: string }[]
+) {
+  const standupResponses = await prisma.standupResponse.createMany({
+    data: responses,
+  });
+  return standupResponses;
+}
+
+
+
+export {
+  createTeam,
+  addMembersToTeam,
+  getMembers,
+  getTeams,
+  removeTeam,
+  getMember,
+  getTeam,
+  removeMembersFromTeam,
+  createMembers,
+  createStandupSetup,
+  createStandupQuestions,
+  createStandupResponses,
+}

@@ -13,28 +13,91 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Standup {
-  id          String      @id
-  questions   Json    
-  answers     Json     
-  date        DateTime 
-  teamId      String  
-  responded   String[] 
-  team        Team?    @relation(fields: [teamId], references: [id])
+//database schemas
+model Member {
+  id            String   @id @default(cuid())
+  teams        String[]
+  memberName          String
+  // team          Team     @relation(fields: [teamId], references: [id])
+  kudosGiven    Kudos[]  @relation("KudosGiver")
+  kudosReceived Kudos[]  @relation("KudosReceiver")
+  moodResponses MoodResponse[]
 }
 
 model Team {
-  id       String    @id 
-  name     String   
-  members  Member[]  
-  standups Standup[] 
+  id            String   @id @default(cuid())
+  teamName      String   
+  status        String?  // STATUS
+  questionRefId String?   // QUESTION REFID
+  timezone      String   // TIMEZONE
+  standup       Standup?
+  members       String[] 
+  moodResponses MoodResponse[]
 }
 
-model Member{
-  id       String    @id  
-  teamId   String  
-  name     String
-  team     Team?    @relation(fields: [teamId], references: [id])
-  email String
+model Standup {
+  id            String   @id @default(cuid())
+  teamId        String   @unique
+  standupDays   String[] // STANDUP DAYS
+  reminderTimes String[] // REMINDER TIMES
+  team          Team     @relation(fields: [teamId], references: [id])
 }
 
+model StandupResponse {
+  id          String   @id @default(cuid())
+  questionId  String   // QUESTIONID
+  userId      String   // USERID
+  answer      String   // ANSWER
+  question    StandupQuestion @relation(fields: [questionId], references: [id])
+}
+
+model PollResponse {
+  id          String   @id @default(cuid())
+  pollId      String   // POLLID
+  userId      String   // USERID
+  answer      String   // ANSWER
+  createdAt   DateTime // CREATEDAT
+  poll        PollQuestion @relation(fields: [pollId], references: [id])
+}
+
+model StandupQuestion {
+  id            String   @id @default(cuid())
+  teamId        String   // TEAM ID
+  questionText  String   // QUESTION TEXT
+  options       String[] // OPTIONS
+  questionType  String   // QUESTION TYPE
+  required      Boolean  // REQUIRED: BOOLEAN
+  responses     StandupResponse[]
+}
+
+model PollQuestion {
+  id          String   @id @default(cuid())
+  teamId      String   // TEAMID
+  question    String   // QUESTION
+  options     String[] // OPTIONS
+  createdAt   DateTime // CREATEDAT
+  responses   PollResponse[]
+}
+
+model Kudos {
+  id            String   @id @default(cuid())
+  giverId       String   // GIVERID/REF
+  receiverId    String   // RECEIVERID/REF
+  teamId        String   // TEAMID
+  reason        String   // REASON
+  category      String   // CATEGORY
+  createdAt     DateTime // CREATEDAT
+  giver         Member   @relation("KudosGiver", fields: [giverId], references: [id])
+  receiver      Member   @relation("KudosReceiver", fields: [receiverId], references: [id])
+}
+
+model MoodResponse {
+  id          String   @id @default(cuid())
+  userId      String   // USERID
+  teamId      String   // TEAMID
+  mood        String   // MOOD
+  anonymous   Boolean  // ANONYMOUS
+  createdAt   DateTime // CREATEDAT
+  member      Member   @relation(fields: [userId], references: [id])
+  team        Team     @relation(fields: [teamId], references: [id])
+}

@@ -12,16 +12,21 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.10.10",
+    "@types/node-schedule": "^2.1.7",
     "prisma": "^6.2.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@prisma/client": "^6.2.1",
     "@slack/bolt": "^4.2.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
     "body-parser": "^2.0.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.0.1",
-    "@prisma/client": "^6.2.1",
+    "node-schedule": "^2.1.1",
     "nodemon": "^3.1.9"
   }
 }
