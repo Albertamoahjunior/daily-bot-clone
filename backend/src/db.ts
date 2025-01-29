@@ -172,12 +172,20 @@ async function createStandupQuestions(
 
 //function to add standup response
 async function createStandupResponses(
-  responses: { questionId: string; userId: string; answer: string }[]
+  responses: { questionId: string; userId: string; answer: string | undefined | null; options: string[] }[]
 ) {
   const standupResponses = await prisma.standupResponse.createMany({
     data: responses,
   });
   return standupResponses;
+}
+
+//function to get all standup questions for a team
+async function getStandupQuestions(teamId: string) {
+  const standupQuestions = await prisma.standupQuestion.findMany({
+    where: { teamId },
+  });
+  return standupQuestions;
 }
 
 
@@ -195,4 +203,5 @@ export {
   createStandupSetup,
   createStandupQuestions,
   createStandupResponses,
+  getStandupQuestions,
 }

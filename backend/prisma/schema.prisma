@@ -47,7 +47,9 @@ model StandupResponse {
   id          String   @id @default(cuid())
   questionId  String   // QUESTIONID
   userId      String   // USERID
-  answer      String   // ANSWER
+  answer      String?   // ANSWER
+  options     String[] // OPTIONS
+  createdAt   DateTime @default(now())
   question    StandupQuestion @relation(fields: [questionId], references: [id])
 }
 
