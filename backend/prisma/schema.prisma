@@ -49,6 +49,7 @@ model StandupResponse {
   userId      String   // USERID
   answer      String?   // ANSWER
   options     String[] // OPTIONS
+  teamId      String //Team
   createdAt   DateTime @default(now())
   question    StandupQuestion @relation(fields: [questionId], references: [id])
 }
@@ -57,8 +58,9 @@ model PollResponse {
   id          String   @id @default(cuid())
   pollId      String   // POLLID
   userId      String   // USERID
+  teamId      String    //teamId
   answer      String   // ANSWER
-  createdAt   DateTime // CREATEDAT
+  createdAt   DateTime  @default(now())// CREATEDAT
   poll        PollQuestion @relation(fields: [pollId], references: [id])
 }
 
@@ -77,7 +79,7 @@ model PollQuestion {
   teamId      String   // TEAMID
   question    String   // QUESTION
   options     String[] // OPTIONS
-  createdAt   DateTime // CREATEDAT
+  createdAt   DateTime  @default(now())// CREATEDAT
   responses   PollResponse[]
 }
 
@@ -88,7 +90,7 @@ model Kudos {
   teamId        String   // TEAMID
   reason        String   // REASON
   category      String   // CATEGORY
-  createdAt     DateTime // CREATEDAT
+  createdAt     DateTime    @default(now())// CREATEDAT
   giver         Member   @relation("KudosGiver", fields: [giverId], references: [id])
   receiver      Member   @relation("KudosReceiver", fields: [receiverId], references: [id])
 }
@@ -99,7 +101,7 @@ model MoodResponse {
   teamId      String   // TEAMID
   mood        String   // MOOD
   anonymous   Boolean  // ANONYMOUS
-  createdAt   DateTime // CREATEDAT
+  createdAt   DateTime   @default(now())// CREATEDAT
   member      Member   @relation(fields: [userId], references: [id])
   team        Team     @relation(fields: [teamId], references: [id])
 }

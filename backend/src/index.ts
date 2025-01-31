@@ -5,6 +5,8 @@ import cors from "cors";
 import teamRoutes from "./routes/teamRoutes";
 import memberRoutes from "./routes/memberRoutes";
 import standupRoutes from "./routes/standupRoutes";
+import { homeDesign, listenForChannelCreation, addJoinedMmebers } from "./utils/update";
+import { listenKudos } from "./utils/slack_bot";
 dotenv.config();
 
 const express_app = express();
@@ -20,6 +22,13 @@ express_app.get('/', (req, res) => {
 express_app.use('/api/v1/team', teamRoutes);
 express_app.use('/api/v1/members', memberRoutes);
 express_app.use('/api/v1/standup', standupRoutes);
+
+//slack listeners
+homeDesign();
+listenForChannelCreation();
+addJoinedMmebers();
+listenKudos();
+
 
 
 
@@ -38,5 +47,3 @@ express_app.use('/api/v1/standup', standupRoutes);
   express_app.listen(process.env.PORT || 3000, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
   });
-
-//   // Add an event listener for the 'message' event

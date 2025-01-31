@@ -57,6 +57,7 @@ export async function getMembersController(req: Request, res: Response) {
             select: {
                 id: true,
                 memberName: true,
+                teams: true,
             },
         });
         res.status(200).json(members);

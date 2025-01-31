@@ -29,7 +29,9 @@ export async function addMembersToTeamController(req: Request, res: Response) {
     const { teamId } = req.params;
     const { members } = req.body;
     try {
-        //first invite the members to the channel( using a for _ for)
+        const updatedTeam = await addMembersToTeam(teamId, members);
+
+        //first invite the members to the channel
         for (const member of members) {
             await slackClient.conversations.invite({
                 channel: teamId,
@@ -37,7 +39,6 @@ export async function addMembersToTeamController(req: Request, res: Response) {
             });
         }
 
-        const updatedTeam = await addMembersToTeam(teamId, members);
         res.status(200).json(updatedTeam);
     } catch (error) {
         res.status(500).json({ error: 'Failed to add members to team' });
