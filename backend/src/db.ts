@@ -230,12 +230,13 @@ async function getTeamStandups(teamId: string) {
 
 //function to configure or set polls for a team
 async function createPollQuestions(
-  polls: { teamId: string, question: string; options: string[] }[]
+  polls: { teamId: string, question: string; options: string[]; choiceType: string; anonymous: boolean;}
 ) {
-  const pollQuestions = await prisma.pollQuestion.createMany({
+  const pollQuestions = await prisma.pollQuestion.create({
     data: polls
   });
-  return pollQuestions;
+  //return pollId
+  return pollQuestions.id;
 }
 
 //function to get all poll questions for a team
@@ -248,10 +249,10 @@ async function getTeamPollQuestions(teamId: string) {
 
 //function to create poll responses
 async function createPollResponses(
-  responses: { pollId: string; userId: string; answer: string, teamId: string }[]
+  response: { pollId: string; userId: string; teamId: string; answer: string[]}
 ) {
-  const pollResponses = await prisma.pollResponse.createMany({
-    data: responses
+  const pollResponses = await prisma.pollResponse.create({
+    data: response
   });
   return pollResponses;
 }
@@ -260,6 +261,14 @@ async function createPollResponses(
 async function getTeamPollResponses(teamId: string) {
   const pollResponses = await prisma.pollResponse.findMany({
     where: { teamId },
+  });
+  return pollResponses;
+}
+
+//function to get poll responses for a poll
+async function getPollResponses(pollId: string) {
+  const pollResponses = await prisma.pollResponse.findMany({
+    where: { pollId },
   });
   return pollResponses;
 }
@@ -308,6 +317,31 @@ async function getUserKudosCount(userId: string) {
   return kudosCount;
 }
 
+//create kudos categories for a team
+async function createKudosCategory(
+  teamId: string,
+  category: string,
+  description: string
+) {
+  const kudosCategory = await prisma.kudosCategory.create({
+    data: {
+      teamId,
+      category,
+      description,
+    },
+  });
+  return kudosCategory;
+}
+
+
+//get kudos categories for a team
+async function getTeamKudosCategories(teamId: string) {
+  const kudosCategories = await prisma.kudosCategory.findMany({
+    where: { teamId },
+  });
+  return kudosCategories;
+}
+
 //create a mood response
 async function createMoodResponse(
   userId: string,
@@ -353,8 +387,11 @@ export {
   getTeamPollQuestions,
   createPollResponses,
   getTeamPollResponses,
+  getPollResponses,
   createKudos,
   getTeamKudos,
   getUserKudosCount,
   createMoodResponse,
+  createKudosCategory,
+  getTeamKudosCategories,
 }

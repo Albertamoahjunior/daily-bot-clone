@@ -1,25 +1,15 @@
-import { createStandupResponses, getStandupQuestions, getTeamMembers, getTeamStandups, getStandupResponses, getUserKudosCount, createKudos } from '../db';
+import { createStandupResponses, getStandupQuestions, getTeamMembers, getTeamStandups, getStandupResponses, getUserKudosCount, createKudos, getTeamKudosCategories, createPollResponses, getPollResponses} from '../db';
 import { app } from '../config/bot.config';
 import schedule from 'node-schedule';
 import { WebClient } from '@slack/web-api';
 import { View, ModalView } from '@slack/web-api';
 import { 
-    App,
     SlackActionMiddlewareArgs,
     BlockAction,
     ButtonAction,
-    AllMiddlewareArgs,
-    SlackEventMiddlewareArgs
   } from '@slack/bolt';
 
 const slackClient = app.client;
-
-interface AppMentionEvent {
-    type: 'app_mention';
-    channel: string;
-    user: string;
-    text: string;
-  }
   
   type ButtonElement = {
     type: 'button';
@@ -458,6 +448,12 @@ app.action('open_standup_modal', async ({ ack, body, client }: SlackActionMiddle
             return;
           }
   
+          const teamKudosCategories = await getTeamKudosCategories(channel)
+          
+          //then get only the categories and put them into an array
+          const kudos_categories = teamKudosCategories.map(category => category.category);
+
+
           const categories = ['Teamwork', 'Innovation', 'Leadership', 'Creativity'];
           const buttonElements: ButtonElement[] = categories.map((category) => ({
             type: 'button',
@@ -487,7 +483,7 @@ app.action('open_standup_modal', async ({ ack, body, client }: SlackActionMiddle
     );
   
     app.action<BlockAction>(
-      /.*/, 
+      /^select_category_.+/,
       async ({ body, action, ack, client }) => {
         await ack();
         try {
@@ -521,3 +517,217 @@ app.action('open_standup_modal', async ({ ack, body, client }: SlackActionMiddle
       }
     );
   }
+
+
+//create polls in the slack channel indicated using the questions given and answers options been the options(an array) field in the poll created
+export const createPoll = async (
+  id: string,
+  channel: string,
+  question: string,
+  options: string[],
+  type: "single" | "multi",
+  anonimity: boolean
+) => {
+  const elements = {
+    type: type === "single" ? "radio_buttons" : "checkboxes",
+    action_id: "poll_vote",
+    options: options.map((option) => ({
+      text: {
+        type: "plain_text",
+        text: option,
+      },
+      value: option,
+    })),
+  };
+
+  await app.client.chat.postMessage({
+    channel,
+    text: anonimity? "Anonymous Poll" : "Public Poll",
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*Please make your choice(s) known*`,
+        },
+      },
+      {
+        type: "divider"
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*${question}*`,
+        },
+      },
+      {
+        type: "actions",
+        block_id: `poll_${id}`, 
+        elements: [elements as any],
+      },
+      {
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Submit",
+            },
+            value: id, 
+            action_id: "submit_poll",
+          },
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "View Results",
+            },
+            value: JSON.stringify({id: id, anonimity: anonimity}), 
+            action_id: "view_poll",
+          },
+        ],
+      },
+    ],
+  });
+};
+
+app.action("submit_poll", async ({ body, ack, client }) => {
+  await ack();
+  
+  const pollId = (body as any).actions[0].value;
+  const blockId = `poll_${pollId}`;
+
+  console.log((body as any).state.values[blockId]?.poll_vote);
+  
+  // Get selected options from state
+  const selectedOptions = (body as any).state.values[blockId]?.poll_vote?.selected_options ||  [];
+  let singleSelect = []
+
+  if(selectedOptions.length < 1){
+    if((body as any).state.values[blockId]?.poll_vote?.selected_option){
+      singleSelect.push((body as any).state.values[blockId]?.poll_vote?.selected_option.value)
+    }
+  }
+
+
+  if(!selectedOptions.length && !singleSelect.length ){
+    await client.chat.postMessage({
+      channel: body.channel?.id || '',
+      text: `<@${body.user.id}> please choose an option`
+    });
+
+    return;
+  }
+  
+  if (!body.channel?.id) {
+    console.error('Channel ID is undefined');
+    return;
+  }
+
+  const pollResponse = {
+    pollId,
+    userId: body.user.id,
+    teamId: body.channel.id,
+    answer: selectedOptions.length > 1? selectedOptions.map((option: any) => option.text.text) : singleSelect
+  };
+
+  console.log(pollResponse);
+
+  await createPollResponses(pollResponse);
+  
+  await client.chat.postMessage({
+    channel: body.channel.id,
+    text: `Poll response submitted! 🎉`
+  });
+
+  await client.chat.postMessage({
+    channel: body.user.id,
+    text: "Your response has been recorded! 🎉"
+  });
+});
+
+//accept selection
+app.action("poll_vote", async ({ ack }) => {
+  await ack();
+});
+
+//view polls so far
+app.action("view_poll", async ({ body, ack, client }) => {
+  await ack();
+
+  console.log((body as any).actions[0].value)
+
+  const pollId = JSON.parse((body as any).actions[0].value).id;
+  const anonimity = JSON.parse((body as any).actions[0].value).anonimity;
+
+  if (!pollId) {
+    console.error("Poll ID is undefined");
+    return;
+  }
+
+  const pollResponses = await getPollResponses(pollId);
+
+  if (!pollResponses || pollResponses.length === 0) {
+    console.log("No responses found for this poll.");
+    return;
+  }
+
+  // Aggregate results
+  const results: Record<string, { count: number; users: string[] }> = {};
+
+  pollResponses.forEach((response: any) => {
+    response.answer.forEach((choice: string) => {
+      if (!results[choice]) {
+        results[choice] = { count: 0, users: [] };
+      }
+      results[choice].count += 1;
+      results[choice].users.push(response.userId);
+    });
+  });
+
+  // Convert results into Block Kit elements
+  const blocks: any[] = [];
+
+  Object.entries(results).forEach(([choice, data]) => {
+    blocks.push(
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*${choice}* - ${data.count} votes`,
+        },
+      },
+      {
+        type: "context",
+        elements: [
+          {
+            type: "mrkdwn",
+            text: anonimity? 'Voted by: Anonymous' : `Voted by: ${data.users.map((id) => `<@${id}>`).join(", ")}`,
+          },
+        ],
+      },
+      {
+        type: "divider",
+      }
+    );
+  });
+
+  // Open the modal with results
+  await client.views.open({
+    trigger_id: (body as any).trigger_id,
+    view: {
+      type: "modal",
+      callback_id: "poll_results",
+      title: {
+        type: "plain_text",
+        text: anonimity? "Anonymous Poll Results" : "Poll Results",
+      },
+      blocks,
+    },
+  });
+});
+
+
+

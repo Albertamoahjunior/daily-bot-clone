@@ -59,7 +59,7 @@ model PollResponse {
   pollId      String   // POLLID
   userId      String   // USERID
   teamId      String    //teamId
-  answer      String   // ANSWER
+  answer      String[]   // ANSWER
   createdAt   DateTime  @default(now())// CREATEDAT
   poll        PollQuestion @relation(fields: [pollId], references: [id])
 }
@@ -79,6 +79,8 @@ model PollQuestion {
   teamId      String   // TEAMID
   question    String   // QUESTION
   options     String[] // OPTIONS
+  choiceType  String   //multi/single
+  anonymous   Boolean @default(true) //anonimity of poll
   createdAt   DateTime  @default(now())// CREATEDAT
   responses   PollResponse[]
 }
@@ -93,6 +95,14 @@ model Kudos {
   createdAt     DateTime    @default(now())// CREATEDAT
   giver         Member   @relation("KudosGiver", fields: [giverId], references: [id])
   receiver      Member   @relation("KudosReceiver", fields: [receiverId], references: [id])
+}
+
+model KudosCategory{
+  id          String   @id @default(cuid())
+  category    String   // CATEGORY
+  description String   // DESCRIPTION
+  teamId      String // team which these caategories belong to
+  createdAt   DateTime  @default(now())// CREATEDAT
 }
 
 model MoodResponse {
