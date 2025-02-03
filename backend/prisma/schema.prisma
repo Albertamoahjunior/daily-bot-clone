@@ -97,6 +97,7 @@ model Kudos {
   receiver      Member   @relation("KudosReceiver", fields: [receiverId], references: [id])
 }
 
+//model for kudos category
 model KudosCategory{
   id          String   @id @default(cuid())
   category    String   // CATEGORY
@@ -105,13 +106,24 @@ model KudosCategory{
   createdAt   DateTime  @default(now())// CREATEDAT
 }
 
+
+//model for mood response
 model MoodResponse {
   id          String   @id @default(cuid())
   userId      String   // USERID
   teamId      String   // TEAMID
-  mood        String   // MOOD
+  moodId        String   // MOOD
   anonymous   Boolean  // ANONYMOUS
   createdAt   DateTime   @default(now())// CREATEDAT
   member      Member   @relation(fields: [userId], references: [id])
   team        Team     @relation(fields: [teamId], references: [id])
+}
+
+//model for moods
+model Mood {
+  id          String   @id @default(cuid())
+  mood        String   // MOOD
+  teamId      String   // TEAMID
+  description String   // DESCRIPTION
+  createdAt   DateTime  @default(now())// CREATEDAT
 }

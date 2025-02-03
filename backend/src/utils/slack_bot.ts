@@ -1,4 +1,4 @@
-import { createStandupResponses, getStandupQuestions, getTeamMembers, getTeamStandups, getStandupResponses, getUserKudosCount, createKudos, getTeamKudosCategories, createPollResponses, getPollResponses} from '../db';
+import { createStandupResponses, getStandupQuestions, getTeamMembers, getTeamStandups, getStandupResponses, getUserKudosCount, createKudos, getTeamKudosCategories, createPollResponses, getPollResponses, createMoodResponse} from '../db';
 import { app } from '../config/bot.config';
 import schedule from 'node-schedule';
 import { WebClient } from '@slack/web-api';
@@ -259,7 +259,7 @@ export function scheduleReminders({
                                             type: 'section',
                                             text: {
                                                 type: 'mrkdwn',
-                                                text: '🎯 Time for your daily standup!'
+                                                text: `🎯 Time for your daily standup for <#${channelId}> !`
                                             }
                                         },
                                         {
@@ -329,6 +329,7 @@ app.action('open_standup_modal', async ({ ack, body, client }: SlackActionMiddle
     } catch (error) {
       console.error('Error opening modal:', error);
     }
+    
   });
 
   app.view('standup_submission', async ({ ack, view, body, client }) => {
@@ -404,6 +405,73 @@ app.action('open_standup_modal', async ({ ack, body, client }: SlackActionMiddle
           })),
         ],
       });
+
+      //after let users choose from a list of moods(buttons) for the day
+      await client.chat.postMessage({
+        channel: userId,
+        text: 'Select your mood for the day:',
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'plain_text',
+              text: 'Select your mood for the day:',
+            },
+          },
+          {
+            type: 'actions',
+            elements: [
+              {
+                type: 'button',
+                text: {
+                  type: 'plain_text',
+                  text: '😁 happy',
+                },
+                value: 'happy',
+                action_id: 'update_mood_happy',
+              },
+              {
+                type: 'button',
+                text: {
+                  type: 'plain_text',
+                  text: '🙂 okay',
+                },
+                value: 'okay',
+                action_id: 'update_mood_okay',
+              },
+              {
+                type: 'button',
+                text: {
+                  type: 'plain_text',
+                  text: '🥺 sad',
+                },
+                value: 'sad',
+                action_id: 'update_mood_sad',
+              },
+            ],
+          },
+        ],
+      });
+
+      //app action for mood
+      app.action(/^update_mood_.+/, async ({ ack, body, client }) => {
+        try {
+          await ack();
+
+          const selected_mood = (body as any).actions[0].value;
+
+          const userId = body.user.id;
+          const mood = selected_mood;
+          await createMoodResponse(userId, mood, teamId, false);
+          await client.chat.postMessage({
+            channel: userId,
+            text: `Your mood has been updated to ${mood}!`,
+          });
+        } catch (error) {
+          console.error('Error updating mood:', error);
+        }
+      });
+
   
     } catch (error) {
       console.error('Error handling modal submission:', error);
@@ -454,7 +522,7 @@ app.action('open_standup_modal', async ({ ack, body, client }: SlackActionMiddle
           const kudos_categories = teamKudosCategories.map(category => category.category);
 
 
-          const categories = ['Teamwork', 'Innovation', 'Leadership', 'Creativity'];
+          const categories = kudos_categories.length? kudos_categories : ['Teamwork', 'Innovation', 'Leadership', 'Creativity'];
           const buttonElements: ButtonElement[] = categories.map((category) => ({
             type: 'button',
             text: { 

@@ -352,7 +352,7 @@ async function createMoodResponse(
   const moodResponse = await prisma.moodResponse.create({
     data: {
       userId,
-      mood,
+      moodId: mood,
       teamId,
       anonymous,
     },
@@ -360,7 +360,72 @@ async function createMoodResponse(
   return moodResponse;
 }
 
+//function to get kudos analytics
+async function getKudosAnalytics() {
+  // Fetch all members
+  const members = await prisma.member.findMany();
 
+  // Fetch all kudos to process received kudos per member
+  const kudos = await prisma.kudos.findMany();
+
+  // Map members with their received kudos
+  const analytics = members.map(member => {
+    // Filter kudos received by this member
+    const kudosReceived = kudos.filter(k => k.receiverId === member.id);
+    const kudosCount = kudosReceived.length;
+
+    // Count kudos per category
+    const categoryCount = kudosReceived.reduce(
+      (acc, k) => {
+        acc[k.category] = (acc[k.category] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    // Determine the top category, handle case where no kudos are received
+    const topCategory = Object.keys(categoryCount).length
+      ? Object.keys(categoryCount).reduce((a, b) =>
+          categoryCount[a] > categoryCount[b] ? a : b
+        )
+      : null;
+
+    return {
+      memberId: member.id,
+      teams: member.teams, // List of teams the member belongs to
+      topCategory,
+      kudosCount,
+    };
+  });
+
+  // Sort by kudos count in descending order
+  return analytics
+    .sort((a, b) => b.kudosCount - a.kudosCount)
+    .map((item, index) => ({
+      position: index + 1,
+      ...item,
+    }));
+}
+
+//create mood
+async function createMood(mood: string, teamId: string, description: string) {
+  const moodType = await prisma.mood.create({
+    data: {
+      mood,
+      teamId,
+      description
+    },
+  });
+  return moodType;
+}
+
+//get mood response
+async function getMoodResponse(userId: string) {
+  const moodResponse = await prisma.moodResponse.findFirst({
+    where: { userId },
+  });
+  return moodResponse;
+}
 
 
 
@@ -394,4 +459,7 @@ export {
   createMoodResponse,
   createKudosCategory,
   getTeamKudosCategories,
+  getKudosAnalytics,
+  createMood,
+  getMoodResponse,
 }

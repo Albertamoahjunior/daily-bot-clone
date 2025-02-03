@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createKudos, getTeamKudos, getUserKudosCount, createKudosCategory, getTeamKudosCategories } from '../db';
+import { createKudos, getTeamKudos, getUserKudosCount, createKudosCategory, getTeamKudosCategories, getKudosAnalytics } from '../db';
 
 // Controller to create kudos
 export async function createKudosController(req: Request, res: Response) {
@@ -53,5 +53,16 @@ export async function getTeamKudosCategoriesController(req: Request, res: Respon
         res.status(200).json(categories);
     } catch (error) {
         res.status(500).json({ error: 'Failed to get team kudos categories' });
+    }
+}
+
+//controller for kudos analytics
+export async function getKudosAnalyticsController(req: Request, res: Response) {
+    try {
+        const analytics = await getKudosAnalytics();
+        res.status(200).json(analytics);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Failed to get kudos analytics' });
     }
 }
