@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 
 interface IToggle{
+    label?:string
     isChecked: boolean;
     toggleIsChecked: () => void;
 }
 
-const ToggleSwitch = ({isChecked, toggleIsChecked}:IToggle) => {
+const ToggleSwitch = ({label, isChecked, toggleIsChecked}:IToggle) => {
 
   return (
     <div className="flex items-center space-x-3 w-full justify-between">
       <label htmlFor="toggle" className="text-gray-700">
-        Want To Create Standup Questions? you can always configure them later
+        {label ? label : "Want To Create Standup Questions? you can always configure them later"}
       </label>
       <div>
         <div className="relative">
