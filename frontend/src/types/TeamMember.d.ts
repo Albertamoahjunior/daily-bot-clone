@@ -2,7 +2,7 @@
 
 interface Member{
     id: string;
-    name: string;
-    teamId: string[];
-    status?: "Active" | "Pending activation";
+    memberName: string;
+    teams: string[];
+    status?: "Active" | "Pending activation" | undefined;
 }

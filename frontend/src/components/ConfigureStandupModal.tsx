@@ -1,20 +1,20 @@
-import {useState} from 'react';
+//import {useState} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {  faCircleXmark } from '@fortawesome/free-regular-svg-icons';
-import { CreateTeamMembersSearch } from './CreateTeamMembersSearch';
-import { AddMembersTable } from './AddMembersTable';
-import {TeamInput } from './TeamInput';
-import {TeamInputDropdown } from './TeamDropdownInput';
-import { useTimeZoneSelection } from '../hooks/useTimeZoneSelection';
-import ToggleSwitch from './ToggleSwitch';
+// import { CreateTeamMembersSearch } from './CreateTeamMembersSearch';
+// import { AddMembersTable } from './AddMembersTable';
+// import {TeamInput } from './TeamInput';
+// import {TeamInputDropdown } from './TeamDropdownInput';
+// import { useTimeZoneSelection } from '../hooks/useTimeZoneSelection';
+// import ToggleSwitch from './ToggleSwitch';
 import {StandupForm} from './StandupForm';
 
 
 export const ConfigureStandupModal = ({isOpen, onClose}:ICreateTeamProps) => {
-    const [isChecked, setIsChecked] = useState(false);
-    const [teamName, setTeamName] = useState("");
+    //const [isChecked, setIsChecked] = useState(false);
+    //const [teamName, setTeamName] = useState("");
 
-    const handleNameChange = (e:React.ChangeEvent<HTMLInputElement> ) => {setTeamName(e.target.value)}
+    //const handleNameChange = (e:React.ChangeEvent<HTMLInputElement> ) => {setTeamName(e.target.value)}
    
     // Function to close the modal when clicking outside
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

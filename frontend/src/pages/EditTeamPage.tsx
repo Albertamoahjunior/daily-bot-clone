@@ -18,7 +18,7 @@ import { ConfigureStandupModal } from '@/components/ConfigureStandupModal';
 
 export const EditTeamPage = () => {
     const {teamId, team} = useParams();
-    const {teams} = useTeamsContext();
+    const {teams, members} = useTeamsContext();
     const teamObj = teams.find(t => t.id === teamId);
     const [teamName, setTeamName] = useState((teamObj as Team).teamName || team);
     const [isModalOpen, setModalOpen] = useState(false);
@@ -26,7 +26,7 @@ export const EditTeamPage = () => {
     const { selectedTimezone, handleTimezoneChange, timezoneOptions } = useTimeZoneSelection({ timezone: (teamObj as Team).timezone });
     const {  standupQuestions } = useStandupContext();
 
-    
+    console.log(members)
 
     const handleNameChange = (e:React.ChangeEvent<HTMLInputElement> ) => {setTeamName(e.target.value)}
 
@@ -128,7 +128,7 @@ export const EditTeamPage = () => {
 
         </div>
 
-        {isModalOpen && <AddMemberModal isOpen={isModalOpen} teamId={teamId || ""} onClose={() => handleModalClose()}/>}
+        {isModalOpen && <AddMemberModal isOpen={isModalOpen} teamId={teamId || ""} onClose={() => handleModalClose()} members={members}/>}
         {isStandupModalOpen && <ConfigureStandupModal isOpen={isStandupModalOpen} onClose={() => handleStandupModalClose()} />}
 
     </>

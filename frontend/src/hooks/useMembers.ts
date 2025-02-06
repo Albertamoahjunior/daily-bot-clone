@@ -1,13 +1,14 @@
 import { useState } from "react";
 
-interface Member {
+export interface Member {
   id: string;
   memberName: string;
-  status: "Active" | "Pending activation";
+  status?: "Active" | "Pending activation" | undefined;
   teams : string[];
 }
 
 interface UseMembersProps {
+  teamID: string;
 
   members: Member[];
 
@@ -15,7 +16,7 @@ interface UseMembersProps {
 
 }
 
-export const useMembers = ({ members, setMembers }: UseMembersProps) => {
+export const useMembers = ({ members, setMembers, teamID }: UseMembersProps) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [itemToBeDeleted, setItemToBeDeleted] = useState<string>("");
 
@@ -33,7 +34,12 @@ export const useMembers = ({ members, setMembers }: UseMembersProps) => {
     console.log('Member deleted');
     const confirmDelete = window.confirm("Are you sure you want to delete this team member?");
     if (confirmDelete) {
-        setMembers(members.filter((member) => member.id !== itemToBeDeleted));
+      const updatedMembers = members.map(member => ({
+        ...member,
+        teams: member.teams.filter(teamId => teamId !== teamID)
+      }));
+
+        setMembers(updatedMembers);
     }
     // setMembers(members.filter((member) => member.id !== itemToBeDeleted));
     closeModal();

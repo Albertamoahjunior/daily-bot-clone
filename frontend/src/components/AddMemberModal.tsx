@@ -2,29 +2,18 @@ import {AddMembersTable} from "./AddMembersTable";
 import { MembersSearch } from "./MembersSearch";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {  faCircleXmark } from '@fortawesome/free-regular-svg-icons';
+import { useTeamsContext } from "@/hooks/useTeamsContext";
 
 
-export const AddMemberModal: React.FC<AddMemberModalProps> = ({isOpen, teamId, onClose}) => {
+export const AddMemberModal: React.FC<AddMemberModalProps> = ({isOpen, teamId, onClose, members}) => {
     // const [searchValue, setSearchValue] = useState("");
+    const {teams} = useTeamsContext();
+
+    console.log(members);
 
     if (!isOpen) return null; // Do not render the modal if it's not open
 
-    const teams = [
-        {
-            teamID: "ddsdsd",
-            teamName: "sdsd",
-            standup: {
-                name: "addad",
-            }
-        },
-        {
-            teamID: "adadd",
-            teamName: "Dev-watch",
-            standup: {
-                name: "sweew",
-            },
-        }
-    ]
+ 
 
     // Function to close the modal when clicking outside
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -48,7 +37,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({isOpen, teamId, o
         </button>
 
         <div className="w-full items-center text-center justify-center">
-            <h2 className="text-xl font-bold mb-4">{teams.find(team => team.teamID === teamId)?.teamName.toUpperCase()} Team Members</h2>
+            <h2 className="text-xl font-bold mb-4">{teams.find(team => team.id === teamId)?.teamName.toUpperCase()} Team Members</h2>
             <p className="text-gray-700 mb-6">2 members</p>
         </div>
 

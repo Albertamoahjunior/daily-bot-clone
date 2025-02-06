@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, MessageCircle, Settings, AlertCircle, Type, List, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Trash2, MessageCircle, Type, List, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { StandupQuestion } from '@/types/StandupDashboard';
 import { useStandupContext } from '../hooks/useStandupContext';

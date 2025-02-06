@@ -1,30 +1,34 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {DeleteModal} from "./DeleteModal";
 import { useMembers } from "../hooks/useMembers";
 import { useTeamsContext } from "../hooks/useTeamsContext"; 
+//import {Member} from '../hooks/useMembers'
 
 interface MembersTableProps {
     team: string;
   }
 
 export const MembersTable: React.FC<MembersTableProps> = ({team}) => {
-    const { members, setMembers} = useTeamsContext();
+    const { members, setMembers } = useTeamsContext();
+    const [teamMembers, setTeamMembers] = useState<Member[]>([])
     
+    console.log(team);
+    console.log(members)
     //filter out members that belong to  a particular team
     useEffect(() => {
         // Ensure we only update state if members exist
         if (members.length > 0) {
-          const updatedMembers = members.filter((member) =>
+          const updatedTeamMembers = members.filter((member) =>
             member.teams.includes(team)
           );
     
-          setMembers(updatedMembers);
+          setTeamMembers(updatedTeamMembers);
         }
-      });
+      }, [teamMembers.length, members, team]);
 
     const { isModalOpen, openModal, closeModal, deleteMember } = useMembers({
-        members,
-        setMembers,
+        members: teamMembers,
+        teamID: team
     });
 
 
@@ -39,7 +43,7 @@ export const MembersTable: React.FC<MembersTableProps> = ({team}) => {
             </tr>
         </thead>
         <tbody>
-            {members.map((member) => (
+            {teamMembers.map((member) => (
                 <tr key={member.id} className="border-b hover:bg-gray-100 ">
                     <td className="py-3 px-4 flex items-center">
                         <div className="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white uppercase mr-3">
