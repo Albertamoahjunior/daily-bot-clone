@@ -220,7 +220,7 @@ export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
                         {moodInputFields.length ? 
                             moodInputFields.map((item, index) => (
                                 <div className="flex flex-col"> 
-                                    <div key={index} className="flex items-center justify-between border rounded-md p-2">
+                                    <div key={index} className="flex items-center justify-between border rounded-sm p-4">
                                         <div className="flex justify-between items-center w-full gap-10">
                                             <div className="flex gap-2 items-center">
                                                 <span className="text-2xl">{item.emoji}</span>

@@ -8,12 +8,14 @@ import {BrowserRouter, Routes, Route} from "react-router-dom";
 import DashBoardLayout from './layouts/DashBoardLayout';
 
 import {TeamsPage} from './pages/TeamsPage'
+import {TeamPollsPage} from './pages/TeamPollsPage'
 import {EditTeamPage} from './pages/EditTeamPage'
 import {StandupDashboardPage} from './pages/StandupDashboardPage'
 import {KudosPage} from './pages/KudosPage'
 import {TeamMoodPage} from './pages/TeamMoodPage'
 
 import TeamsContextProvider from './contexts/TeamsContextProvider'
+import PollsContextProvider from './contexts/PollsContextProvider'
 import StandupsContextProvider from './contexts/StandupsContextProvider'
 import TeamMoodContextProvider from './contexts/TeamMoodContextProvider'
 
@@ -63,6 +65,16 @@ function App() {
               </TeamMoodContextProvider>
             </TeamsContextProvider>
           } />
+
+          <Route path='team-polls' element={
+            <TeamsContextProvider>
+              <PollsContextProvider>
+                  <TeamPollsPage/>
+              </PollsContextProvider>
+            </TeamsContextProvider>
+          } />
+
+
         </Route>
 
       </Routes>

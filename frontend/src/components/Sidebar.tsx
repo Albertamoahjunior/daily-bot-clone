@@ -2,7 +2,7 @@
 import React from "react";
 import { SidebarLink } from "./SidebarLink";
 import {  faUserGroup } from '@fortawesome/free-solid-svg-icons';
-import {  faHouse, faSmile, faStar } from '@fortawesome/free-solid-svg-icons';
+import {  faHouse, faSmile, faStar, faSquarePollVertical } from '@fortawesome/free-solid-svg-icons';
 
 
 export const Sidebar: React.FC =() => {
@@ -14,6 +14,7 @@ export const Sidebar: React.FC =() => {
             <SidebarLink whereTo={"teams"} icon={faUserGroup} iconclassName={"text-white"} navName={"Teams"}/>
             <SidebarLink whereTo={"kudos"} icon={faStar} iconclassName={"text-white"} navName={"Kudos"}/>
             <SidebarLink whereTo={"team-mood"} icon={faSmile} iconclassName={"text-white"} navName={"Mood"}/>
+            <SidebarLink whereTo={"team-polls"} icon={faSquarePollVertical} iconclassName={"text-white"} navName={"Polls"}/>
         </div>
     )
 }
