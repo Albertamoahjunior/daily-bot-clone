@@ -1,28 +1,17 @@
 import {createContext, useState} from "react"
-import { MoodData } from "@/types/Mood";
-import { MoodGlobal } from "@/types/Mood";
-import { MoodResponse } from "@/types/Mood";
-import { Emoji } from "@/types/Mood";
-import { Smile, Meh, Angry, Laugh,Frown } from 'lucide-react';
 
 
 interface IPollsContextProvider {
     children: React.ReactNode;
 }
 
-interface Poll {
-    id: string;               // Unique identifier for the poll
-    teamId: string;          // Identifier for the team associated with the poll
-    question: string;        // The question being asked in the poll
-    choiceType: 'single' | 'multi'; // Type of choice: single or multiple
-    options: string[];       // Array of possible answers for the poll
-    anonymous: boolean;      // Indicates if voting is anonymous
-    createdAt: string;       // Timestamp of when the poll was created (ISO 8601 format)
-}
+
 
 
 export const teamPollsContext = createContext<{
     allPolls: Poll[] | undefined;
+    allPollsResponse: PollResponse[] | undefined;
+
     // setAllMembers: React.Dispatch<React.SetStateAction<Member[]>>;
 } | undefined>(undefined);
 
@@ -68,15 +57,53 @@ const PollsContextProvider = ({children}: IPollsContextProvider) => {
                 createdAt: "2025-02-04T14:00:00Z"
             }
         ];
+
+        const allResponses = [
+            {
+                id: "response1",
+                pollId: "poll1", // Corresponds to the first poll
+                userId: "11",    // Sylwia
+                teamId: "ddsdsd",
+                answer: ["10:00 AM", "No preference"],
+                createdAt: "2025-02-03T08:31:24.699Z"
+            },
+            {
+                id: "response2",
+                pollId: "poll2", // Corresponds to the second poll
+                userId: "3",     // John Doe
+                teamId: "adadd",
+                answer: ["Node.js"],
+                createdAt: "2025-02-03T09:15:00.000Z"
+            },
+            {
+                id: "response3",
+                pollId: "poll3", // Corresponds to the third poll
+                userId: "4",     // Jane Smith
+                teamId: "team3",
+                answer: ["Selenium", "Postman"],
+                createdAt: "2025-02-03T10:00:00.000Z"
+            },
+            {
+                id: "response4",
+                pollId: "poll4", // Corresponds to the fourth poll
+                userId: "23324", // Sylvia L.
+                teamId: "ad1dd",
+                answer: ["UI enhancements"],
+                createdAt: "2025-02-03T11:30:00.000Z"
+            }
+        ];
         
 
+        
+        
         const [allPolls, setAllPolls] = useState<Poll[] | undefined>(polls);
+        const [allPollsResponse, setAllPollsResponses] = useState<PollResponse[]>(allResponses)
         
 
 
 
     return (
-        <teamPollsContext.Provider value={{ allPolls }}>
+        <teamPollsContext.Provider value={{ allPolls, allPollsResponse }}>
             {children}
         </teamPollsContext.Provider>
     )

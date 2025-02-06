@@ -4,20 +4,41 @@ import { TeamInputDropdown } from '../components/TeamDropdownInput';
 import { Button } from '@/components/ui/button';
 import {  faSquarePollVertical } from '@fortawesome/free-solid-svg-icons';
 import {useTeamsContext} from '../hooks/useTeamsContext';
+import {usePollsContext} from '../hooks/usePollsContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {TeamPollsMetrics} from '../components/TeamPollsMetrics'
+import {TeamPollsDropdown } from '../components/TeamPollsDropdown '
+import {CreateTeamPollModal } from '../components/CreateTeamPollModal'
 
 
 
 export const TeamPollsPage = () => {
     const [pageState, setPageState] = useState<"insights"|"all-polls">("insights");
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
       const { teams, members } = useTeamsContext();
+      const { allPolls, allPollsResponse } = usePollsContext();
     
     const [selectedTeam, setSelectedTeam] = useState('');
     const [membersList, setMembersList] = useState<{ value: string; label: string }[] | undefined>(undefined);
     const [teamsList, setTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
+    
+    const [teamPollsList, setTeamPollsList] = useState<Poll[]>();
+    const [selectedPoll, setSelectedPoll] = useState('');
 
-    const [teamPollsList, setPollsList] = useState()
+    const [selectedTeamPoll, setSelectedTeamPoll] = useState<Poll | undefined>(undefined);
+    const [selectedTeamPollResponses, setselectedTeamPollResponses] = useState<PollResponse[] | undefined>(undefined);
+
+    useEffect(() => {
+        if(selectedPoll){
+            console.log("Selected Poll", selectedPoll);
+            const teamPoll = allPolls?.find((poll) => poll.id === selectedPoll);
+            setSelectedTeamPoll(teamPoll);
+
+            const teamPollResponses = allPollsResponse?.filter((pollResponse) => pollResponse.pollId === selectedPoll );
+            setselectedTeamPollResponses(teamPollResponses);
+        }
+
+    }, [selectedPoll])
 
     // Populate teamsList
     useEffect(() => {
@@ -33,18 +54,28 @@ export const TeamPollsPage = () => {
 
     // Populate membersList based on the selected team
     useEffect(() => {
-    if (selectedTeam) {
-        const filteredMembers = members
-        .filter((member) => member.teamId.includes(selectedTeam))
-        .map((member) => ({
-            value: member.id,
-            label: member.name,
-        }));
-        setMembersList(filteredMembers);
-    } else {
-        setMembersList(undefined);
-    }
+
+        if(selectedTeam){
+            const teamPolls = allPolls?.filter((poll) => poll.teamId === selectedTeam );
+            setSelectedPoll("");
+            setTeamPollsList(teamPolls);
+
+            const filteredMembers = members
+            .filter((member) => member.teamId.includes(selectedTeam))
+            .map((member) => ({
+                value: member.id,
+                label: member.name,
+            }));
+            setMembersList(filteredMembers);
+        }else {
+            setMembersList(undefined);
+        }
+
     }, [selectedTeam, members]);
+
+    const handlePollChange = (value: string) => {
+        setSelectedPoll(value);
+    };
 
     const handleTeamChange = (value: string) => {
         setSelectedTeam(value);
@@ -67,7 +98,7 @@ export const TeamPollsPage = () => {
 
             <div className="flex w-full justify-between">
             <p className="text-left text-lg mt-2">Track and analyze your team's mood trends and engagement</p>
-            <button className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200 "> Create Polls</button>
+            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200 "> Create Polls</button>
             </div>
           </header>
 
@@ -75,9 +106,9 @@ export const TeamPollsPage = () => {
 
           {pageState === "insights" && 
             <main className="flex flex-col gap-6">
-                <div className='flex gap-4'>
+                <div className='w-full flex gap-4 bg-white p-4 rounded-sm shadow-sm border-black border-1'>
 
-                    <div className="bg-white p-4 rounded-sm shadow-sm border-black border-1">
+                    <div className="w-1/2">
                         <TeamInputDropdown
                             inputName="Select a Team To Check Its Mood Recently"
                             options={teamsList}
@@ -86,17 +117,18 @@ export const TeamPollsPage = () => {
                             />
 
                     </div>
-                    <div>
+                    <div className="w-1/2">
                         <TeamPollsDropdown 
                             inputName="Select a Team Poll To View Its Analytics Recently"
                             options={teamPollsList}
-                            selectedValue={selectedTeam}
-                            onOptionChange={handleTeamChange}
+                            optionText="Select A Team Poll"
+                            selectedValue={selectedPoll}
+                            onOptionChange={handlePollChange}
                         />
                     </div>
                 </div>
 
-                <TeamPollsMetrics />
+                <TeamPollsMetrics teamMembers={membersList} selectedTeamPoll={selectedTeamPoll} selectedTeamPollResponses={selectedTeamPollResponses} />
 
             </main>
           }
@@ -109,6 +141,7 @@ export const TeamPollsPage = () => {
             </main>
           }
     </div>
+    {isModalOpen && <CreateTeamPollModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}/>}
 
     </AnimationWrapper>
   )

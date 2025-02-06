@@ -18,9 +18,9 @@ interface MoodScoreItem {
   }
 
 export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
-    const [moodQuestion, setMoodQuestion] = useState("");
     const { teams, members } = useTeamsContext();
     const [allTeamsList, setAllTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
+    const [moodQuestion, setMoodQuestion] = useState("");
     const [moodInputFields, setMoodInputFields] = useState<MoodScoreItem[]>([]);
     const [selectedEmojis, setSelectedEmojis] = useState<string[]>([]);
 
