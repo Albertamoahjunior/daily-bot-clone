@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createStandupSetup, createStandupQuestions,  getTeamMembers, getTeamStandups, getStandupResponses, getTeams, getStandupQuestions, getAllStandupResponses } from '../db';
+import { createStandupSetup, createStandupQuestions,  getTeamMembers, getTeamStandups, getStandupResponses, getTeams, getStandupQuestions, getAllStandupResponses, getAllStandupQuestions } from '../db';
 import { scheduleReminders } from '../utils/slack_bot';
 
 
@@ -118,6 +118,17 @@ export async function getAllStandups(req: Request, res: Response) {
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'An error occurred while retrieving all standups' });
+    }
+}
+
+//controller to get all standup questions
+export async function getAllStandupQuestion(req: Request, res: Response) {
+    try {
+        const standupQuestions = await getAllStandupQuestions();
+        res.status(200).json(standupQuestions);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'An error occurred while retrieving all standup questions' });
     }
 }
 
