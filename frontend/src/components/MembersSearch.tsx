@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { useTeamsContext } from "../hooks/useTeamsContext";
 
+interface Member {
+  id: string;
+  memberName: string;
+  teams: string[];
+  status: "Active" | "Pending activation";
+}
 
 
 interface MembersSearchProps {
@@ -9,23 +15,21 @@ interface MembersSearchProps {
 }
 
 export const MembersSearch  = ({label, labelClassName}: MembersSearchProps) => {
-    const {users, members, setAllMembers} = useTeamsContext();
+    const {members, setMembers} = useTeamsContext();
   const [searchValue, setSearchValue] = useState("");
 
+  console.log(members)
   // Filter the users based on the search value
-  const filteredUsers = users.filter(
-    (user) =>
-      (user.name.toLowerCase().includes(searchValue.toLowerCase()) || 
+  const filteredUsers = members.filter(
+    (user: Member) =>
+      (user.memberName.toLowerCase().includes(searchValue.toLowerCase()) || 
        user.id.toLowerCase().includes(searchValue.toLowerCase())) && 
-      !members.some((member) => member.id === user.id) // Exclude already selected members
+      !members.some((member: Member) => member.id === user.id) // Exclude already selected members
   );
-
-//   console.log("Search Value:", searchValue);
-//   console.log("Filtered Users:", filteredUsers);
 
   // Add selected user to members array
   const handleSelectUser = (user: Member) => {
-    setAllMembers([...members, user]);
+    setMembers([...members, user]);
     setSearchValue(""); // Clear the search value after selection
   };
 
@@ -58,9 +62,9 @@ export const MembersSearch  = ({label, labelClassName}: MembersSearchProps) => {
               onClick={() => handleSelectUser(user)}
             >
               <div className="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white uppercase mr-3">
-                {user.name.charAt(0)}
+                {user.memberName.charAt(0)}
               </div>
-              {user.name}
+              {user.memberName}
             </li>
           ))}
         </ul>

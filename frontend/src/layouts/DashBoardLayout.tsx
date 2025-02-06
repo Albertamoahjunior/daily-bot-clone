@@ -7,10 +7,10 @@ import { faMessage } from "@fortawesome/free-regular-svg-icons";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
 import { faBell } from "@fortawesome/free-regular-svg-icons";
 import { faSearch, faAngleDown } from "@fortawesome/free-solid-svg-icons";
-import { SidebarLink } from "../components/SidebarLink";
-import { NavBarLink } from "../components/NavBarLink";
-import {  faUserGroup } from '@fortawesome/free-solid-svg-icons';
-import {  faHouse } from '@fortawesome/free-solid-svg-icons';
+// import { SidebarLink } from "../components/SidebarLink";
+// import { NavBarLink } from "../components/NavBarLink";
+// import {  faUserGroup } from '@fortawesome/free-solid-svg-icons';
+// import {  faHouse } from '@fortawesome/free-solid-svg-icons';
 
 
 const DashBoardLayout = () => {

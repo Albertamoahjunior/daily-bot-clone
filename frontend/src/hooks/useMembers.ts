@@ -1,12 +1,21 @@
 import { useState } from "react";
 
-
-interface UseMembersProps {
-  members: Member[];
-  setAllMembers: (newMembers: Member[]) => void;
+interface Member {
+  id: string;
+  memberName: string;
+  status: "Active" | "Pending activation";
+  teams : string[];
 }
 
-export const useMembers = ({ members, setAllMembers }: UseMembersProps) => {
+interface UseMembersProps {
+
+  members: Member[];
+
+  setMembers: React.Dispatch<React.SetStateAction<Member[]>>;
+
+}
+
+export const useMembers = ({ members, setMembers }: UseMembersProps) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [itemToBeDeleted, setItemToBeDeleted] = useState<string>("");
 
@@ -24,7 +33,7 @@ export const useMembers = ({ members, setAllMembers }: UseMembersProps) => {
     console.log('Member deleted');
     const confirmDelete = window.confirm("Are you sure you want to delete this team member?");
     if (confirmDelete) {
-        setAllMembers(members.filter((member) => member.id !== itemToBeDeleted));
+        setMembers(members.filter((member) => member.id !== itemToBeDeleted));
     }
     // setMembers(members.filter((member) => member.id !== itemToBeDeleted));
     closeModal();
