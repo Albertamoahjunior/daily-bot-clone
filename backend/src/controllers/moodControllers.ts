@@ -1,6 +1,33 @@
 import { Request, Response } from 'express';
 import { createMoodResponse, getMoodResponse, createMood } from '../db';
 
+const emojis = [
+    {
+        id: 'emoji-001',
+        name: ':smile:',
+        unicode: '��'
+    },
+    {
+        id: 'emoji-002',
+        name: ':smile:',
+        unicode: '��'
+    },
+    {
+        id: 'emoji-003',
+        name: ':smile:',
+        unicode: '��'
+    },
+    {
+        id: 'emoji-004',
+        name: ':smile:',
+        unicode: '��'
+    },
+    {
+        id: 'emoji-005',
+        name: ':smile:',
+        unicode: '��'
+    },
+]
 
 //controller to create a mood
 export async function createMoodController(req: Request, res: Response) {

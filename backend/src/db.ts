@@ -110,14 +110,13 @@ async function getMember(memberId: string) {
 //get teams 
 async function getTeams() {
   const teams = await prisma.team.findMany({
-    select: {
-      id: true,
-      teamName: true,
-      members: true,
+    include: {
+      standup: true,
     },
   });
   return teams;
 }
+
 
 //get a team
 async function getTeam(teamId: string) {
