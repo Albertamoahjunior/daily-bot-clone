@@ -8,20 +8,25 @@ import { MembersTable } from '../components/MembersTable';
 import {useTimeZoneSelection} from '../hooks/useTimeZoneSelection'
 import { useState } from 'react';
 import { useStandupContext } from "../hooks/useStandupContext"
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Trash2, MessageCircle, Settings, AlertCircle } from 'lucide-react';
+import { useTeamsContext } from '../hooks/useTeamsContext';
+import { Card, CardContent } from '@/components/ui/card';
+import {  Settings, AlertCircle } from 'lucide-react';
 import { StandupQuestionCard } from '@/components/StandupQuestionCard';
 import { StandupQuestion } from '@/types/StandupDashboard';
 import { ConfigureStandupModal } from '@/components/ConfigureStandupModal';
 
 
 export const EditTeamPage = () => {
-    const {teamId} = useParams();
-    const [teamName, setTeamName] = useState(teamId || "");
+    const {teamId, team} = useParams();
+    const {teams} = useTeamsContext();
+    const teamObj = teams.find(t => t.id === teamId);
+    const [teamName, setTeamName] = useState((teamObj as Team).teamName || team);
     const [isModalOpen, setModalOpen] = useState(false);
     const [isStandupModalOpen, setStandupModalOpen] = useState(false);
-    const { selectedTimezone, handleTimezoneChange, timezoneOptions } = useTimeZoneSelection();
-    const { standups, standupQuestions } = useStandupContext();
+    const { selectedTimezone, handleTimezoneChange, timezoneOptions } = useTimeZoneSelection({ timezone: (teamObj as Team).timezone });
+    const {  standupQuestions } = useStandupContext();
+
+    
 
     const handleNameChange = (e:React.ChangeEvent<HTMLInputElement> ) => {setTeamName(e.target.value)}
 
@@ -49,7 +54,7 @@ export const EditTeamPage = () => {
         <div className="w-full h-[100%]">
             <div className="w-full pb-2 border-b-2 border-gray-500 flex items-center justify-between">
                 <div className="">
-                    <h1>This is the {teamId} team page</h1>
+                    <h1>This is the <strong>{teamName}</strong> team page</h1>
                     <p className="text-xs">Created At : yugua</p>
                 </div>
                 <button onClick={() => {setModalOpen(true)}} className='flex items-center gap-2 hover:text-white hover:bg-black rounded-full p-4 transition duration-500 ease-in-out'>
@@ -61,7 +66,7 @@ export const EditTeamPage = () => {
             <div className="space-y-6">
                 <TeamInput 
                 labelName={"Team Name"} 
-                inputType={'text'} inputPlaceholder={"Enter New Team Name"} inputValue={teamName} onInputChange={handleNameChange}
+                inputType={'text'} inputPlaceholder={"Enter New Team Name"} inputValue={(teamObj as Team).teamName} onInputChange={handleNameChange}
                 />
 
                 {/*Team Input Dropdown */}
@@ -79,7 +84,7 @@ export const EditTeamPage = () => {
                 </div>
 
                 <div className="bg-white shadow-md rounded-lg">
-                    <MembersTable />
+                    <MembersTable team={teamId as string}/>
 
                 </div>
 

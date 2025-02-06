@@ -1,4 +1,11 @@
 import React, { useState } from "react";
+
+interface Member {
+  id: string;
+  memberName: string;
+  teams: string[];
+  status: "Active" | "Pending activation";
+}
 import { useTeamsContext } from "../hooks/useTeamsContext";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {  faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -9,20 +16,20 @@ interface CreateTeamMembersSearchProps {
 }
 
 export const CreateTeamMembersSearch = ({ label, labelClassName }: CreateTeamMembersSearchProps) => {
-  const { users, members, setAllMembers } = useTeamsContext();
+  const { members, setMembers } = useTeamsContext();
   const [searchValue, setSearchValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
   // Filtered users based on search input
-  const filteredUsers = users.filter(
+  const filteredUsers = members.filter(
     (user) =>
-      user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      user.memberName.toLowerCase().includes(searchValue.toLowerCase()) ||
       user.id.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   // Add or remove user from members list
   const toggleUserSelection = (user: Member) => {
-    setAllMembers((prevMembers) => {
+    setMembers((prevMembers) => {
       const isAlreadySelected = prevMembers.some((member) => member.id === user.id);
       if (isAlreadySelected) {
         return prevMembers.filter((member) => member.id !== user.id);
@@ -59,9 +66,9 @@ export const CreateTeamMembersSearch = ({ label, labelClassName }: CreateTeamMem
               onClick={() => toggleUserSelection(user)}
             >
               <div className="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white uppercase">
-                {user.name.charAt(0)}
+                {user.memberName.charAt(0)}
               </div>
-              <span>{user.name}</span>
+              <span>{user.memberName}</span>
               {isSelected && <FontAwesomeIcon icon={faCheck} className="text-green-500 ml-auto" size={"lg"} /> }
             </li>
           );

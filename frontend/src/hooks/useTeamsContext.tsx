@@ -1,5 +1,5 @@
 import {useContext} from "react";
-import {teamsContext} from "../contexts/TeamsContextProvider"
+import {teamsContext} from "../contexts/teamContext"
 
 export const useTeamsContext = () => {
     const context = useContext(teamsContext);

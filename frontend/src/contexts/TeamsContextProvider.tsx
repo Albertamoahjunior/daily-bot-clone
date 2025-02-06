@@ -1,96 +1,106 @@
-import {createContext, useState} from "react"
-
+import { useState, useEffect } from "react";
+import { teamService, memberService } from "../services/api"; // Adjust path accordingly
+import {teamsContext} from './teamContext';
 
 interface ITeamsContextProvider {
     children: React.ReactNode;
 }
 
-export const teamsContext = createContext<{
-    users: Member[];
-    members: Member[];
-    teams: Team[]
-    // setAllUsers: React.Dispatch<React.SetStateAction<Member[]>>;
-    setAllMembers: React.Dispatch<React.SetStateAction<Member[]>>;
-} | undefined>(undefined);
+interface Member {
+    id: string;
+    memberName: string;
+    teams: string[];
+    status: "Active" | "Pending activation";
+}
+
+interface Standup {
+    standupDays: string[];
+    standupTimes: string[];
+    reminderTimes: string[];
+}
+
+interface Team {
+    id?: string;
+    teamName: string;
+    timezone: string;
+    standup?:  Standup
+}
 
 
-const TeamsContextProvider = ({children}: ITeamsContextProvider) => {
-    const allUsers:Member[] = [
-        { id: "11", name: "Sylwia", status: "Active", teamId: ["ddsdsd","adadd","team3","ad1dd" ] },
-        { id: "23324", name: "Sylvia L.", status: "Pending activation", teamId: ["ddsdsd","adadd" ] },
-        { id: "3", name: "John Doe", status: "Active",teamId: ["adadd","team3","ad1dd" ] },
-        { id: "4", name: "Jane Smith", status: "Pending activation", teamId: ["ddsdsd","team3" ]},
-    ]
-    const allMembers:Member[] = [
-        { id: "11", name: "Sylwia", status: "Active", teamId: ["ddsdsd","adadd","team3","ad1dd" ] },
-        { id: "23324", name: "Sylvia L.", status: "Pending activation", teamId: ["ddsdsd","adadd" ] },
-        { id: "3", name: "John Doe", status: "Active",teamId: ["adadd","team3","ad1dd" ] },
-        { id: "4", name: "Jane Smith", status: "Pending activation", teamId: ["ddsdsd","team3" ]},
-    ]
+const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
+    const [members, setMembers] = useState<Member[]>([]);
+    const [teams, setTeams] = useState<Team[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const allTeams:Team[] = [
-        {
-            teamID: "ddsdsd",
-            teamName: "sdsd",
-            standup: {
-                questionRef: "q1",
-                questionID: "sq1",
-                standupDays: ["Monday", "Wednesday", "Friday"],
-                standupTimes: ["10:00 AM", "3:00 PM"],
-                reminderTimes: ["9:45 AM", "2:45 PM"],
-                timezone: "UTC"
-            }
-        },
-        {
-            teamID: "adadd",
-            teamName: "Backend Engineers",
-            standup: {
-                questionRef: "q2",
-                questionID: "sq2",
-                standupDays: ["Tuesday", "Thursday"],
-                standupTimes: ["11:00 AM"],
-                reminderTimes: ["10:45 AM"],
-                timezone: "UTC"
-            }
-        },
-        {
-            teamID: "team3",
-            teamName: "QA Team",
-            standup: {
-                questionRef: "q3",
-                questionID: "sq3",
-                standupDays: ["Monday", "Thursday"],
-                standupTimes: ["9:00 AM"],
-                reminderTimes: ["8:45 AM"],
-                timezone: "UTC"
-            }
-        },
-        {
-            teamID: "ad1dd",
-            teamName: "Dev-watch",
-            standup: {
-                questionRef: "q4",
-                questionID: "sq4",
-                standupDays: ["Wednesday", "Friday"],
-                standupTimes: ["2:00 PM"],
-                reminderTimes: ["1:45 PM"],
-                timezone: "UTC"
-            }
+    const members_to_be_added_team = members.map(member => member.id)
+
+    const membersPayload ={
+        members: members_to_be_added_team
+    }
+
+    const addMembers = async (teamId: string) => {
+        try{
+            await teamService.addMembersToTeam(teamId, membersPayload);
+            return 'Members added successfully';
+        }catch(err){
+            // Handle error
+            console.error('Failed to add members', err);
+            return 'Failed to add members';
         }
-    ];
-          
+    }
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const results = await Promise.allSettled([
+                    memberService.getMembers(),
+                    teamService.getTeams(),
+                ]);
 
-    const [users, setAllUsers] = useState<Member[]>(allUsers)
-    const [teams, setTeams] = useState<Team[]>(allTeams)
+                const membersResult = results[0];
+                const teamsResult = results[1];
 
-    const [members, setAllMembers] = useState<Member[]>(allMembers)
+                
 
+
+                if (membersResult.status === 'fulfilled') {
+                    setMembers(membersResult.value);
+                }
+
+
+                if (teamsResult.status === 'fulfilled') {
+                    setTeams(teamsResult.value);
+                }
+
+                // Check if any promises were rejected
+                const anyRejected = results.some(result => result.status === 'rejected');
+                
+                if (anyRejected) {
+                    const errors = results
+                        .filter(result => result.status === 'rejected')
+                        .map(result => (result as PromiseRejectedResult).reason);
+                    
+                    throw new Error(`Failed to fetch some data: ${errors.join(', ')}`);
+                } else {
+                    setError(null);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setError('Failed to fetch some data');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     return (
-        <teamsContext.Provider value={{ users, members, teams,  setAllMembers}}>
+        <teamsContext.Provider value={{ members, teams, setMembers, setTeams, loading, error, addMembers }}>
             {children}
         </teamsContext.Provider>
-    )
-}
+    );
+};
 
 export default TeamsContextProvider;

@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {  faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { CreateTeamMembersSearch } from './CreateTeamMembersSearch';
@@ -6,14 +7,20 @@ import { AddMembersTable } from './AddMembersTable';
 import {TeamInput } from './TeamInput';
 import {TeamInputDropdown } from './TeamDropdownInput';
 import { useTimeZoneSelection } from '../hooks/useTimeZoneSelection';
+import { useTeamsContext } from '@/hooks/useTeamsContext';
 import ToggleSwitch from './ToggleSwitch';
 import {StandupForm} from './StandupForm';
+import { teamService } from '@/services/api';
 
 
 export const CreateTeamModal = ({isOpen, onClose}:ICreateTeamProps) => {
     const [isChecked, setIsChecked] = useState(false);
     const [teamName, setTeamName] = useState("");
-    const { selectedTimezone, handleTimezoneChange, timezoneOptions } = useTimeZoneSelection();
+    const { selectedTimezone, handleTimezoneChange, timezoneOptions } = useTimeZoneSelection({timezone:''});
+    const {teams, setTeams, addMembers} = useTeamsContext();
+
+    const navigate = useNavigate()
+
 
     const handleNameChange = (e:React.ChangeEvent<HTMLInputElement> ) => {setTeamName(e.target.value)}
    
@@ -23,6 +30,43 @@ export const CreateTeamModal = ({isOpen, onClose}:ICreateTeamProps) => {
             onClose();
         }
     };
+
+    const handleCreateTeam = async() =>{
+
+        try{
+            // Add new team to the teams array
+            //new team object
+            const new_team = {
+                teamName: teamName,
+                timezone: selectedTimezone
+            } 
+
+            const teamCreated = await teamService.createTeam(new_team);
+
+            
+            const updated_new_team = {
+                id: teamCreated.id,
+                teamName: teamCreated.team,
+                timezone: teamCreated.timezone
+            } 
+
+            //also add selected members
+            const members_added = await addMembers(teamCreated.id);
+            console.log(members_added)
+            
+            setTeams([...teams, updated_new_team]);
+            // Close the modal
+            onClose();
+
+            // Redirect to the team page
+            navigate('/teams')
+            console.log('success')
+        }
+        catch(err){
+            console.error("Error creating team: ", err);
+            return;
+        }
+    }
     
     if (!isOpen) return null; // Do not render the modal if it's not open
 
@@ -76,7 +120,7 @@ export const CreateTeamModal = ({isOpen, onClose}:ICreateTeamProps) => {
                 </div>
 
                 <div className="mt-20 w-full flex justify-center">
-                    <button className='text-white bg-gray-800 hover:bg-black rounded-lg w-full mx-10 px-6 py-4'>
+                    <button className='text-white bg-gray-800 hover:bg-black rounded-lg w-full mx-10 px-6 py-4' onClick={handleCreateTeam}>
                         Create Team
                     </button>
                 </div>
