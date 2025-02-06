@@ -15,6 +15,7 @@ import {TeamMoodPage} from './pages/TeamMoodPage'
 
 import TeamsContextProvider from './contexts/TeamsContextProvider'
 import StandupsContextProvider from './contexts/StandupsContextProvider'
+import TeamMoodContextProvider from './contexts/TeamMoodContextProvider'
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+   
 
         <Route path="/" element={<DashBoardLayout/>} >
           <Route path='teams' element={
@@ -56,9 +58,9 @@ function App() {
 
           <Route path='team-mood' element={
             <TeamsContextProvider>
-              {/* <StandupsContextProvider> */}
+              <TeamMoodContextProvider>
                   <TeamMoodPage/>
-              {/* </StandupsContextProvider> */}
+              </TeamMoodContextProvider>
             </TeamsContextProvider>
           } />
         </Route>

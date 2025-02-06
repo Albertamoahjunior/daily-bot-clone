@@ -7,7 +7,6 @@ import { useStandupContext } from '../hooks/useStandupContext';
 import {StandupSearchFilter} from '../components/StandupSearchFilter'
 import { TeamStandupCard } from '../components/TeamStandupCard';
 import { MetricCard } from '../components/MetricCard';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell  } from 'recharts';
 import { AnalyticsCard } from '@/components/AnalyticsCard';
 

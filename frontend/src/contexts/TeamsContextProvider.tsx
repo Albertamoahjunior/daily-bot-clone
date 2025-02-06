@@ -16,17 +16,18 @@ export const teamsContext = createContext<{
 
 const TeamsContextProvider = ({children}: ITeamsContextProvider) => {
     const allUsers:Member[] = [
-        { id: "11", name: "Sylwia", status: "Active" },
-        { id: "23324", name: "Sylvia L.", status: "Pending activation" },
-        { id: "3", name: "John Doe", status: "Active" },
-        { id: "4", name: "Jane Smith", status: "Pending activation" },
+        { id: "11", name: "Sylwia", status: "Active", teamId: ["ddsdsd","adadd","team3","ad1dd" ] },
+        { id: "23324", name: "Sylvia L.", status: "Pending activation", teamId: ["ddsdsd","adadd" ] },
+        { id: "3", name: "John Doe", status: "Active",teamId: ["adadd","team3","ad1dd" ] },
+        { id: "4", name: "Jane Smith", status: "Pending activation", teamId: ["ddsdsd","team3" ]},
     ]
     const allMembers:Member[] = [
-        { id: "11", name: "Sylwia",  status: "Active" },
-        { id: "23324", name: "Sylvia L.",  status: "Pending activation" },
-        { id: "3", name: "John Doe", status: "Active" },
-        { id: "4", name: "Jane Smith", status: "Pending activation" },
+        { id: "11", name: "Sylwia", status: "Active", teamId: ["ddsdsd","adadd","team3","ad1dd" ] },
+        { id: "23324", name: "Sylvia L.", status: "Pending activation", teamId: ["ddsdsd","adadd" ] },
+        { id: "3", name: "John Doe", status: "Active",teamId: ["adadd","team3","ad1dd" ] },
+        { id: "4", name: "Jane Smith", status: "Pending activation", teamId: ["ddsdsd","team3" ]},
     ]
+
     const allTeams:Team[] = [
         {
             teamID: "ddsdsd",

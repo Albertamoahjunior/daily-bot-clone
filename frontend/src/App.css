@@ -6,6 +6,8 @@
   /* margin: 0 auto; */
   padding: 10px 0 0 0;
   background-color: #F6F6F6 ;
+  height: 100vh;
+  overflow-y: auto;
   /* background-color: #F6F6F6 ; */
   /* background-color: #e5e5e5; */
   /* background-color: #f0f0f0; */
