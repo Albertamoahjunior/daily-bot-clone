@@ -1,19 +1,16 @@
 import { Link } from "react-router-dom";
-import {useState} from "react";
+import { useState } from "react";
 import { DeleteModal } from "../components/DeleteModal";
-import {  faTrashCan } from '@fortawesome/free-regular-svg-icons';
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
+import { faFileExport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-// import {  faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
-
-interface ITeamProps{
+interface ITeamProps {
     teamId: string;
     teamName: string;
 }
-{/* <FontAwesomeIcon icon={faEllipsisVertical} /> */}
 
-export const TeamCard = ({teamId, teamName}:ITeamProps) => {
+export const TeamCard = ({ teamId, teamName }: ITeamProps) => {
     const [isModalOpen, setModalOpen] = useState(false);
 
     const handleOpenModal = () => setModalOpen(true);
@@ -24,18 +21,25 @@ export const TeamCard = ({teamId, teamName}:ITeamProps) => {
         setModalOpen(false);
     };
 
-
     return (
-        <div className="items-center rounded-md  h-24 px-6 my-2 flex w-full justify-between border-2 border-[#5fb0bc] hover:border-[#1F2937] hover:bg-white hover:text-[#1F2937] text-black hover:shadow-lg hover:shadow-[#5fb0bc]/50 transition-shadow duration-300 ease-in-out ">
+        <div className="items-center rounded-md h-24 px-6 my-2 flex w-full justify-between border-2 border-[#5fb0bc] hover:border-[#1F2937] hover:bg-white hover:text-[#1F2937] text-black hover:shadow-lg hover:shadow-[#5fb0bc]/50 transition-shadow duration-300 ease-in-out">
             <h1 className="text-2xl font-normal uppercase">{teamName}</h1>
 
-            <div className="flex">
-                <Link to={`edit/${teamId}`} className="mx-2 rounded-lg p-2 px-4 flex hover:text-white hover:bg-black  transition duration-500 ease-in-out">
+            <div className="flex relative items-center">
+                <Link to={`edit/${teamId}`} className="mx-2 rounded-lg p-2 px-4 flex hover:text-white hover:bg-black transition duration-500 ease-in-out">
                     Edit Team
                 </Link>
-                <button onClick={handleOpenModal}  className="mx-2  rounded-lg p-1 px-3 border-2 border-black  bg-white text-black hover:bg-[#dc966d]">
+                <button onClick={handleOpenModal} className="mx-2 rounded-lg p-1 px-3 border-2 border-black bg-white text-black hover:bg-[#dc966d]">
                     <FontAwesomeIcon icon={faTrashCan} />
                 </button>
+                <div className="relative group">
+                    <button className="mx-2 rounded-lg p-1 px-3 border-2 border-black bg-white text-black hover:bg-[#dc966d]">
+                        <FontAwesomeIcon icon={faFileExport} />
+                    </button>
+                    <span className="w-[120px] absolute left-1/2 transform -translate-x-1/2 -translate-y-full mb-2 hidden group-hover:block border border-black bg-gray-100 text-black font-semibold text-xs rounded py-1 px-2" style={{ left: '180%' }}>
+                        Generate Team Report
+                    </span>
+                </div>
             </div>
 
             {isModalOpen && 
@@ -47,7 +51,6 @@ export const TeamCard = ({teamId, teamName}:ITeamProps) => {
                     onConfirm={handleDelete}
                 /> 
             }
-    {/* //   <DeleteTeamPage isOpen={isModalOpen} onClose={handleCloseModal} onDelete={handleDelete}/>} */}
         </div>
-    )
-}
+    );
+};

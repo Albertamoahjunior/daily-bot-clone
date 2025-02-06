@@ -12,6 +12,7 @@ import { useTeamMoodContext } from '../hooks/useTeamMoodContext';
 import {MemberMoodHistory} from '../components/MemberMoodHistory';
 import {CreateMoodModal} from '../components/CreateMoodModal'
 import {MoodInsights} from '../components/MoodInsights'
+import {DeleteModal} from '../components/DeleteModal'
 import {MoodResponse} from "../types/Mood";
 
 
@@ -33,6 +34,7 @@ export const TeamMoodPage: React.FC = () => {
   const [membersList, setMembersList] = useState<{ value: string; label: string }[] | undefined>(undefined);
   const [teamsList, setTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
   const [selectedUser, setSelectedUser] = useState<string>("");
+  const [deleteMood, setDeleteMood] = useState<boolean>(false);
 
   const [moodHistSelectedUser, setMoodHistSelectedUser] = useState<string>("");
   const [selectedMoodHistTeam, setMoodHistSelectedTeam] = useState<string>("");
@@ -162,6 +164,11 @@ export const TeamMoodPage: React.FC = () => {
     setMoodHistSelectedTeam(value);
   };
 
+  const handleDeleteMood = () => {
+    setDeleteMood(true);
+    setMoodCheckInConfigured(false)
+  }
+
 
   return (
     <AnimationWrapper key={"mood-page"}>
@@ -179,7 +186,8 @@ export const TeamMoodPage: React.FC = () => {
 
             <div className="flex w-full justify-between">
             <p className="text-left text-lg mt-2">Track and analyze your team's mood trends and engagement</p>
-            <button onClick={() => setMoodCheckInConfigured(false)} className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200 "> Delete Your Mood Check In</button>
+            <button onClick={() => {setDeleteMood(true)}} className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200 "> Delete Your Mood Check In</button>
+            {deleteMood && <DeleteModal title={"Delete Mood"} description={"Do You Want To Delete Your Team's Mood Check-In"} isOpen={deleteMood} onConfirm={handleDeleteMood} onClose={() => setDeleteMood(false)}/>}
             </div>
           </header>
 
@@ -266,6 +274,23 @@ export const TeamMoodPage: React.FC = () => {
 
 
           {pageState === "mood-history" && <main className="flex flex-col gap-6">
+
+            <MemberMoodHistory 
+              handleMoodHistTeamChange={handleMoodHistTeamChange}  
+              handleMoodHistUserDeselect={handleMoodHistUserDeselect}
+              handleMoodHistUserSelect={handleMoodHistUserSelect}
+              moodHistTeamsList={moodHistTeamsList}
+              moodHistMembersList={moodHistMembersList}
+              moodHistSelectedUser={moodHistSelectedUser}
+              selectedMoodHistTeam={selectedMoodHistTeam}
+              moodHistDate = {moodHistDate}
+              handleDateSelect = {handleDateSelect}
+              onFilter = {handleFilter}
+              filteredMoodResponses = {filteredMoodResponses}
+              allEmojis = {allEmojis}
+             />
+
+
             {selectedTeam.length ? 
             <Card className="bg-white shadow-2xl rounded-2xl">
               <CardHeader>
@@ -298,25 +323,7 @@ export const TeamMoodPage: React.FC = () => {
                     </div>
                 </CardContent>
             </Card>
-          }
-
-
-
-
-            <MemberMoodHistory 
-              handleMoodHistTeamChange={handleMoodHistTeamChange}  
-              handleMoodHistUserDeselect={handleMoodHistUserDeselect}
-              handleMoodHistUserSelect={handleMoodHistUserSelect}
-              moodHistTeamsList={moodHistTeamsList}
-              moodHistMembersList={moodHistMembersList}
-              moodHistSelectedUser={moodHistSelectedUser}
-              selectedMoodHistTeam={selectedMoodHistTeam}
-              moodHistDate = {moodHistDate}
-              handleDateSelect = {handleDateSelect}
-              onFilter = {handleFilter}
-              filteredMoodResponses = {filteredMoodResponses}
-              allEmojis = {allEmojis}
-             />
+            }
 
 
 

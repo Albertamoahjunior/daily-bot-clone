@@ -37,6 +37,7 @@ export const MemberMoodHistory = ({
 
 
     return (
+        <>
         <Card className="bg-white shadow-2xl rounded-2xl">
             <CardHeader>
                 <CardTitle>Find Member Mood History</CardTitle>
@@ -111,5 +112,9 @@ export const MemberMoodHistory = ({
                 </div>
             </CardContent>
         </Card>
+
+
+        </>
+
     );
 };

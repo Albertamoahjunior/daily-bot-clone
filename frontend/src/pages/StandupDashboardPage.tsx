@@ -4,9 +4,12 @@ import { faAngleRight, faAngleLeft,  faUsers, faCircleExclamation } from '@forta
 import { faCircleCheck, faClock  } from '@fortawesome/free-regular-svg-icons';
 import { TeamStandup, StandupQuestion, UserResponse } from '../types/StandupDashboard';
 import { useStandupContext } from '../hooks/useStandupContext';
+import { useTeamsContext } from '../hooks/useTeamsContext';
 import {StandupSearchFilter} from '../components/StandupSearchFilter'
 import { TeamStandupCard } from '../components/TeamStandupCard';
 import { MetricCard } from '../components/MetricCard';
+import { TeamInputDropdown } from '../components/TeamDropdownInput';
+import { NoDataCard } from '../components/NoDataCard';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell  } from 'recharts';
 import { AnalyticsCard } from '@/components/AnalyticsCard';
 
@@ -14,12 +17,30 @@ export const StandupDashboardPage = () => {
   const [expandedTeams, setExpandedTeams] = useState<Record<string, boolean>>({});
   const [expandedQuestions, setExpandedQuestions] = useState<Record<string, boolean>>({});
   const { standups } = useStandupContext();
+  const { teams } = useTeamsContext();
 
   const [filteredStandups, setFilteredStandups] = useState<any[]>([]);
   
   const [selectedTeamIndex, setSelectedTeamIndex] = useState(0);
-  const selectedTeam = standups[selectedTeamIndex];
+  const [allTeamsList, setAllTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
+  const [selectedTeamm, setSelectedTeam] = useState("");
+  // const selectedTeam = standups[selectedTeamIndex];
+  const selectedTeamStandup: TeamStandup|undefined = standups.find((standup) => standup.teamId === selectedTeamm );
 
+
+  const handleTeamSelect = (value: string) => {
+    setSelectedTeam(value);
+  };
+
+    // Populate teamsList
+    useEffect(() => {
+      setAllTeamsList(
+        teams.map((team) => ({
+          value: team.teamID,
+          label: team.teamName,
+        }))
+      );
+    }, [teams]);
 
     // Colors for the charts and UI
     const CHART_COLORS = {
@@ -34,14 +55,14 @@ export const StandupDashboardPage = () => {
     
       // Calculate response statistics for pie chart
       const responseStats = useMemo(() => {
-        const totalMembers = selectedTeam?.standup[0]?.response.length || 0;
-        const responded = selectedTeam?.standup[0]?.response.filter(r => r.answer).length || 0;
+        const totalMembers = selectedTeamStandup?.standup[0]?.response.length || 0;
+        const responded = selectedTeamStandup?.standup[0]?.response.filter(r => r.answer).length || 0;
         
         return [
           { name: 'Responded', value: responded },
           { name: 'Pending', value: totalMembers - responded },
         ];
-      }, [selectedTeam]);
+      }, [selectedTeamStandup]);
 
 
 
@@ -191,20 +212,29 @@ export const StandupDashboardPage = () => {
 
         {/* Team Analytics Section */}
         <section className="bg-white rounded-lg p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center  justify-between mb-6">
             <h2 className="text-2xl font-bold text-slate-800">Team Analytics</h2>
-            <div className="flex items-center gap-4 bg-slate-100 rounded-lg p-2">
-              <button onClick={prevTeam} className="p-2 rounded-full hover:bg-white transition-colors">
+
+            {/* <div className="flex items-center gap-4 bg-slate-100 rounded-lg p-2"> */}
+                <TeamInputDropdown
+                    className="bg-white mt-4"
+                    options={allTeamsList}
+                    selectedValue={selectedTeamm}
+                    onOptionChange={handleTeamSelect}
+                    />
+              {/* <button onClick={prevTeam} className="p-2 rounded-full hover:bg-white transition-colors">
                 <FontAwesomeIcon icon={faAngleLeft} />
               </button>
               <span className="font-medium text-slate-700">{selectedTeam.teamName}</span>
               <button onClick={nextTeam} className="p-2 rounded-full hover:bg-white transition-colors">
                 <FontAwesomeIcon icon={faAngleRight} />
-              </button>
-            </div>
+              </button> */}
+            {/* </div> */}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {selectedTeamStandup ? 
+
             <AnalyticsCard title="Response Rate Trend">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={lineChartData}>
@@ -244,7 +274,12 @@ export const StandupDashboardPage = () => {
                 </LineChart>
             </ResponsiveContainer>
             </AnalyticsCard>
+            :
+            <NoDataCard title={"No Team Selected"} content={"Please select a team to view the results."}/>
+          }
 
+
+          {selectedTeamStandup ? 
             <AnalyticsCard title="Response Distribution">
             <ResponsiveContainer width="100%" height="90%">
                 <PieChart>
@@ -279,6 +314,9 @@ export const StandupDashboardPage = () => {
                 </div>
             </div>
             </AnalyticsCard>
+              :
+              <NoDataCard title={"No Team Selected"} content={"Please select a team to view the results."}/>
+            }
         </div>
         </section>
 
