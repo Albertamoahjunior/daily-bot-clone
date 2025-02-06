@@ -1,18 +1,30 @@
+import { useEffect } from "react";
 import {DeleteModal} from "./DeleteModal";
 import { useMembers } from "../hooks/useMembers";
 import { useTeamsContext } from "../hooks/useTeamsContext"; 
 
-// interface IMembersProps{
-//     members: Member[];
-//     setMembers: (newMembers: Member[]) => void;
-// }
+interface MembersTableProps {
+    team: string;
+  }
 
-export const MembersTable = () => {
-    const { members, setAllMembers} = useTeamsContext();
+export const MembersTable: React.FC<MembersTableProps> = ({team}) => {
+    const { members, setMembers} = useTeamsContext();
     
+    //filter out members that belong to  a particular team
+    useEffect(() => {
+        // Ensure we only update state if members exist
+        if (members.length > 0) {
+          const updatedMembers = members.filter((member) =>
+            member.teams.includes(team)
+          );
+    
+          setMembers(updatedMembers);
+        }
+      });
+
     const { isModalOpen, openModal, closeModal, deleteMember } = useMembers({
         members,
-        setAllMembers,
+        setMembers,
     });
 
 
@@ -31,9 +43,9 @@ export const MembersTable = () => {
                 <tr key={member.id} className="border-b hover:bg-gray-100 ">
                     <td className="py-3 px-4 flex items-center">
                         <div className="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white uppercase mr-3">
-                            {member.name.charAt(0)}
+                            {member.memberName.charAt(0)}
                         </div>
-                        {member.name}
+                        {member.memberName}
                     </td>
 
                     <td className="py-3 px-4 text-gray-500">{member.status}</td>

@@ -20,7 +20,9 @@ export const TeamsPage = () => {
 
   // Calculate metrics
   const activeTeams = teams.length;
-  const totalMembers = teams.reduce((acc, team) => acc + (members.length || 0), 0);
+  const totalMembers = members.length;
+
+  
 //   const recentActivities = teams.filter(team => 
 //     team.status === 'active' && new Date(team.createdAt || '').getMonth() === new Date().getMonth()
 //   ).length;
@@ -41,18 +43,19 @@ export const TeamsPage = () => {
     return (
         <>
         <div className='w-full p-6'>
-            {/* <h2 className="text-3xl text-[#1F2937]">Goodmorning James!</h2>
+            <h2 className="text-3xl text-[#1F2937]">Goodmorning James!</h2>
 
             <div className="flex justify-between items-center ">
                 <p>Manage Your Teams</p>
-                <button onClick={() => setIsModalOpen(true)} className="flex text-white bg-black hover:border-2 hover:border-black hover:text-black hover:bg-white rounded-full p-4 transition duration-500 ease-in-out ">
+                <button onClick={() => setIsModalOpen(true)} className="flex text-white bg-black hover:border-2 hover:border-black
+                 hover:text-black hover:bg-white rounded-full p-4 transition duration-500 ease-in-out ">
                     <FontAwesomeIcon icon={faCirclePlus} size={"lg"} />
                     <span className="ml-2">Create New Team</span>
                 </button>
-            </div> */}
+            </div>
 
 
-                 {/* Header Section with Gradient */}
+                 Header Section with Gradient
       <div className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 rounded-lg mb-8">
         <h2 className="text-3xl font-bold text-white mb-2">Welcome back, James!</h2>
         <p className="text-white/80">Manage and organize your teams efficiently</p>
@@ -98,7 +101,7 @@ export const TeamsPage = () => {
 
             <div className="w-full flex flex-col gap-4">
                 {teams.map((team) => {
-                    return <TeamCard teamId={team.teamID} teamName={team.teamName}/>
+                    return <TeamCard teamId={team.id as string} teamName={team.teamName}/>
                 })}
             </div>
         </div>

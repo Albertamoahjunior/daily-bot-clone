@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
+import { faCircleXmark } from '@fortawesome/free-regular-svg-icons'
 import { TeamInputDropdown } from './TeamDropdownInput';
 import { useTeamsContext } from '../hooks/useTeamsContext';
 import {toast} from 'react-toastify';
@@ -19,6 +19,7 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
   const [optionEmpty, setOptionEmpty] = useState<boolean>(false);
   const [questionEmpty, setQuestionEmpty] = useState<boolean>(false);
   const [anonymous, setAnonymous] = useState<boolean>(false);
+
 
   const addOption = () => {
     if (questionText.trim() === "") {
@@ -89,7 +90,6 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
     console.log("Data: ", data)
     
     // onSubmit(data);
-
   };
 
   // Function to close the modal when clicking outside
@@ -120,6 +120,7 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
         </div>
 
         <div className="space-y-8 my-6 mb-8 mx-20">
+
             <div className="flex flex-col gap-2 mt-4">
             <TeamInputDropdown
                 inputName="Select a Team"
@@ -140,10 +141,12 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
               type={"text"}
               placeholder="Enter your question here"
               value={questionText}
+
               onChange={(e) => {
                 setQuestionText(e.target.value);
                 if (e.target.value.trim() !== "") setQuestionEmpty(false);
               }}
+
             />
             {questionEmpty && (
               <div className="text-red-500">The question input cannot be empty.</div>
@@ -205,6 +208,7 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
 
           <div className="mt-20 w-full flex justify-center">
             <button onClick={handleSubmit} className="text-white bg-green-800 hover:bg-green-700 rounded-lg w-full mx-10 px-6 py-4">
+
               Create Team Poll
             </button>
           </div>

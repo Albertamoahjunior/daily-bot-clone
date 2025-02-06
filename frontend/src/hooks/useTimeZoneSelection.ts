@@ -1,6 +1,8 @@
 import { useState } from "react";
 
-export const useTimeZoneSelection = () => {
+//props for timzone contex
+
+export const useTimeZoneSelection = ({ timezone }: { timezone: string | '' }) => {
   const timezoneOptions = [
     { value: "GMT", label: "GMT (Greenwich Meridian Time)" },
     { value: "UTC", label: "UTC" },
@@ -10,7 +12,7 @@ export const useTimeZoneSelection = () => {
     { value: "IST", label: "IST (Indian Standard Time)" },
   ];
 
-  const [selectedTimezone, setSelectedTimezone] = useState("");
+  const [selectedTimezone, setSelectedTimezone] = useState(timezone);
 
   const handleTimezoneChange = (value: string) => {
     setSelectedTimezone(value);

@@ -25,8 +25,10 @@ export const TeamCard = ({ teamId, teamName }: ITeamProps) => {
         <div className="items-center rounded-md h-24 px-6 my-2 flex w-full justify-between border-2 border-[#5fb0bc] hover:border-[#1F2937] hover:bg-white hover:text-[#1F2937] text-black hover:shadow-lg hover:shadow-[#5fb0bc]/50 transition-shadow duration-300 ease-in-out">
             <h1 className="text-2xl font-normal uppercase">{teamName}</h1>
 
+
             <div className="flex relative items-center">
                 <Link to={`edit/${teamId}`} className="mx-2 rounded-lg p-2 px-4 flex hover:text-white hover:bg-black transition duration-500 ease-in-out">
+
                     Edit Team
                 </Link>
                 <button onClick={handleOpenModal} className="mx-2 rounded-lg p-1 px-3 border-2 border-black bg-white text-black hover:bg-[#dc966d]">
