@@ -10,17 +10,17 @@ import { Plus, Users } from 'lucide-react';
 
 export interface TeamsOverviewCardProps {
     title: string;
-    value: number | string;
+    value: number | undefined;
     icon: React.ComponentType<{ className?: string }>;
   }
 
 export const TeamsPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const {teams,members} = useTeamsContext();
+    const {teams, members} = useTeamsContext();
 
   // Calculate metrics
-  const activeTeams = teams.length;
-  const totalMembers = members.length;
+  const activeTeams = teams?.length;
+  const totalMembers = members?.length;
 
   
 //   const recentActivities = teams.filter(team => 
@@ -75,7 +75,7 @@ export const TeamsPage = () => {
         />
         <TeamsOverviewCard
           title="Recent Activities"
-          value={`${activeTeams * 2}`} // Example metric
+          value={activeTeams? activeTeams * 2 : 0} // Example metric
           icon={Users}
         />
       </div>
@@ -100,7 +100,7 @@ export const TeamsPage = () => {
 
 
             <div className="w-full flex flex-col gap-4">
-                {teams.map((team) => {
+                {teams?.map((team) => {
                     return <TeamCard teamId={team.id as string} teamName={team.teamName}/>
                 })}
             </div>

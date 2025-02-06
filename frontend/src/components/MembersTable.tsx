@@ -17,14 +17,14 @@ export const MembersTable: React.FC<MembersTableProps> = ({team}) => {
     //filter out members that belong to  a particular team
     useEffect(() => {
         // Ensure we only update state if members exist
-        if (members.length > 0) {
-          const updatedTeamMembers = members.filter((member) =>
+        if (members && members?.length > 0) {
+          const updatedTeamMembers = members?.filter((member) =>
             member.teams.includes(team)
           );
     
           setTeamMembers(updatedTeamMembers);
         }
-      }, [teamMembers.length, members, team]);
+    }, [teamMembers.length, members, team]);
 
     const { isModalOpen, openModal, closeModal, deleteMember } = useMembers({
         members: teamMembers,

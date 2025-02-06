@@ -103,14 +103,14 @@ export const TeamMoodPage: React.FC = () => {
       // Populate teamsList
       useEffect(() => {
         setTeamsList(
-          teams.map((team) => ({
-            value: team.teamID,
+          teams?.map((team) => ({
+            value: team.id,
             label: team.teamName,
           }))
         );
         setMoodHistTeamsList(
-          teams.map((team) => ({
-            value: team.teamID,
+          teams?.map((team) => ({
+            value: team.id,
             label: team.teamName,
           }))
         );
@@ -122,11 +122,10 @@ export const TeamMoodPage: React.FC = () => {
       // Populate membersList based on the selected team
       useEffect(() => {
         if (selectedTeam) {
-          const filteredMembers = members
-            .filter((member) => member.teamId.includes(selectedTeam))
+          const filteredMembers = members?.filter((member:Member) => member.teams.includes(selectedTeam))
             .map((member) => ({
               value: member.id,
-              label: member.name,
+              label: member.memberName,
             }));
           setMembersList(filteredMembers);
         } else {
@@ -137,11 +136,10 @@ export const TeamMoodPage: React.FC = () => {
 
       useEffect(() => {
         if (selectedMoodHistTeam) {
-          const filteredMembers = members
-            .filter((member) => member.teamId.includes(selectedMoodHistTeam))
+          const filteredMembers = members?.filter((member) => member.teams.includes(selectedMoodHistTeam))
             .map((member) => ({
               value: member.id,
-              label: member.name,
+              label: member.memberName,
             }));
           setMoodHistMembersList(filteredMembers);
         } else {

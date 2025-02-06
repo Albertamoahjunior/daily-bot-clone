@@ -43,23 +43,27 @@ export const CreateTeamModal = ({isOpen, onClose}:ICreateTeamProps) => {
 
             const teamCreated = await teamService.createTeam(new_team);
 
-            
+hh
             const updated_new_team = {
                 id: teamCreated.id,
+                status: teamCreated.status,
                 teamName: teamCreated.team,
-                timezone: teamCreated.timezone
+                timezone: teamCreated.timezone,
+                standup: teamCreated.standup
             } 
 
             //also add selected members
             const members_added = await addMembers(teamCreated.id);
             console.log(members_added)
             
-            setTeams([...teams, updated_new_team]);
+            if(teams){
+                setTeams([...teams, updated_new_team]);
+            }
             // Close the modal
             onClose();
 
             // Redirect to the team page
-            navigate('/teams')
+            // navigate('/teams')
             console.log('success')
         }
         catch(err){

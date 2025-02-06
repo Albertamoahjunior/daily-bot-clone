@@ -8,7 +8,7 @@ interface CreateTeamPayload {
 }
 
 interface AddMembersPayload {
-    members: string[];
+    members: string[] | [];
 }
 
 // Team API services

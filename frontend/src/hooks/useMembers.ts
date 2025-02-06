@@ -1,11 +1,11 @@
 import { useState } from "react";
 
-export interface Member {
-  id: string;
-  memberName: string;
-  status?: "Active" | "Pending activation" | undefined;
-  teams : string[];
-}
+// export interface Member {
+//   id: string;
+//   memberName: string;
+//   status?: "Active" | "Pending activation" | undefined;
+//   teams : string[];
+// }
 
 interface UseMembersProps {
   teamID: string;

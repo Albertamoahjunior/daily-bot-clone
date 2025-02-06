@@ -35,8 +35,8 @@ export const StandupDashboardPage = () => {
     // Populate teamsList
     useEffect(() => {
       setAllTeamsList(
-        teams.map((team) => ({
-          value: team.teamID,
+        teams?.map((team) => ({
+          value: team.id,
           label: team.teamName,
         }))
       );

@@ -43,8 +43,8 @@ export const TeamPollsPage = () => {
     // Populate teamsList
     useEffect(() => {
     setTeamsList(
-        teams.map((team) => ({
-        value: team.teamID,
+        teams?.map((team) => ({
+        value: team.id,
         label: team.teamName,
         }))
     );    
@@ -60,11 +60,10 @@ export const TeamPollsPage = () => {
             setSelectedPoll("");
             setTeamPollsList(teamPolls);
 
-            const filteredMembers = members
-            .filter((member) => member.teamId.includes(selectedTeam))
-            .map((member) => ({
+            const filteredMembers = members?.filter((member:Member) => member.teams.includes(selectedTeam))
+            .map((member:Member) => ({
                 value: member.id,
-                label: member.name,
+                label: member.memberName,
             }));
             setMembersList(filteredMembers);
         }else {

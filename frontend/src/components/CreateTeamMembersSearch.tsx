@@ -21,8 +21,7 @@ export const CreateTeamMembersSearch = ({ label, labelClassName }: CreateTeamMem
   const [isFocused, setIsFocused] = useState(false);
 
   // Filtered users based on search input
-  const filteredUsers = members.filter(
-    (user) =>
+  const filteredUsers = members?.filter((user) =>
       user.memberName.toLowerCase().includes(searchValue.toLowerCase()) ||
       user.id.toLowerCase().includes(searchValue.toLowerCase())
   );

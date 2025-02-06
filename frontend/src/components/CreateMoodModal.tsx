@@ -132,12 +132,12 @@ export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
 
     // Populate teamsList
     useEffect(() => {
-    setAllTeamsList(
-        teams.map((team) => ({
-        value: team.teamID,
-        label: team.teamName,
-        }))
-    );
+        setAllTeamsList(
+            teams?.map((team) => ({
+            value: team.id,
+            label: team.teamName,
+            }))
+        );
 
     }, [teams]);
       

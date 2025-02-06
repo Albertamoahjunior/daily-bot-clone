@@ -6,42 +6,37 @@ interface ITeamsContextProvider {
     children: React.ReactNode;
 }
 
-interface Member {
-    id: string;
-    memberName: string;
-    teams: string[];
-    status: "Active" | "Pending activation";
-}
-
-interface Standup {
-    standupDays: string[];
-    standupTimes: string[];
-    reminderTimes: string[];
-}
-
-interface Team {
-    id?: string;
-    teamName: string;
-    timezone: string;
-    standup?:  Standup
-}
-
 
 const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
-    const [members, setMembers] = useState<Member[]>([]);
-    const [teams, setTeams] = useState<Team[]>([]);
+    const [members, setMembers] = useState<Member[] | undefined>(undefined);
+    const [teams, setTeams] = useState<Team[] | undefined>(undefined);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [teamMembers, setTeamMembers] = useState<Member[] | undefined>(undefined);
+    const [members_to_be_added_team, setMembersToBeAddedToTeam] = useState<string[]|[]>([]);
 
-    const members_to_be_added_team = members.map(member => member.id)
+    // const members_to_be_added_team = teamMembers?.map(member => member.id)
 
-    const membersPayload ={
-        members: members_to_be_added_team
-    }
+    // const membersPayload ={
+    //     members: members_to_be_added_team ? members_to_be_added_team : [] 
+    // }
+
+    useEffect(() => {
+        const members_to_be_added_team = teamMembers?.map(member => member.id);
+        if(members_to_be_added_team && members_to_be_added_team.length){
+            setMembersToBeAddedToTeam(members_to_be_added_team);
+        }
+        else{
+            setMembersToBeAddedToTeam( []);
+        }
+
+
+    },[teamMembers])
 
     const addMembers = async (teamId: string) => {
         try{
-            await teamService.addMembersToTeam(teamId, membersPayload);
+            await teamService.addMembersToTeam(teamId,{ members: members_to_be_added_team});
+            setMembersToBeAddedToTeam([]);
             return 'Members added successfully';
         }catch(err){
             // Handle error
@@ -65,6 +60,7 @@ const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
 
 
                 if (membersResult.status === 'fulfilled') {
+                    console.log("membersResult.value", membersResult.value);
                     setMembers(membersResult.value);
                 }
 
@@ -87,7 +83,7 @@ const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
-                setError('Failed to fetch some data');
+                setError('Failed to fetch team and members data');
             } finally {
                 setLoading(false);
             }
@@ -97,7 +93,7 @@ const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
     }, []);
 
     return (
-        <teamsContext.Provider value={{ members, teams, setMembers, setTeams, loading, error, addMembers }}>
+        <teamsContext.Provider value={{ members, teams, setMembers, setTeams, loading, error, addMembers, setTeamMembers }}>
             {children}
         </teamsContext.Provider>
     );
