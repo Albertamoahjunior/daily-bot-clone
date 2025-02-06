@@ -1,21 +1,24 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
-import { TeamInput } from './TeamInput';
 import { TeamInputDropdown } from './TeamDropdownInput';
 import { useTeamsContext } from '../hooks/useTeamsContext';
 import {toast} from 'react-toastify';
+import ToggleSwitch from './ToggleSwitch';
+
 
 export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
   const { teams, members } = useTeamsContext();
   const [allTeamsList, setAllTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
   const [selectedTeam, setSelectedTeam] = useState("");
+  const [selectTeamError, setSelectTeamError] = useState("");
   const [teamName, setTeamName] = useState("");
   const [questionText, setQuestionText] = useState("");
   const [questionType, setQuestionType] = useState<"single" | "multi">("single");
   const [options, setOptions] = useState<string[]>([""]);
   const [optionEmpty, setOptionEmpty] = useState<boolean>(false);
   const [questionEmpty, setQuestionEmpty] = useState<boolean>(false);
+  const [anonymous, setAnonymous] = useState<boolean>(false);
 
   const addOption = () => {
     if (questionText.trim() === "") {
@@ -56,36 +59,37 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
     e.preventDefault();
 
     // Validate form
-    if (question.trim() === "") {
+    if (questionText.trim() === "") {
       setQuestionEmpty(true);
       return;
     }
 
-    if (format === "multiple_choice" && options.some((option) => option.trim() === "")) {
+    if(!selectedTeam){
+        setSelectTeamError("Select The Team You Want To Create The Poll For");
+        return;
+    }
+
+    if ( options.some((option) => option.trim() === "")) {
       setOptionEmpty(true);
       return;
     }
 
-    if(selectedOptions.length <= 0){
-      setSelectedOptionsError(true);
-      return;
-    }
 
-    if(selectedTimes.length <= 0){
-      setSelectedTimesError(true);
-      return;
-    }
-
+    console.log("Options", options)
 
     // Prepare and submit data
     const data = {
-      format,
-      question,
-      options: format === "multiple_choice" ? options : undefined,
-      required,
+        teamId: selectedTeam,
+        question: questionText,
+        choiceType: questionType,
+        options: options,
+        anonymous: anonymous
     };
+
+    console.log("Data: ", data)
     
-    onSubmit(data);
+    // onSubmit(data);
+
   };
 
   // Function to close the modal when clicking outside
@@ -116,21 +120,18 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
         </div>
 
         <div className="space-y-8 my-6 mb-8 mx-20">
-          <TeamInputDropdown
-            inputName="Select a Team"
-            className=""
-            options={allTeamsList}
-            selectedValue={selectedTeam}
-            onOptionChange={handleTeamSelect}
-          />
-
-          {/* <TeamInput
-            labelName={"Enter Team Poll Question"}
-            inputType={"text"}
-            inputPlaceholder={"Enter Question"}
-            inputValue={teamName}
-            onInputChange={handleNameChange}
-          /> */}
+            <div className="flex flex-col gap-2 mt-4">
+            <TeamInputDropdown
+                inputName="Select a Team"
+                className=""
+                options={allTeamsList}
+                selectedValue={selectedTeam}
+                onOptionChange={handleTeamSelect}
+                />
+                {selectTeamError && (
+                    <div className="text-red-500">{selectTeamError}</div>
+                )}
+            </div>
 
           <div className="flex flex-col gap-2 mt-4">
             <label className="text-black font-medium">Question</label>
@@ -139,7 +140,10 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
               type={"text"}
               placeholder="Enter your question here"
               value={questionText}
-              onChange={(e) => setQuestionText(e.target.value)}
+              onChange={(e) => {
+                setQuestionText(e.target.value);
+                if (e.target.value.trim() !== "") setQuestionEmpty(false);
+              }}
             />
             {questionEmpty && (
               <div className="text-red-500">The question input cannot be empty.</div>
@@ -197,8 +201,10 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
             </button>
           </div>
 
+          <ToggleSwitch label="Configure Poll As Anonymous ?" isChecked={anonymous} toggleIsChecked={()=> setAnonymous(!anonymous)}/>
+
           <div className="mt-20 w-full flex justify-center">
-            <button onClick={() => handleSubmit} className="text-white bg-green-800 hover:bg-green-700 rounded-lg w-full mx-10 px-6 py-4">
+            <button onClick={handleSubmit} className="text-white bg-green-800 hover:bg-green-700 rounded-lg w-full mx-10 px-6 py-4">
               Create Team Poll
             </button>
           </div>

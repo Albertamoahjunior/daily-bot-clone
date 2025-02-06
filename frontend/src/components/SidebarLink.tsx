@@ -16,7 +16,7 @@ export const SidebarLink = ({navName, icon, iconclassName, whereTo}: ISidebarIco
   return (
     <NavLink to={whereTo} className={({isActive}) => ` text-center px-1  ${isActive? "border-l-2 border-white transition duration-500 ease-in-out": ""}`} >
       <FontAwesomeIcon icon={icon} className={iconclassName} size='lg'/>
-      <p className="text-white font-semibold text-xs uppercase">{navName}</p>
+      <p className="text-white font-semibold text-xs uppercase flex-wrap">{navName}</p>
     </NavLink>
   )
 }

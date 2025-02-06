@@ -13,6 +13,7 @@ import {EditTeamPage} from './pages/EditTeamPage'
 import {StandupDashboardPage} from './pages/StandupDashboardPage'
 import {KudosPage} from './pages/KudosPage'
 import {TeamMoodPage} from './pages/TeamMoodPage'
+import {AnalyticsPage} from './pages/AnalyticsPage'
 
 import TeamsContextProvider from './contexts/TeamsContextProvider'
 import PollsContextProvider from './contexts/PollsContextProvider'
@@ -70,6 +71,14 @@ function App() {
             <TeamsContextProvider>
               <PollsContextProvider>
                   <TeamPollsPage/>
+              </PollsContextProvider>
+            </TeamsContextProvider>
+          } />
+
+          <Route path='analytics' element={
+            <TeamsContextProvider>
+              <PollsContextProvider>
+                  <AnalyticsPage/>
               </PollsContextProvider>
             </TeamsContextProvider>
           } />
