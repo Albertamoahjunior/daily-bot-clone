@@ -298,5 +298,14 @@ export const standupService = {
         } catch (error) {
             return error;
         }
-    }
+    },
+
+    getAllStandupQuestions: async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/standup/all-questions`);
+            return response.data;
+        } catch (error) {
+            return error;
+        }
+    },
 };

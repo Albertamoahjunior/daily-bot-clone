@@ -21,9 +21,10 @@ export const StandupDashboardPage = () => {
 
   const [filteredStandups, setFilteredStandups] = useState<TeamStandup[]>([]);
   
-  const [selectedTeamIndex, setSelectedTeamIndex] = useState(0);
   const [allTeamsList, setAllTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
   const [selectedTeamm, setSelectedTeam] = useState("");
+  const [responseStats, setResponseStats] = useState<{name:string; value: number}[]>();
+  const [lineChartData, setLineChartData] = useState<{date:string; rate: number}[]>();
   // const selectedTeam = standups[selectedTeamIndex];
   const selectedTeamStandup: TeamStandup|undefined = standups.find((standup) => standup.teamId === selectedTeamm );
 
@@ -31,6 +32,16 @@ export const StandupDashboardPage = () => {
   const handleTeamSelect = (value: string) => {
     setSelectedTeam(value);
   };
+
+  useEffect(() => {
+    const stats = calculateResponseStats();
+    console.log("Response Stats", stats);
+    setResponseStats(stats);
+    const chartData = calculateResponseTrend();
+    console.log("Line Chart Stats", chartData);
+    setLineChartData(chartData);
+
+  }, [selectedTeamStandup])
 
     // Populate teamsList
     useEffect(() => {
@@ -40,6 +51,7 @@ export const StandupDashboardPage = () => {
           label: team.teamName,
         }))
       );
+
     }, [teams]);
 
     // Colors for the charts and UI
@@ -53,34 +65,178 @@ export const StandupDashboardPage = () => {
         lightText: '#64748b', // Slate 500
     };
     
-      // Calculate response statistics for pie chart
-      const responseStats = useMemo(() => {
-        const totalMembers = selectedTeamStandup?.standup[0]?.response.length || 0;
-        const responded = selectedTeamStandup?.standup[0]?.response.filter(r => r.answer).length || 0;
-        
+    const calculateResponseStats = () => {
+      if (!selectedTeamStandup?.standup || selectedTeamStandup.standup.length === 0) {
         return [
-          { name: 'Responded', value: responded },
-          { name: 'Pending', value: totalMembers - responded },
+          { name: 'Responded', value: 0 },
+          { name: 'Pending', value: 0 }
         ];
-      }, [selectedTeamStandup]);
+      }
+    
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date().toISOString().split('T')[0];
+    
+      // Get unique users who responded today
+      const uniqueRespondedUsers = new Set();
+      selectedTeamStandup.standup.forEach(question => {
+        question.response.forEach(response => {
+          // Check if response is from today
+          if (response.date.split('T')[0] === today) {
+            // Consider a user responded if they either:
+            // 1. Provided an answer
+            // 2. Selected options
+            if (response.answer || (response.options && response.options.length > 0)) {
+              uniqueRespondedUsers.add(response.userId);
+            }
+          }
+        });
+      });
+    
+      // Count total unique users across all questions for today
+      const totalUniqueUsers = new Set();
+      selectedTeamStandup.standup.forEach(question => {
+        question.response.forEach(response => {
+          if (response.date.split('T')[0] === today) {
+            totalUniqueUsers.add(response.userId);
+          }
+        });
+      });
+    
+      const responded = uniqueRespondedUsers.size;
+      const total = totalUniqueUsers.size;
+    
+      return [
+        { name: 'Responded', value: responded },
+        { name: 'Pending', value: total - responded }
+      ];
+    };
+
+
+    interface TrendDataPoint {
+      date: string;
+      rate: number;
+    }
+    
+    const calculateResponseTrend = (daysToShow: number = 5): TrendDataPoint[] => {
+      if (!selectedTeamStandup || !selectedTeamStandup.standup.length) {
+        return [];
+      }
+    
+      // Create a map to store response rates by date
+      const responseRatesByDate = new Map<string, {
+        uniqueResponders: Set<string>;
+        totalUniqueUsers: Set<string>;
+      }>();
+    
+      // Get all responses across all questions
+      const allResponses = selectedTeamStandup.standup.flatMap(question => question.response);
+    
+      // Group responses by date
+      allResponses.forEach(response => {
+        const dateStr = response.date.split('T')[0];
+        
+        if (!responseRatesByDate.has(dateStr)) {
+          responseRatesByDate.set(dateStr, {
+            uniqueResponders: new Set(),
+            totalUniqueUsers: new Set()
+          });
+        }
+    
+        const dateStats = responseRatesByDate.get(dateStr)!;
+        dateStats.uniqueResponders.add(response.userId);
+        dateStats.totalUniqueUsers.add(response.userId);
+      });
+    
+      // Get the last n days, including today
+      const today = new Date();
+      const dates = Array.from({ length: daysToShow }, (_, i) => {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        return date.toISOString().split('T')[0];
+      }).reverse();
+    
+      // Calculate response rate for each date
+      const trendData: TrendDataPoint[] = dates.map(date => {
+        const stats = responseRatesByDate.get(date);
+        
+        if (!stats) {
+          return {
+            date,
+            rate: 0
+          };
+        }
+    
+        const respondersCount = stats.uniqueResponders.size;
+        const totalUsersCount = stats.totalUniqueUsers.size;
+    
+        return {
+          date,
+          rate: totalUsersCount > 0 
+            ? Math.round((respondersCount / totalUsersCount) * 100)
+            : 0
+        };
+      });
+    
+      return trendData;
+    };
 
 
 
 
   // Calculate overview metrics
   const overviewMetrics = useMemo(() => {
+    // Get today's date in YYYY-MM-DD format
     const today = new Date().toISOString().split('T')[0];
+    
     const totalTeams = standups.length;
-    const teamsWithTodayStandup = standups.filter(team => 
-      team.standup.some(s => s.response.some(r => r.date.startsWith(today)))
-    ).length;
     
-    const totalResponses = standups.reduce((acc, team) => 
-      acc + team.standup.reduce((sum, s) => sum + s.response.length, 0), 0
-    );
+    // Count teams with standups today
+    const teamsWithTodayStandup = standups.filter(team => {
+      if (!team.standup.length) return false;
+      
+      // Get unique user responses for today by checking any standup question
+      const hasResponseToday = team.standup.some(s => 
+        s.response.some(r => r.date.split('T')[0] === today)
+      );
+      
+      return hasResponseToday;
+    }).length;
+  
+    // Count total unique responses by userId and date
+    const totalResponses = standups.reduce((acc, team) => {
+      // Get all responses from the team
+      const responses = team.standup.flatMap(s => s.response);
+      
+      // Create unique keys combining userId and date (without time)
+      const uniqueKeys = new Set(
+        responses.map(r => `${r.userId}_${r.date.split('T')[0]}`)
+      );
+      
+      // Add number of unique responses to accumulator
+      return acc + uniqueKeys.size;
+    }, 0);
+  
+      // Calculate average response time
+    const responseTimestamps = standups.flatMap(team =>
+      team.standup.flatMap(question =>
+        question.response.map(r => new Date(r.date))
+      )
+    ).filter(date => date.toISOString().split('T')[0] === today);
     
-    const avgResponseTime = "9:45 AM"; // This would be calculated from actual timestamps
-    
+    let avgResponseTime = "N/A";
+    if (responseTimestamps.length > 0) {
+      const totalMinutes = responseTimestamps.reduce((acc, date) => {
+        const minutes = date.getHours() * 60 + date.getMinutes();
+        return acc + minutes;
+      }, 0);
+      
+      const avgMinutes = Math.round(totalMinutes / responseTimestamps.length);
+      const hours = Math.floor(avgMinutes / 60);
+      const minutes = avgMinutes % 60;
+      
+      avgResponseTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`;
+    }
+  
     return {
       completionRate: (teamsWithTodayStandup / totalTeams) * 100,
       pendingStandups: totalTeams - teamsWithTodayStandup,
@@ -104,7 +260,7 @@ export const StandupDashboardPage = () => {
       filtered = filtered.map((team) => ({
         ...team,
         standup: team.standup.filter((s) =>
-          s.response.some((r) => r.date === filters.date)
+          s.response.some((r) => r.date === filters.date?.split('T')[0])
         ),
       }));
     }
@@ -140,18 +296,19 @@ export const StandupDashboardPage = () => {
 
   useEffect(() => {
     if(filteredStandups.length === 0){
+        // console.log("Filtered Standups", standups)
         setFilteredStandups(standups);
     }
-  }, [])
+  }, [standups])
 
 
-  const lineChartData = [
-    { date: 'Mon', rate: 85 },
-    { date: 'Tue', rate: 90 },
-    { date: 'Wed', rate: 88 },
-    { date: 'Thu', rate: 92 },
-    { date: 'Fri', rate: 87 }
-  ];
+  // const lineChartData = [
+  //   { date: 'Mon', rate: 85 },
+  //   { date: 'Tue', rate: 90 },
+  //   { date: 'Wed', rate: 88 },
+  //   { date: 'Thu', rate: 92 },
+  //   { date: 'Fri', rate: 87 }
+  // ];
 
 
 
@@ -169,7 +326,7 @@ export const StandupDashboardPage = () => {
         <h2 className="text-2xl font-bold mb-4">Overview Analytics</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 py-6 bg-white rounded-lg shadow-sm">
         <MetricCard
-            title="Completion Rate"
+            title="Completion Rate Today"
             value={`${overviewMetrics.completionRate.toFixed(1)}%`}
             icon={faCircleCheck}
             variant="success"
@@ -190,7 +347,7 @@ export const StandupDashboardPage = () => {
         />
         
         <MetricCard
-            title="Avg Response Time"
+            title="Avg Response Time Today"
             value={overviewMetrics.avgResponseTime}
             icon={faClock}
             variant="purple"
@@ -210,57 +367,54 @@ export const StandupDashboardPage = () => {
                     selectedValue={selectedTeamm}
                     onOptionChange={handleTeamSelect}
                     />
-              {/* <button onClick={prevTeam} className="p-2 rounded-full hover:bg-white transition-colors">
-                <FontAwesomeIcon icon={faAngleLeft} />
-              </button>
-              <span className="font-medium text-slate-700">{selectedTeam.teamName}</span>
-              <button onClick={nextTeam} className="p-2 rounded-full hover:bg-white transition-colors">
-                <FontAwesomeIcon icon={faAngleRight} />
-              </button> */}
-            {/* </div> */}
+
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {selectedTeamStandup ? 
-
+              
             <AnalyticsCard title="Response Rate Trend">
-            <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={lineChartData}>
-                <XAxis 
-                    dataKey="date" 
-                    stroke={CHART_COLORS.lightText}
-                    tick={{ fill: CHART_COLORS.lightText }}
-                />
-                <YAxis 
-                    stroke={CHART_COLORS.lightText}
-                    tick={{ fill: CHART_COLORS.lightText }}
-                />
-                <Tooltip 
-                    contentStyle={{ 
-                    backgroundColor: CHART_COLORS.background,
-                    border: 'none',
-                    borderRadius: '8px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                    }}
-                />
-                <Line 
-                    type="monotone" 
-                    dataKey="rate" 
-                    stroke={CHART_COLORS.primary}
-                    strokeWidth={2.5}
-                    dot={{ 
-                    fill: CHART_COLORS.primary,
-                    strokeWidth: 0
-                    }}
-                    activeDot={{
-                    r: 6,
-                    fill: CHART_COLORS.primary,
-                    stroke: '#fff',
-                    strokeWidth: 2
-                    }}
-                />
-                </LineChart>
-            </ResponsiveContainer>
+              {lineChartData && lineChartData.length <= 0?
+                <p className="text-red-400 text-center items-center">No Data To Show</p>:
+
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={lineChartData}>
+                    <XAxis 
+                        dataKey="date" 
+                        stroke={CHART_COLORS.lightText}
+                        tick={{ fill: CHART_COLORS.lightText }}
+                    />
+                    <YAxis 
+                        stroke={CHART_COLORS.lightText}
+                        tick={{ fill: CHART_COLORS.lightText }}
+                    />
+                    <Tooltip 
+                        contentStyle={{ 
+                        backgroundColor: CHART_COLORS.background,
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }}
+                    />
+                    <Line 
+                        type="monotone" 
+                        dataKey="rate" 
+                        stroke={CHART_COLORS.primary}
+                        strokeWidth={2.5}
+                        dot={{ 
+                        fill: CHART_COLORS.primary,
+                        strokeWidth: 0
+                        }}
+                        activeDot={{
+                        r: 6,
+                        fill: CHART_COLORS.primary,
+                        stroke: '#fff',
+                        strokeWidth: 2
+                        }}
+                    />
+                    </LineChart>
+                </ResponsiveContainer>
+              }
             </AnalyticsCard>
             :
             <NoDataCard title={"No Team Selected"} content={"Please select a team to view the results."}/>
@@ -269,38 +423,44 @@ export const StandupDashboardPage = () => {
 
           {selectedTeamStandup ? 
             <AnalyticsCard title="Response Distribution">
-            <ResponsiveContainer width="100%" height="90%">
-                <PieChart>
-                <Pie
-                    data={responseStats}
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                >
-                    <Cell fill={CHART_COLORS.success} />
-                    <Cell fill={CHART_COLORS.warning} />
-                </Pie>
-                <Tooltip 
-                    contentStyle={{ 
-                    backgroundColor: CHART_COLORS.background,
-                    border: 'none',
-                    borderRadius: '8px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                    }}
-                />
-                </PieChart>
-            </ResponsiveContainer>
-            <div className="flex justify-center gap-6 mt-4">
-                <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CHART_COLORS.success }} />
-                <span className="text-sm text-slate-600">Responded</span>
-                </div>
-                <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CHART_COLORS.warning }} />
-                <span className="text-sm text-slate-600">Pending</span>
-                </div>
-            </div>
+                {responseStats?.every(stat => stat.value === 0)?
+                  <p className="text-red-400 text-center items-center">No Data To Show</p>:
+                  <>
+                    <ResponsiveContainer width="100%" height="90%">
+                          <PieChart>
+                          <Pie
+                              data={responseStats}
+                              innerRadius={60}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="value"
+                          >
+                              <Cell fill={CHART_COLORS.success} />
+                              <Cell fill={CHART_COLORS.warning} />
+                          </Pie>
+                          <Tooltip 
+                              contentStyle={{ 
+                              backgroundColor: CHART_COLORS.background,
+                              border: 'none',
+                              borderRadius: '8px',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                              }}
+                          />
+                          </PieChart>
+                    </ResponsiveContainer>
+                    <div className="flex justify-center gap-6 mt-4">
+                        <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CHART_COLORS.success }} />
+                        <span className="text-sm text-slate-600">Responded</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CHART_COLORS.warning }} />
+                        <span className="text-sm text-slate-600">Pending</span>
+                        </div>
+                    </div>
+                  </>
+                }
+
             </AnalyticsCard>
               :
               <NoDataCard title={"No Team Selected"} content={"Please select a team to view the results."}/>
