@@ -24,10 +24,11 @@ export const MembersTable: React.FC<MembersTableProps> = ({team}) => {
     
           setTeamMembers(updatedTeamMembers);
         }
-    }, [teamMembers.length, members, team]);
+    }, [ team ]);
 
     const { isModalOpen, openModal, closeModal, deleteMember } = useMembers({
         members: teamMembers,
+        setMembers: setTeamMembers,
         teamID: team
     });
 

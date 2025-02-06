@@ -13,7 +13,7 @@ export interface StandupResponse {
 export interface TeamStandup {
   teamId: string;
   teamName: string;
-  standup: StandupResponse[];
+  standup: StandupResponse[] | [];
 }
 
 

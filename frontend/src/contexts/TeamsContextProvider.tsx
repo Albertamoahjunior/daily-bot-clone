@@ -93,7 +93,7 @@ const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
     }, []);
 
     return (
-        <teamsContext.Provider value={{ members, teams, setMembers, setTeams, loading, error, addMembers, setTeamMembers }}>
+        <teamsContext.Provider value={{ members, teams, setMembers, setTeams, loading, error, addMembers, teamMembers, setTeamMembers }}>
             {children}
         </teamsContext.Provider>
     );

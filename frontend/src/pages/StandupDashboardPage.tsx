@@ -19,7 +19,7 @@ export const StandupDashboardPage = () => {
   const { standups } = useStandupContext();
   const { teams } = useTeamsContext();
 
-  const [filteredStandups, setFilteredStandups] = useState<any[]>([]);
+  const [filteredStandups, setFilteredStandups] = useState<TeamStandup[]>([]);
   
   const [selectedTeamIndex, setSelectedTeamIndex] = useState(0);
   const [allTeamsList, setAllTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
@@ -89,18 +89,6 @@ export const StandupDashboardPage = () => {
     };
   }, [standups]);
 
-  // Navigate between teams
-  const nextTeam = () => {
-    setSelectedTeamIndex(prev => 
-      prev === standups.length - 1 ? 0 : prev + 1
-    );
-  };
-
-  const prevTeam = () => {
-    setSelectedTeamIndex(prev => 
-      prev === 0 ? standups.length - 1 : prev - 1
-    );
-  };
 
 
 

@@ -6,9 +6,9 @@ import { useTeamsContext } from "../hooks/useTeamsContext";
 // }
 
 export const AddMembersTable = () => {
-    const { members, setMembers} = useTeamsContext();
+    const { teamMembers, setTeamMembers} = useTeamsContext();
 
-    console.log(members)
+    console.log(teamMembers)
     return (
         <>
         <table className="w-[86%] table-auto ">
@@ -20,7 +20,7 @@ export const AddMembersTable = () => {
             </tr>
         </thead>
         <tbody>
-            {members.map((member) => (
+            {teamMembers?.map((member) => (
                 <tr key={member.id} className="border-b hover:bg-gray-100 justify-center  text-center">
                     <td className="py-3 px-4 flex items-center ">
                         <div className="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white uppercase mr-3">
@@ -42,8 +42,8 @@ export const AddMembersTable = () => {
                             <button
                             className="text-red-500 ml-4 hover:text-red-700 focus:outline-none"
                             onClick={() =>
-                                setMembers((prevMembers) =>
-                                  prevMembers.filter((m) => m.id !== member.id)
+                                setTeamMembers((prevMembers) =>
+                                    teamMembers.filter((m) => m.id !== member.id)
                                 )
                               }
                             >

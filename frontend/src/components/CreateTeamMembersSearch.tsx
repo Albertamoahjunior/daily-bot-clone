@@ -1,11 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-interface Member {
-  id: string;
-  memberName: string;
-  teams: string[];
-  status: "Active" | "Pending activation";
-}
+
 import { useTeamsContext } from "../hooks/useTeamsContext";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {  faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -16,26 +11,37 @@ interface CreateTeamMembersSearchProps {
 }
 
 export const CreateTeamMembersSearch = ({ label, labelClassName }: CreateTeamMembersSearchProps) => {
-  const { members, setMembers } = useTeamsContext();
+  const { members, setTeamMembers, teamMembers } = useTeamsContext();
   const [searchValue, setSearchValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [filteredUsers, setFilteredUsers] =useState< Member[] | undefined>(undefined)
 
-  // Filtered users based on search input
-  const filteredUsers = members?.filter((user) =>
-      user.memberName.toLowerCase().includes(searchValue.toLowerCase()) ||
-      user.id.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  useEffect(()=>{
+
+    // Filtered users based on search input
+    const filterUsers = members?.filter((user) =>
+        user.memberName.toLowerCase().includes(searchValue.toLowerCase()) ||
+        user.id.toLowerCase().includes(searchValue.toLowerCase())
+    );
+    setFilteredUsers(filterUsers);
+
+  },[searchValue])
 
   // Add or remove user from members list
   const toggleUserSelection = (user: Member) => {
-    setMembers((prevMembers) => {
-      const isAlreadySelected = prevMembers.some((member) => member.id === user.id);
+    setTeamMembers((prevMembers) => {
+      // Ensure prevMembers is an array
+      const currentMembers = prevMembers || [];
+      const isAlreadySelected = currentMembers.some((member) => member.id === user.id);
+      
       if (isAlreadySelected) {
-        return prevMembers.filter((member) => member.id !== user.id);
+        return currentMembers.filter((member) => member.id !== user.id);
       }
-      return [...prevMembers, user];
+      
+      return [...currentMembers, user];
     });
   };
+  
 
   return (
     <div className="relative w-full ">
@@ -56,8 +62,8 @@ export const CreateTeamMembersSearch = ({ label, labelClassName }: CreateTeamMem
       {/* Scrollable User List */}
       {isFocused && (
       <ul className="absolute z-10 bg-white border border-gray-300 rounded-md mt-1 w-full max-h-40 overflow-y-auto">
-        {filteredUsers.map((user) => {
-          const isSelected = members.some((member) => member.id === user.id);
+        {filteredUsers?.map((user) => {
+          const isSelected = teamMembers?.some((member) => member.id === user.id);
           return (
             <li
               key={user.id}

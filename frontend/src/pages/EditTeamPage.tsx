@@ -19,7 +19,7 @@ import { ConfigureStandupModal } from '@/components/ConfigureStandupModal';
 export const EditTeamPage = () => {
     const {teamId, team} = useParams();
     const {teams, members} = useTeamsContext();
-    const teamObj = teams.find(t => t.id === teamId);
+    const teamObj = teams?.find(t => t.id === teamId);
     const [teamName, setTeamName] = useState((teamObj as Team).teamName || team);
     const [isModalOpen, setModalOpen] = useState(false);
     const [isStandupModalOpen, setStandupModalOpen] = useState(false);
@@ -128,7 +128,7 @@ export const EditTeamPage = () => {
 
         </div>
 
-        {isModalOpen && <AddMemberModal isOpen={isModalOpen} teamId={teamId || ""} onClose={() => handleModalClose()} members={members}/>}
+        {isModalOpen && <AddMemberModal isOpen={isModalOpen} teamId={teamId || ""} onClose={() => handleModalClose()} />}
         {isStandupModalOpen && <ConfigureStandupModal isOpen={isStandupModalOpen} onClose={() => handleStandupModalClose()} />}
 
     </>

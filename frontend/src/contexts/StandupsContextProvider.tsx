@@ -1,5 +1,7 @@
-import {createContext, useState} from "react"
+import {createContext, useEffect, useState} from "react"
 import { StandupQuestion, TeamStandup } from "StandupDashboard";
+import {standupService  } from "../services/api"; // Adjust path accordingly
+
 
 
 interface IStandupsContextProvider {
@@ -13,6 +15,52 @@ export const standupContext = createContext<{
 
 
 const StandupsContextProvider = ({children}: IStandupsContextProvider) => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  
+  
+  useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const results = await Promise.allSettled([
+                    standupService.getAllStandups(),
+                ]);
+
+                const standupsResult = results[0];
+
+                
+
+
+                if (standupsResult.status === 'fulfilled') {
+                    console.log("standupsResult.value", standupsResult.value);
+                    setAllStandups(standupsResult.value);
+                }
+
+                // Check if any promises were rejected
+                const anyRejected = results.some(result => result.status === 'rejected');
+                
+                if (anyRejected) {
+                    const errors = results
+                        .filter(result => result.status === 'rejected')
+                        .map(result => (result as PromiseRejectedResult).reason);
+                    
+                    throw new Error(`Failed to fetch standup data: ${errors.join(', ')}`);
+                } else {
+                    setError(null);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setError('Failed to fetch standups data');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
 
       const questions:StandupQuestion[] = [
         {
@@ -226,7 +274,7 @@ const StandupsContextProvider = ({children}: IStandupsContextProvider) => {
     const [standups, setAllStandups] = useState<TeamStandup[]>(allStandups)
     const [standupQuestions, setStandupQuestions] = useState<StandupQuestion[]>(questions)
 
-
+    
 
     return (
         <standupContext.Provider value={{ standups, standupQuestions }}>

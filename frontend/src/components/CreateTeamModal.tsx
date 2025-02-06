@@ -43,7 +43,6 @@ export const CreateTeamModal = ({isOpen, onClose}:ICreateTeamProps) => {
 
             const teamCreated = await teamService.createTeam(new_team);
 
-hh
             const updated_new_team = {
                 id: teamCreated.id,
                 status: teamCreated.status,

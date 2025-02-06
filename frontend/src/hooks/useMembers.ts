@@ -34,7 +34,7 @@ export const useMembers = ({ members, setMembers, teamID }: UseMembersProps) => 
     console.log('Member deleted');
     const confirmDelete = window.confirm("Are you sure you want to delete this team member?");
     if (confirmDelete) {
-      const updatedMembers = members.map(member => ({
+      const updatedMembers = members?.map(member => ({
         ...member,
         teams: member.teams.filter(teamId => teamId !== teamID)
       }));

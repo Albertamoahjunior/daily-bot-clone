@@ -47,7 +47,7 @@ export const StandupSearchFilter: React.FC<FilterProps> = ({ onFilter }) => {
           className="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
         >
           <option value="All">All</option>
-          {teams.map((team, index) => (
+          {teams?.map((team, index) => (
             <option key={index} value={team.teamName}>
               {team.teamName}
             </option>
@@ -64,9 +64,9 @@ export const StandupSearchFilter: React.FC<FilterProps> = ({ onFilter }) => {
           className="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
         >
           <option value="All">All</option>
-          {members.map((member, index) => (
+          {members?.map((member, index) => (
             <option key={index} value={member.id}>
-              {member.name}
+              {member.memberName}
             </option>
           ))}
         </select>

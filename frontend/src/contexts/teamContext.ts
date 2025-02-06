@@ -22,6 +22,7 @@ import { createContext } from "react";
 
 export const teamsContext = createContext<{
     members: Member[] | undefined;
+    teamMembers: Member[] | undefined;
     teams: Team[] | undefined;
     setMembers: React.Dispatch<React.SetStateAction<Member[] | undefined>>;
     setTeamMembers: React.Dispatch<React.SetStateAction<Member[] | undefined>>;
