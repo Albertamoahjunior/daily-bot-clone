@@ -5,6 +5,7 @@ import { TeamInputDropdown } from './TeamDropdownInput';
 import { useTeamsContext } from '../hooks/useTeamsContext';
 import {toast} from 'react-toastify';
 import ToggleSwitch from './ToggleSwitch';
+import { pollService } from '@/services/api';
 
 
 export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
@@ -56,7 +57,7 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
     setTeamName(e.target.value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validate form
@@ -88,8 +89,8 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
     };
 
     console.log("Data: ", data)
-    
-    // onSubmit(data);
+    const createPolls = await pollService.createPollQuestions(data)
+    console.log(createPolls)
   };
 
   // Function to close the modal when clicking outside
