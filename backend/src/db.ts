@@ -447,7 +447,8 @@ async function getMoodAnalytics() {
   const moods = await prisma.mood.findMany();
   const moodResponses = await prisma.moodResponse.findMany();
 
-  const analytics = moodResponses.reduce((acc, response) => {
+  // Build an object with date keys and mood counts as values
+  const analyticsMap = moodResponses.reduce((acc, response) => {
     const date = response.createdAt.toISOString().split('T')[0];
     const mood = moods.find(m => m.id === response.moodId);
 
@@ -462,11 +463,50 @@ async function getMoodAnalytics() {
     }
 
     acc[date][mood.mood] += 1;
-
     return acc;
   }, {} as Record<string, Record<string, number>>);
 
-  return analytics;
+  // Convert the object into an array of objects, adding the date as a property.
+  const analyticsArray = Object.entries(analyticsMap).map(([date, moodCounts]) => ({
+    date,
+    ...moodCounts,
+  }));
+
+  return analyticsArray;
+}
+
+
+//get mood analytics per team
+async function getMoodAnalyticsPerTeam(teamId: string) {
+  const moods = await prisma.mood.findMany({where: {teamId: teamId}});
+  const moodResponses = await prisma.moodResponse.findMany({where: {teamId: teamId}});
+
+  // Build an object with date keys and mood counts as values
+  const analyticsMap = moodResponses.reduce((acc, response) => {
+    const date = response.createdAt.toISOString().split('T')[0];
+    const mood = moods.find(m => m.id === response.moodId);
+
+    if (!mood) return acc;
+
+    if (!acc[date]) {
+      acc[date] = {};
+    }
+
+    if (!acc[date][mood.mood]) {
+      acc[date][mood.mood] = 0;
+    }
+
+    acc[date][mood.mood] += 1;
+    return acc;
+  }, {} as Record<string, Record<string, number>>);
+
+  // Convert the object into an array of objects, adding the date as a property.
+  const analyticsArray = Object.entries(analyticsMap).map(([date, moodCounts]) => ({
+    date,
+    ...moodCounts,
+  }));
+
+  return analyticsArray;
 }
 
 
@@ -507,4 +547,5 @@ export {
   getMoodResponse,
   getTeamMoods,
   getMoodAnalytics,
+  getMoodAnalyticsPerTeam,
 }

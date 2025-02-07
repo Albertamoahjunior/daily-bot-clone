@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createMoodResponse, getMoodResponse, createMood, getTeamMoods, getMoodAnalytics } from '../db';
+import { createMoodResponse, getMoodResponse, createMood, getTeamMoods, getMoodAnalytics, getMoodAnalyticsPerTeam } from '../db';
 
 const emojis = [
     {
@@ -86,5 +86,21 @@ export async function getMoodAnalyticsController(req: Request, res: Response) {
         res.status(200).json(analytics);
     } catch (error) {
         res.status(500).json({ error: 'Failed to get mood analytics' });
+    }
+}
+
+//controller to get mood analytics per team
+export async function getMoodAnalyticsPerTeamController(req: Request, res: Response) {
+    const { teamId } = req.params;
+
+    try {
+        const analytics = await getMoodAnalyticsPerTeam(teamId);
+        if (analytics) {
+            res.status(200).json(analytics);
+        } else {
+            res.status(404).json({ error: 'Mood analytics not found for this team' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to get mood analytics per team' });
     }
 }
