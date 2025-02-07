@@ -438,6 +438,14 @@ async function createMood(moods: {  mood: string; emojiId: string; moodScore: nu
   return createdMoods;
 }
 
+//function to get all moods for a team
+async function getTeamMoodConfiguration(teamId: string) {
+  const moods = await prisma.mood.findMany({
+    where: { teamId },
+  });
+  return moods;
+}
+
 //function to get all moods and then group them by their teamIds
 async function getTeamMoods() {
   const moods = await prisma.mood.findMany();
@@ -564,4 +572,5 @@ export {
   getTeamMoods,
   getMoodAnalytics,
   getMoodAnalyticsPerTeam,
+  getTeamMoodConfiguration,
 }
