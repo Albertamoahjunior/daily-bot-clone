@@ -522,7 +522,7 @@ app.action('open_standup_modal', async ({ ack, body, client }: SlackActionMiddle
           const kudos_categories = teamKudosCategories.map(category => category.category);
 
 
-          const categories = kudos_categories.length? kudos_categories : ['Teamwork', 'Innovation', 'Leadership', 'Creativity'];
+          const categories = kudos_categories.length? kudos_categories : ['teamwork', 'innovation', 'leadership', 'creativity'];
           const buttonElements: ButtonElement[] = categories.map((category) => ({
             type: 'button',
             text: { 
