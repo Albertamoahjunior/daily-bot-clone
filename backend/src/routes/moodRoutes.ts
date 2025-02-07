@@ -1,9 +1,11 @@
 import { Router } from 'express';
-import { createMoodController, createMoodResponseController, getMoodResponseController } from '../controllers/moodControllers';
+import { createMoodController,getMoodsController, createMoodResponseController, getMoodResponseController, getMoodAnalyticsController } from '../controllers/moodControllers';
 
 const router = Router();
 
-router.post('/mood', createMoodController);
+router.post('/', createMoodController);
+router.get('/', getMoodsController);
+router.get('/analytics', getMoodAnalyticsController);
 router.post('/mood-response', createMoodResponseController);
 router.get('/mood-response/:userId', getMoodResponseController);
 

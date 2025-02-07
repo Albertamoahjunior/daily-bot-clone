@@ -2,6 +2,14 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+interface Mood {
+  id: string;
+  mood: string;
+  teamId: string;
+  description: string;
+  moodScore: number;
+  createdAt: Date;
+}
 //create team
 async function createTeam(teamId: string, teamName: string, timeZone: string) {
   const team = await prisma.team.create({
@@ -406,16 +414,24 @@ async function getKudosAnalytics() {
     }));
 }
 
-//create mood
-async function createMood(mood: string, teamId: string, description: string) {
-  const moodType = await prisma.mood.create({
-    data: {
-      mood,
-      teamId,
-      description
-    },
+
+//create moods in a batch
+async function createMood(moods: {  mood: string; emojiId: string; moodScore: number; teamId: string; description: string }[]) {
+  const createdMoods = await prisma.mood.createMany({
+    data: moods,
   });
-  return moodType;
+  return createdMoods;
+}
+
+//function to get all moods and then group them by their teamIds
+async function getTeamMoods() {
+  const moods = await prisma.mood.findMany();
+  const groupedMoods = moods.reduce((acc, mood) => {
+    acc[mood.teamId] = (acc[mood.teamId] || []).concat(mood);
+    return acc;
+  }, {} as Record<string, Mood[]>);
+
+  return groupedMoods;
 }
 
 //get mood response
@@ -425,6 +441,34 @@ async function getMoodResponse(userId: string) {
   });
   return moodResponse;
 }
+
+//get all moods, then group them by their createdAt date and then counts for each mood on that date
+async function getMoodAnalytics() {
+  const moods = await prisma.mood.findMany();
+  const moodResponses = await prisma.moodResponse.findMany();
+
+  const analytics = moodResponses.reduce((acc, response) => {
+    const date = response.createdAt.toISOString().split('T')[0];
+    const mood = moods.find(m => m.id === response.moodId);
+
+    if (!mood) return acc;
+
+    if (!acc[date]) {
+      acc[date] = {};
+    }
+
+    if (!acc[date][mood.mood]) {
+      acc[date][mood.mood] = 0;
+    }
+
+    acc[date][mood.mood] += 1;
+
+    return acc;
+  }, {} as Record<string, Record<string, number>>);
+
+  return analytics;
+}
+
 
 
 
@@ -461,4 +505,6 @@ export {
   getKudosAnalytics,
   createMood,
   getMoodResponse,
+  getTeamMoods,
+  getMoodAnalytics,
 }

@@ -7,6 +7,7 @@ import memberRoutes from "./routes/memberRoutes";
 import standupRoutes from "./routes/standupRoutes";
 import pollRoutes from "./routes/pollRoutes";
 import kudosRoutes from "./routes/kudosRoutes";
+import mood from "./routes/moodRoutes";
 import { homeDesign, listenForChannelCreation, addJoinedMmebers } from "./utils/update";
 import { listenKudos } from "./utils/slack_bot";
 dotenv.config();
@@ -26,6 +27,7 @@ express_app.use('/api/v1/members', memberRoutes);
 express_app.use('/api/v1/standup', standupRoutes);
 express_app.use('/api/v1/poll', pollRoutes);
 express_app.use('/api/v1/kudos', kudosRoutes);
+express_app.use('/api/v1/mood', mood);
 //slack listeners
 homeDesign();
 listenForChannelCreation();

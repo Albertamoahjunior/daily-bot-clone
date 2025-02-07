@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createMoodResponse, getMoodResponse, createMood } from '../db';
+import { createMoodResponse, getMoodResponse, createMood, getTeamMoods, getMoodAnalytics } from '../db';
 
 const emojis = [
     {
@@ -29,15 +29,24 @@ const emojis = [
     },
 ]
 
-//controller to create a mood
+//controller to create moods
 export async function createMoodController(req: Request, res: Response) {
-    const { mood, teamId, description } = req.body;
+    const { moods } = req.body;
 
     try {
-        const createdMood = await createMood(mood, teamId, description);
-        res.status(201).json(createdMood);
+        const moodResponse = await createMood(moods);
+        res.status(201).json(moodResponse);
     } catch (error) {
         res.status(500).json({ error: 'Failed to create mood' });
+    }
+}
+
+export async function getMoodsController(req: Request, res: Response){
+    try {
+        const moods = await getTeamMoods();
+        res.status(200).json(moods);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to get moods' });
     }
 }
 
@@ -49,6 +58,7 @@ export async function createMoodResponseController(req: Request, res: Response) 
         const moodResponse = await createMoodResponse(userId, mood, teamId, anonymous);
         res.status(201).json(moodResponse);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: 'Failed to create mood response' });
     }
 }
@@ -66,5 +76,15 @@ export async function getMoodResponseController(req: Request, res: Response) {
         }
     } catch (error) {
         res.status(500).json({ error: 'Failed to get mood response' });
+    }
+}
+
+//controller to get mood analytics
+export async function getMoodAnalyticsController(req: Request, res: Response) {
+    try {
+        const analytics = await getMoodAnalytics();
+        res.status(200).json(analytics);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to get mood analytics' });
     }
 }

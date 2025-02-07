@@ -123,7 +123,10 @@ model MoodResponse {
 model Mood {
   id          String   @id @default(cuid())
   mood        String   // MOOD
+  emojiId     String   // Emoji
+  moodScore   Int      //score for mood
   teamId      String   // TEAMID
   description String   // DESCRIPTION
   createdAt   DateTime  @default(now())// CREATEDAT
 }
+
