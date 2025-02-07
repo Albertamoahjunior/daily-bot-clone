@@ -3,15 +3,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeamInputDropdown } from './TeamDropdownInput';
 import { Button } from "@/components/ui/button";
 import { useTeamsContext } from '../hooks/useTeamsContext';
+import { kudosService } from '@/services/api';
 import { Trophy, Gift, Star, Users, ChevronDown } from 'lucide-react';
 
+interface MemberKudos {
+  position: number;           // The position of the member
+  memberId: string;          // Unique identifier for the member
+  teams: string[];           // Array of team IDs the member belongs to
+  topCategory: string | null; // The top category for kudos, can be null
+  kudosCount: number;        // The count of kudos received by the member
+}
 
 export const KudosHome = () => {
 
-        const {teams} = useTeamsContext();
+        const {teams, members} = useTeamsContext();
         const [teamsOptions, setTeamsOptions] = useState<{value: string; label:string}[]| undefined>(undefined);
         const [selectedTeam, setSelectedTeam] = useState<string>("");
+
+        const [kudosLeaderboard, setKudosLeaderBoard] = useState<MemberKudos[]>()
+
+        const getLeaderBoard = async () => {
+          const leaderboard:MemberKudos[] = await kudosService.getKudosAnalytics();
+          return leaderboard;
+        }
     
+        useEffect(() => {
+          const fetchLeaderBoard = async () => {
+            const leaderboard = await getLeaderBoard();
+            setKudosLeaderBoard(leaderboard);
+          };
+      
+          fetchLeaderBoard(); // Call the async function
+        }, []);
+
         useEffect(() => {
             const options = teams?.map((team) => ({
                 value: team.id,
@@ -70,9 +94,9 @@ export const KudosHome = () => {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Leaderboard — Top receivers</CardTitle>
             <div className="flex gap-4">
-              <Button variant="outline" className="text-slate-600">
+              {/* <Button variant="outline" className="text-slate-600">
                 Last 30 days <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
+              </Button> */}
               {/* <Button variant="outline" className="text-slate-600">
                 All teams <ChevronDown className="ml-2 h-4 w-4" />
               </Button> */}
@@ -88,25 +112,21 @@ export const KudosHome = () => {
           <CardContent>
             <div className="space-y-4">
               {/* Leaderboard Entry */}
-              {[
-                { position: 1, name: "Alex Chen", kudos: 7, team: "Engineering" },
-                { position: 2, name: "Sarah Kim", kudos: 5, team: "Design" },
-                { position: 3, name: "Mike Johnson", kudos: 4, team: "Product" }
-              ].map((entry) => (
-                <div key={entry.position} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <span className="text-xl font-bold text-slate-600">#{entry.position}</span>
-                    <div>
-                      <p className="font-medium text-slate-800">{entry.name}</p>
-                      <p className="text-sm text-slate-600">{entry.team}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4 text-yellow-500" />
-                    <span className="font-medium">{entry.kudos} kudos</span>
-                  </div>
-                </div>
-              ))}
+              {kudosLeaderboard?.map((entry) => (
+        <div key={entry.position} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+          <div className="flex items-center gap-4">
+            <span className="text-xl font-bold text-slate-600">#{entry.position}</span>
+            <div className=''>
+              <p className="font-medium text-slate-800 mb-2 ">{members?.find((member) => member.id === entry.memberId)?.memberName.toUpperCase()}</p> {/* Assuming memberId is the name */}
+              <p className={`text-sm ${entry.topCategory? "text-green-600":"text-amber-600"}`}>{entry.topCategory?.toUpperCase() || 'No Category'}</p> {/* Display topCategory or 'No Team' */}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Star className="w-4 h-4 text-yellow-500" />
+            <span className="font-medium">{entry.kudosCount} kudos</span>
+          </div>
+        </div>
+      ))}
             </div>
           </CardContent>
         </Card>
