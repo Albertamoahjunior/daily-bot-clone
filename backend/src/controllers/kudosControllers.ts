@@ -1,11 +1,32 @@
 import { Request, Response } from 'express';
 import { createKudos, getTeamKudos, getUserKudosCount, createKudosCategory, getTeamKudosCategories, getKudosAnalytics } from '../db';
+import { app } from '../config/bot.config';
 
+const slackClient = app.client;
 // Controller to create kudos
 export async function createKudosController(req: Request, res: Response) {
     const { giverId, receiverId, teamId, reason, category } = req.body;
     try {
         const kudos = await createKudos(giverId, receiverId, teamId, reason, category);
+
+        //if kudos successful, send a message to the team that giver sent kudos to reciever
+        const message = `<@${giverId}> has given a kudos to <@${receiverId}> for "${reason}".`;
+        await slackClient.chat.postMessage({
+            channel: teamId,
+            text: message,
+        });
+
+
+        //then send a message to the reciever also
+        const userMessage = `<@${giverId}> gave you kudos for "${reason}".`;
+
+        await slackClient.chat.postMessage({
+            channel: receiverId,
+            text: userMessage,
+        });
+
+        res.status(201).json(kudos);
+    
         res.status(201).json(kudos);
     } catch (error) {
         res.status(500).json({ error: 'Failed to create kudos' });
