@@ -93,6 +93,8 @@ export const memberService = {
 // Mood API services
 interface CreateMoodPayload {
     mood: string;
+    moodScore: number;
+    emojiId: "001"| "002"| "003"| "004"|"-005";
     teamId: string;
     description: string;
 }
@@ -115,6 +117,15 @@ export const moodService = {
         }
     },
 
+    getMoods: async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/mood`);
+            return response.data;
+        } catch (error) {
+            return error;
+        }
+    },
+
     // Create a mood response
     createMoodResponse: async (payload: MoodResponsePayload) => {
         try {
@@ -129,6 +140,16 @@ export const moodService = {
     getMoodResponse: async (userId: string) => {
         try {
             const response = await axios.get(`${API_BASE_URL}/mood-response/${userId}`);
+            return response.data;
+        } catch (error) {
+            return error;
+        }
+    },
+
+    // Get mood response by user ID
+    getMoodAnalyticsForTeam: async (userId: string) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/mood/${userId}/analytics`);
             return response.data;
         } catch (error) {
             return error;

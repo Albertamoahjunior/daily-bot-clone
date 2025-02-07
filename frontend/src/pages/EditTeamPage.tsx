@@ -129,7 +129,7 @@ export const EditTeamPage = () => {
         </div>
 
         {isModalOpen && <AddMemberModal isOpen={isModalOpen} teamId={teamId || ""} onClose={() => handleModalClose()} />}
-        {isStandupModalOpen && <ConfigureStandupModal isOpen={isStandupModalOpen} onClose={() => handleStandupModalClose()} />}
+        {isStandupModalOpen && <ConfigureStandupModal teamId={teamId || ""} isOpen={isStandupModalOpen} onClose={() => handleStandupModalClose()} />}
 
     </>
     )

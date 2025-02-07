@@ -22,12 +22,12 @@ export interface MoodGlobal {
 }
 
 
-export interface MoodData {
-  date: string;
-  happy: number;
-  neutral: number;
-  unhappy: number;
-}
+// export interface MoodData {
+//   date: string;
+//   happy: number;
+//   neutral: number;
+//   unhappy: number;
+// }
 
 export interface MoodResponse {
   id: string;
@@ -52,3 +52,22 @@ export interface ICreateMoodProps{
   // question: string;
 
 }
+
+ export interface TeamMood {
+    id: string;
+    mood: string;
+    emojiId: string;
+    moodScore: number;
+    teamId: string;
+    description: string;
+    createdAt: string; // ISO date string
+  }
+
+  interface AllMoods {
+    [teamId: string]: TeamMood[]; // Keyed by teamId with an array of Mood objects
+  }
+
+  interface MoodData {
+    date: string; // date is always a string
+    [feeling: "excited"| "smile"| "angry" | "meh" | "sad"]: number ; // Dynamic properties for various feelings
+  }

@@ -13,7 +13,10 @@ import {MemberMoodHistory} from '../components/MemberMoodHistory';
 import {CreateMoodModal} from '../components/CreateMoodModal'
 import {MoodInsights} from '../components/MoodInsights'
 import {DeleteModal} from '../components/DeleteModal'
-import {MoodResponse} from "../types/Mood";
+import {MoodResponse,MoodData, AllMoods} from "../types/Mood";
+
+
+import {moodService} from "../services/api"
 
 
 
@@ -21,7 +24,7 @@ import {MoodResponse} from "../types/Mood";
 
 
 export const TeamMoodPage: React.FC = () => {
-  const {teamMood, allMoodResponses, allEmojis} = useTeamMoodContext();
+  const { allMoodResponses, allEmojis, allTeamMoods} = useTeamMoodContext();
   const [moodCheckInConfigured, setMoodCheckInConfigured] = useState(true);
   const [createMoodPage, setCreateMoodPage] = useState(true);
   const [pageState, setPageState] = useState<"home"|"mood-history">("home")
@@ -42,11 +45,14 @@ export const TeamMoodPage: React.FC = () => {
   const [moodHistTeamsList, setMoodHistTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
   const [moodHistDate, setMoodHistDate] = useState<string>("");
 
+  const [teamMoodSummaryByDate, setTeamMoodSummaryByDate] = useState<MoodData[]>()
+
     const [filteredMoodResponses, setFilteredMoodResponses] = useState<MoodResponse[] | undefined>(undefined);
   
 
     // Filter logic
     const handleFilter = () => {
+
       let filtered = allMoodResponses;
       
 
@@ -121,7 +127,14 @@ export const TeamMoodPage: React.FC = () => {
     
       // Populate membersList based on the selected team
       useEffect(() => {
+        const fetchMoodData = async (userId: string) => {
+          const data = await moodService.getMoodAnalyticsForTeam(userId);
+          setTeamMoodSummaryByDate(data);
+        };
+        
         if (selectedTeam) {
+          fetchMoodData(selectedTeam);
+
           const filteredMembers = members?.filter((member:Member) => member.teams.includes(selectedTeam))
             .map((member) => ({
               value: member.id,
@@ -184,7 +197,9 @@ export const TeamMoodPage: React.FC = () => {
 
             <div className="flex w-full justify-between">
             <p className="text-left text-lg mt-2">Track and analyze your team's mood trends and engagement</p>
-            <button onClick={() => {setDeleteMood(true)}} className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200 "> Delete Your Mood Check In</button>
+            {selectedTeam && allTeamMoods && Object.keys(allTeamMoods).includes(selectedTeam) ?
+            <button onClick={() => {setDeleteMood(true)}} className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200 "> Delete Your Mood Check In </button>
+            : ""}
             {deleteMood && <DeleteModal title={"Delete Mood"} description={"Do You Want To Delete Your Team's Mood Check-In"} isOpen={deleteMood} onConfirm={handleDeleteMood} onClose={() => setDeleteMood(false)}/>}
             </div>
           </header>
@@ -210,12 +225,16 @@ export const TeamMoodPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={teamMood} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <LineChart data={teamMoodSummaryByDate} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" stroke="#888" />
                     <YAxis stroke="#888" />
-                    <Tooltip contentStyle={{ backgroundColor: "#f3f4f6", color: "#111" }} />
-                    <Line type="monotone" dataKey="happy" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
+                    <Tooltip contentStyle={{ backgroundColor: "#f3f4f6", color: "#111" }} />    { name: "Excited", value: moodData.reduce((acc, day) => acc + (day.excited || 0), 0), fill: "#34D399" },
+    { name: "Smile", value: moodData.reduce((acc, day) => acc + (day.smile || 0), 0), fill: "#4ADE80" },
+    { name: "Meh", value: moodData.reduce((acc, day) => acc + (day.meh || 0), 0), fill: "#FBBF24" },
+    { name: "Angry", value: moodData.reduce((acc, day) => acc + (day.angry || 0), 0), fill: "#F87171" },
+    { name: "Sad", value: moodData.reduce((acc, day) => acc + (day.sad || 0), 0), fill: "#6B7280" },
+                    <Line type="smile" dataKey="happy" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
                     <Line type="monotone" dataKey="neutral" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
                     <Line type="monotone" dataKey="unhappy" stroke="#F87171" strokeWidth={2} dot={{ r: 5 }} />
                   </LineChart>
@@ -240,7 +259,7 @@ export const TeamMoodPage: React.FC = () => {
 
 
 
-            <MoodInsights moodData={teamMood} selectedTeam={selectedTeam}/>
+            <MoodInsights moodData={teamMoodSummaryByDate} selectedTeam={selectedTeam}/>
 
 
             {selectedTeam.length ? 
@@ -250,7 +269,7 @@ export const TeamMoodPage: React.FC = () => {
                   <CardTitle>Mood Distribution</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <MoodPercentageDisplay moodData={teamMood} />
+                  <MoodPercentageDisplay moodData={teamMoodSummaryByDate} />
                 </CardContent>
               </Card>
             :
@@ -296,7 +315,7 @@ export const TeamMoodPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={teamMood} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <LineChart data={teamMoodSummaryByDate} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" stroke="#888" />
                     <YAxis stroke="#888" />

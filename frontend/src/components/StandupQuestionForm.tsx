@@ -16,12 +16,14 @@ interface QuestionFormProps {
 const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
   const [format, setFormat] = useState<QuestionFormat>("freeText");
   const [question, setQuestion] = useState<string>("");
+
   const [options, setOptions] = useState<string[]>([""]);
   const [required, setRequired] = useState<boolean>(false);
+
   const [optionEmpty, setOptionEmpty] = useState<boolean>(false);
   const [questionEmpty, setQuestionEmpty] = useState<boolean>(false);
   const {selectedTimes, setSelectedTimesError, selectedOptions, setSelectedOptionsError} = useStandupModalContext();
-  
+  const [allQuestions, setAllQuestions] = useState<>();
 
   const handleOptionChange = (index: number, value: string) => {
     const updatedOptions = [...options];
@@ -49,6 +51,10 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
     setQuestionEmpty(false);
   };
 
+  const saveQuestion = () => {
+
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -74,6 +80,8 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
     }
 
 
+
+
     // Prepare and submit data
     const data = {
       format,
@@ -81,6 +89,8 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
       options: format === "multiple_choice" ? options : undefined,
       required,
     };
+
+
     
     onSubmit(data);
     resetForm(); // Call reset after successful submission
@@ -188,10 +198,16 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
 
         {/* Submit Button */}
         <button
-          type="submit"
+          onClick={saveQuestion}
           className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition"
         >
           Save Question
+        <button
+        type='submit'
+        className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition" >
+          CONFIGURE STANDUP QUESTION
+        <button>
+          
         </button>
       </form>
     </div>

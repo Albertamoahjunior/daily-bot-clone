@@ -11,11 +11,7 @@ import {StandupForm} from './StandupForm';
 
 
 export const ConfigureStandupModal = ({isOpen, onClose}:ICreateTeamProps) => {
-    //const [isChecked, setIsChecked] = useState(false);
-    //const [teamName, setTeamName] = useState("");
 
-    //const handleNameChange = (e:React.ChangeEvent<HTMLInputElement> ) => {setTeamName(e.target.value)}
-   
     // Function to close the modal when clicking outside
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if (e.target === e.currentTarget) {
