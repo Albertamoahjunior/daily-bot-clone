@@ -286,11 +286,18 @@ export const pollService = {
 };
 
 //Standup API services
+interface standupQuestion {
+    questionText: string;
+    options: [];
+    questionType: "freeText" | "multiple_choice" | "single_choice",
+    required: boolean;
+}
+
 interface ConfigureStandupPayload {
     teamId: string;
     standupDays: string[];
     reminderTimes: string[];
-    questions: string[];
+    questions: standupQuestion[];
 }
 
 export const standupService = {
