@@ -147,6 +147,21 @@ async function removeTeam(teamId: string) {
   });
 }
 
+//update a particular team
+async function updateTeam(teamId: string, teamName: string, timezone: string) {
+  // Update team name and members
+  const updatedTeam = await prisma.team.update({
+    where: { id: teamId },
+    data: {
+      teamName,
+      timezone
+    },
+  });
+
+  return updatedTeam;
+}
+
+
 //create a standup setup for a team
 async function createStandupSetup(
   teamId: string,
@@ -514,6 +529,7 @@ async function getMoodAnalyticsPerTeam(teamId: string) {
 
 export {
   createTeam,
+  updateTeam,
   addMembersToTeam,
   getMembers,
   getTeamMembers,
