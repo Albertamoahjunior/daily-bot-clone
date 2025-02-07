@@ -519,10 +519,11 @@ app.action('open_standup_modal', async ({ ack, body, client }: SlackActionMiddle
           const teamKudosCategories = await getTeamKudosCategories(channel)
           
           //then get only the categories and put them into an array
-          const kudos_categories = teamKudosCategories.map(category => category.category);
+          let kudos_categories = teamKudosCategories.map(category => category.category);
+          kudos_categories = ['teamwork', 'innovation', 'leadership', 'creativity'];
 
 
-          const categories = kudos_categories.length? kudos_categories : ['teamwork', 'innovation', 'leadership', 'creativity'];
+          const categories = kudos_categories
           const buttonElements: ButtonElement[] = categories.map((category) => ({
             type: 'button',
             text: { 
