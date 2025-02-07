@@ -11,13 +11,14 @@ import { useTeamsContext } from '@/hooks/useTeamsContext';
 import ToggleSwitch from './ToggleSwitch';
 import {StandupForm} from './StandupForm';
 import { teamService } from '@/services/api';
+import {toast} from 'react-toastify';
 
 
 export const CreateTeamModal = ({isOpen, onClose}:ICreateTeamProps) => {
     const [isChecked, setIsChecked] = useState(false);
     const [teamName, setTeamName] = useState("");
     const { selectedTimezone, handleTimezoneChange, timezoneOptions } = useTimeZoneSelection({timezone:''});
-    const {teams, setTeams, addMembers} = useTeamsContext();
+    const {teams, setTeams, addMembers, teamMembers, setTeamMembers} = useTeamsContext();
 
     const navigate = useNavigate()
 
@@ -46,23 +47,29 @@ export const CreateTeamModal = ({isOpen, onClose}:ICreateTeamProps) => {
             const updated_new_team = {
                 id: teamCreated.id,
                 status: teamCreated.status,
-                teamName: teamCreated.team,
+                teamName: teamCreated.teamName,
                 timezone: teamCreated.timezone,
                 standup: teamCreated.standup
             } 
 
             //also add selected members
             const members_added = await addMembers(teamCreated.id);
-            console.log(members_added)
+            console.log("Members Added",members_added)
             
             if(teams){
                 setTeams([...teams, updated_new_team]);
             }
+            
+            if(teamMembers){
+                setTeamMembers([]);
+            }
+            toast.success("🎉You've Successfully created a team!!")
             // Close the modal
             onClose();
 
+
             // Redirect to the team page
-            // navigate('/teams')
+            navigate('/teams')
             console.log('success')
         }
         catch(err){

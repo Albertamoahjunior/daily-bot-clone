@@ -14,14 +14,18 @@ const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
     const [error, setError] = useState<string | null>(null);
     const [teamMembers, setTeamMembers] = useState<Member[] | undefined>(undefined);
     const [members_to_be_added_team, setMembersToBeAddedToTeam] = useState<string[]|[]>([]);
-
+    const [reloadTeams, setReloadTeams] = useState<boolean>(false);
     // const members_to_be_added_team = teamMembers?.map(member => member.id)
 
     // const membersPayload ={
     //     members: members_to_be_added_team ? members_to_be_added_team : [] 
     // }
+    const toggleReloadTeams = () => setReloadTeams(true);
 
     useEffect(() => {
+        if(reloadTeams){
+            setReloadTeams(false);
+        }
         const members_to_be_added_team = teamMembers?.map(member => member.id);
         if(members_to_be_added_team && members_to_be_added_team.length){
             setMembersToBeAddedToTeam(members_to_be_added_team);
@@ -63,9 +67,10 @@ const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
                     console.log("membersResult.value", membersResult.value);
                     setMembers(membersResult.value);
                 }
-
-
+                
+                
                 if (teamsResult.status === 'fulfilled') {
+                    console.log("teamsResult.value", teamsResult.value);
                     setTeams(teamsResult.value);
                 }
 
@@ -90,10 +95,10 @@ const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
         };
 
         fetchData();
-    }, []);
+    }, [reloadTeams]);
 
     return (
-        <teamsContext.Provider value={{ members, teams, setMembers, setTeams, loading, error, addMembers, teamMembers, setTeamMembers }}>
+        <teamsContext.Provider value={{ members, teams, setMembers, setTeams, toggleReloadTeams, loading, error, addMembers, teamMembers, setTeamMembers }}>
             {children}
         </teamsContext.Provider>
     );

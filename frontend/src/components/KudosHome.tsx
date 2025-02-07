@@ -13,8 +13,8 @@ export const KudosHome = () => {
         const [selectedTeam, setSelectedTeam] = useState<string>("");
     
         useEffect(() => {
-            const options = teams.map((team) => ({
-                value: team.teamID,
+            const options = teams?.map((team) => ({
+                value: team.id,
                 label: team.teamName
             }));
             setTeamsOptions(options);

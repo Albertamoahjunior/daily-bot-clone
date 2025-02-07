@@ -1,40 +1,136 @@
 
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {  faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {TeamCard} from "../components/TeamCard";
 import { CreateTeamModal } from '../components/CreateTeamModal';
 import { useTeamsContext } from '../hooks/useTeamsContext';
+import { useStandupContext } from '../hooks/useStandupContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Plus, Users } from 'lucide-react';
+import { TeamStandup } from '@/types/StandupDashboard';
 
 export interface TeamsOverviewCardProps {
     title: string;
-    value: number | undefined;
+    value: number | string | undefined;
+    valueClassname? :string;
     icon: React.ComponentType<{ className?: string }>;
   }
 
 export const TeamsPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const {teams, members} = useTeamsContext();
+    const {standups} = useStandupContext();
+    const totalMembers = members?.length;
+    const [activeTeams,setActiveTeams] = useState<number | undefined>();
+    const [mostActiveTeams,setMostActiveTeams] = useState<TeamActivity[] | undefined>();
 
+    
+    useEffect(() => {
+      const mostActiveTeams = getMostActiveTeams();
+      setMostActiveTeams(mostActiveTeams)
+      const activeTeams = teams?.length;
+      setActiveTeams(activeTeams);
+    }, [standups, teams])
   // Calculate metrics
-  const activeTeams = teams?.length;
-  const totalMembers = members?.length;
 
+  interface TeamActivity {
+    teamId: string;
+    teamName: string;
+    activityScore: number;
+    metrics: {
+      totalResponses: number;
+      responsesLastWeek: number;
+      activeMembers: number;
+      configuredStandups: boolean;
+      standupDays: number;
+    };
+  }
+  
+  const calculateTeamActivity = (
+    teams: Team[] | undefined, 
+    standupHistory: TeamStandup[]
+  ): TeamActivity[]|undefined => {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  
+    return teams?.map(team => {
+      // Find standup history for this team
+      const teamStandupHistory = standupHistory.find(s => s.teamId === team.id);
+      
+      // Calculate total responses
+      const totalResponses = teamStandupHistory?.standup.reduce(
+        (sum, question) => sum + question.response.length,
+        0
+      ) || 0;
+  
+      // Calculate responses in the last week
+      const responsesLastWeek = teamStandupHistory?.standup.reduce(
+        (sum, question) => sum + question.response.filter(
+          r => new Date(r.date) >= oneWeekAgo
+        ).length,
+        0
+      ) || 0;
+  
+      // Count active members (members who responded at least once)
+      const activeMembers = teamStandupHistory
+        ? new Set(
+            teamStandupHistory.standup.flatMap(q => 
+              q.response.map(r => r.userId)
+            )
+          ).size
+        : 0;
+  
+      // Check if team has configured standups
+      const hasConfiguredStandups = Boolean(team.standup);
+      
+      // Get number of standup days configured
+      const standupDays = team.standup?.standupDays.length || 0;
+  
+      // Calculate activity score
+      // This formula can be adjusted based on what factors are most important
+      const activityScore = (
+        (responsesLastWeek * 3) + // Recent activity weighted more heavily
+        (totalResponses) +
+        (activeMembers * 2) +
+        (hasConfiguredStandups ? 5 : 0) +
+        (standupDays * 2)
+      );
+  
+      return {
+        teamId: team.id,
+        teamName: team.teamName,
+        activityScore,
+        metrics: {
+          totalResponses,
+          responsesLastWeek,
+          activeMembers,
+          configuredStandups: hasConfiguredStandups,
+          standupDays
+        }
+      };
+    });
+  };
+  
+  const getMostActiveTeams = ( limit: number = 3) => {
+    const teamActivity = calculateTeamActivity(teams, standups);
+    
+    return teamActivity?.sort((a, b) => b.activityScore - a.activityScore)
+      .slice(0, limit);
+  };
   
 //   const recentActivities = teams.filter(team => 
 //     team.status === 'active' && new Date(team.createdAt || '').getMonth() === new Date().getMonth()
 //   ).length;
 
-    const TeamsOverviewCard: React.FC<TeamsOverviewCardProps> = ({ title, value, icon: Icon }) => (
+    const TeamsOverviewCard: React.FC<TeamsOverviewCardProps> = ({ title, value, icon: Icon, valueClassname }) => (
         <Card className="bg-gradient-to-br from-slate-50 to-gray-50 hover:shadow-lg transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-800">{title}</CardTitle>
             <Icon className="h-5 w-5 text-slate-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-slate-700">{value}</div>
+            <div className={`text-3xl font-bold text-slate-700 ${valueClassname}`}>{value}</div>
           </CardContent>
         </Card>
       );
@@ -43,7 +139,7 @@ export const TeamsPage = () => {
     return (
         <>
         <div className='w-full p-6'>
-            <h2 className="text-3xl text-[#1F2937]">Goodmorning James!</h2>
+            {/* <h2 className="text-3xl text-[#1F2937]">Goodmorning James!</h2>
 
             <div className="flex justify-between items-center ">
                 <p>Manage Your Teams</p>
@@ -52,10 +148,9 @@ export const TeamsPage = () => {
                     <FontAwesomeIcon icon={faCirclePlus} size={"lg"} />
                     <span className="ml-2">Create New Team</span>
                 </button>
-            </div>
+            </div> */}
 
 
-                 Header Section with Gradient
       <div className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 rounded-lg mb-8">
         <h2 className="text-3xl font-bold text-white mb-2">Welcome back, James!</h2>
         <p className="text-white/80">Manage and organize your teams efficiently</p>
@@ -74,8 +169,9 @@ export const TeamsPage = () => {
           icon={Users}
         />
         <TeamsOverviewCard
-          title="Recent Activities"
-          value={activeTeams? activeTeams * 2 : 0} // Example metric
+          title="Most Active Team"
+          valueClassname="text-2xl"
+          value={mostActiveTeams? mostActiveTeams[0].teamName.toUpperCase() : "None"}
           icon={Users}
         />
       </div>

@@ -139,7 +139,7 @@ export const moodService = {
 // Kudos API services
 interface CreateKudosPayload {
     giverId: string;
-    receiverId: string;
+    receiverId: string|string[];
     teamId: string;
     reason: string;
     category: string;

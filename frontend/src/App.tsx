@@ -31,7 +31,9 @@ function App() {
         <Route path="/" element={<DashBoardLayout/>} >
           <Route path='teams' element={
             <TeamsContextProvider>
+              <StandupsContextProvider>
               <TeamsPage/>
+              </StandupsContextProvider>
             </TeamsContextProvider>
           } />
           

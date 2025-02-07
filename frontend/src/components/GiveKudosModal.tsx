@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { useTeamsContext } from '../hooks/useTeamsContext';
@@ -7,6 +7,7 @@ import { useKudosForm } from '../hooks/useKudosForm';
 import { KudosInput } from './KudosInput';
 import { KudosTextArea } from './KudosTextArea';
 import { KudosCategoryDropdown } from './KudosCategoryDropdown';
+import { GiverInput } from './GiverInput';
 
 interface GiveKudosModalProps {
   isOpen: boolean;
@@ -26,9 +27,13 @@ export const GiveKudosModal: React.FC<GiveKudosModalProps> = ({ isOpen, onClose 
     selectedCategory,
     handleCategoryChange,
     kudosReason,
+    giverId,
+    handleGiverSelect,
+    handleGiverDeselect,
     setKudosReason,
     handleSubmit,
   } = useKudosForm(teams, members);
+
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (e.target === e.currentTarget) {
@@ -51,6 +56,13 @@ export const GiveKudosModal: React.FC<GiveKudosModalProps> = ({ isOpen, onClose 
         </div>
 
         <div className="flex flex-col gap-6 my-6 mb-8 mx-20">
+          <GiverInput
+            members={members}
+            selectedUsers={giverId}
+            onUserSelect={handleGiverSelect}
+            onUserDeselect={handleGiverDeselect}
+          />
+
           <TeamInputDropdown
             inputName="Select a Team "
             options={teamsList}
@@ -65,6 +77,7 @@ export const GiveKudosModal: React.FC<GiveKudosModalProps> = ({ isOpen, onClose 
             onUserDeselect={handleUserDeselect}
           />
 
+
           <KudosCategoryDropdown
             optionText="Select A Kudos Category"
             selectedCategory={selectedCategory}
@@ -76,7 +89,7 @@ export const GiveKudosModal: React.FC<GiveKudosModalProps> = ({ isOpen, onClose 
 
         <div className="mt-14 w-full flex justify-center">
           <button
-            className="text-white bg-green-600 hover:bg-green-700 rounded-full w-full mx-20 px-6 py-4"
+            className="text-white bg-blue-400 hover:bg-blue-600 rounded-full w-full mx-20 px-6 py-4"
             onClick={handleSubmit}
           >
             Give Kudos

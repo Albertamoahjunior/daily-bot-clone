@@ -1,20 +1,32 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import {kudosService} from '../services/api'
 
-
-export const useKudosForm = (teams: Team[], members: Member[]) => {
+export const useKudosForm = (teams: Team[]|undefined, members: Member[]|undefined) => {
   const [teamsList, setTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
   const [membersList, setMembersList] = useState<{ value: string; label: string }[] | undefined>(undefined);
   const [selectedTeam, setSelectedTeam] = useState('');
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('teamwork');
   const [kudosReason, setKudosReason] = useState('');
+
+    const [giverId, setGiverId] = useState<string>('');
+    const handleGiverSelect = (user: string | null) => {
+      if (user) {
+        setGiverId(user);
+      }
+    };
+  
+    // Modified to handle single user selection
+    const handleGiverDeselect = () => {
+      setGiverId('');
+    };
 
   // Populate teamsList
   useEffect(() => {
     setTeamsList(
-      teams.map((team) => ({
-        value: team.teamID,
+      teams?.map((team) => ({
+        value: team.id,
         label: team.teamName,
       }))
     );
@@ -22,64 +34,112 @@ export const useKudosForm = (teams: Team[], members: Member[]) => {
 
   // Populate membersList based on the selected team
   useEffect(() => {
+    console.log("SelectedTeam", selectedTeam);
+    console.log("Members in useKudos", members);
     if (selectedTeam) {
       const filteredMembers = members
-        .filter((member) => member.teamId.includes(selectedTeam))
+        ?.filter((member) => member?.teams.includes(selectedTeam))
         .map((member) => ({
           value: member.id,
-          label: member.name,
+          label: member.memberName,
         }));
+      console.log("Filtered Members", filteredMembers);
       setMembersList(filteredMembers);
     } else {
       setMembersList(undefined);
     }
   }, [selectedTeam, members]);
 
+  useEffect(() => {
+    if(!giverId && selectedTeam){
+      const filteredMembers = members
+      ?.filter((member) => member?.teams.includes(selectedTeam))
+      .map((member) => ({
+        value: member.id,
+        label: member.memberName,
+      }));
+      console.log("Filtered Members", filteredMembers);
+      setMembersList(filteredMembers);
+    } 
+    if (membersList && giverId) {
+      const filtered = membersList.filter(member => member.value !== giverId);
+      setMembersList(filtered);
+    }
+  }, [giverId, membersList]);
+
   const handleTeamChange = (value: string) => {
     setSelectedTeam(value);
   };
 
   const handleUserSelect = (user: string | null) => {
-    if (user && !selectedUsers.includes(user)) {
-      setSelectedUsers((prevUsers) => [...prevUsers, user]);
+    if (user) {
+      setSelectedUsers(user);
     }
   };
 
-  const handleUserDeselect = (newSelectedUsers: string[]) => {
-    setSelectedUsers(newSelectedUsers);
+  // Modified to handle single user selection
+  const handleUserDeselect = () => {
+    setSelectedUsers('');
   };
 
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
   };
 
-  const handleSubmit = () => {
-    if (selectedUsers.length > 0 && kudosReason.trim() !== '') {
-      toast.success('Kudos sent successfully!');
-      // Reset form fields
-      setSelectedUsers([]);
-      setKudosReason('');
+  const handleSubmit = async () => {
+    if (selectedUsers && kudosReason.trim() !== '' && giverId) {
+      const kudosPayload = {
+        teamId: selectedTeam,
+        giverId: giverId,
+        receiverId: selectedUsers, // Now sending single string instead of array
+        category: selectedCategory,
+        reason: kudosReason,
+      };
+
+      try {
+        const response = await kudosService.createKudos(kudosPayload);
+        
+        if (response === true) {
+          console.log('Kudos created successfully');
+          toast.success('Kudos sent successfully!');
+          // Reset form fields
+          setSelectedUsers('');
+          setGiverId('')
+          setKudosReason('');
+        } else {
+          console.error('Error creating kudos.Mae sure all Fields are filled', response);
+          toast.error('Failed to send kudos. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error creating kudos:', error);
+        toast.error('Failed to send kudos. Please try again.');
+      }
     } else {
-      toast.error('Please select at least one recipient and provide a kudos reason.');
+      toast.error('Please select a recipient and provide a kudos reason.');
     }
   };
 
   return {
     teamsList,
     membersList,
-
+    
     selectedTeam,
     handleTeamChange,
-
+    
     selectedUsers,
     handleUserSelect,
     handleUserDeselect,
-
+    
     selectedCategory,
     handleCategoryChange,
-
+    
     kudosReason,
     setKudosReason,
+
+    giverId,
+    setGiverId,
+    handleGiverSelect,
+    handleGiverDeselect,
     
     handleSubmit,
   };

@@ -4,6 +4,9 @@ import { DeleteModal } from "../components/DeleteModal";
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { faFileExport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { teamService } from "@/services/api";
+import { toast } from "react-toastify";
+import { useTeamsContext } from "@/hooks/useTeamsContext";
 
 interface ITeamProps {
     teamId: string;
@@ -12,11 +15,23 @@ interface ITeamProps {
 
 export const TeamCard = ({ teamId, teamName }: ITeamProps) => {
     const [isModalOpen, setModalOpen] = useState(false);
+    const { toggleReloadTeams } = useTeamsContext();
 
     const handleOpenModal = () => setModalOpen(true);
     const handleCloseModal = () => setModalOpen(false);
-    const handleDelete = () => {
+    const handleDelete =async () => {
         console.log('Team deleted');
+
+        const response = await teamService.removeTeam(teamId);
+        
+        if (response === true) {
+            toggleReloadTeams();
+            toast.success('Team removed successfully');
+            console.log('Team removed successfully');
+        } else {
+            toast.success('Error removing team');
+            console.error('Error removing team:', response);
+        }
         // Perform delete logic here
         setModalOpen(false);
     };
@@ -35,7 +50,7 @@ export const TeamCard = ({ teamId, teamName }: ITeamProps) => {
                     <FontAwesomeIcon icon={faTrashCan} />
                 </button>
                 <div className="relative group">
-                    <button className="mx-2 rounded-lg p-1 px-3 border-2 border-black bg-white text-black hover:bg-[#dc966d]">
+                    <button className="mx-2 rounded-lg p-1 px-3 border-2 border-black bg-white text-black hover:bg-teal-300">
                         <FontAwesomeIcon icon={faFileExport} />
                     </button>
                     <span className="w-[120px] absolute left-1/2 transform -translate-x-1/2 -translate-y-full mb-2 hidden group-hover:block border border-black bg-gray-100 text-black font-semibold text-xs rounded py-1 px-2" style={{ left: '180%' }}>

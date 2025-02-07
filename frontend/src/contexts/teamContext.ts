@@ -27,6 +27,7 @@ export const teamsContext = createContext<{
     setMembers: React.Dispatch<React.SetStateAction<Member[] | undefined>>;
     setTeamMembers: React.Dispatch<React.SetStateAction<Member[] | undefined>>;
     setTeams: React.Dispatch<React.SetStateAction<Team[] | undefined>>;
+    toggleReloadTeams: () => void;
     addMembers: (teamId: string) => Promise<string>;
     loading: boolean;
     error: string | null;
