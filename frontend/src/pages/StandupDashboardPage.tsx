@@ -474,7 +474,7 @@ export const StandupDashboardPage = () => {
       <div className="bg-white p-6 rounded-md shadow-md">
         <div className="flex text-center items-center justify-between mb-6">
           <h1 className="text-2xl font-bold mb-6 text-gray-800">Team Standups</h1>
-          <button className="bg-green-600 hover:bg-green-500 text-white py-3 px-6 rounded-lg" onClick={() => exportToExcel(standups)}>
+          <button className="bg-green-600 hover:bg-green-500 text-white py-3 px-6 rounded-lg" onClick={() => exportToExcel(filteredStandups)}>
             Export Results
           </button>
 
