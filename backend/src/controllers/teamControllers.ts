@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createTeam, addMembersToTeam, getTeams, getTeam, removeTeam, removeMembersFromTeam } from '../db';
+import { createTeam, addMembersToTeam, getTeams, getTeam, removeTeam, removeMembersFromTeam, updateTeam } from '../db';
 import { app } from '../config/bot.config';
 
 const slackClient = app.client;
@@ -103,5 +103,53 @@ export async function removeMembersFromTeamController(req: Request, res: Respons
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Failed to remove member from team' });
+    }
+}
+
+//team controller to update team details in database and on slack
+// Controller to update team details
+export async function updateTeamController(req: Request, res: Response) {
+    const { teamId } = req.params;
+    const { teamName, timezone, members } = req.body;
+    try {
+        // Update the team details in the database
+        const updatedTeam = await updateTeam(teamId, teamName, timezone);
+
+         //get all members that belong to a certain channel
+         const currentMembers = await slackClient.conversations.members({ channel: teamId });
+         const currentMembersIds = currentMembers.members;
+
+        if (currentMembersIds) {
+            // If there are members to be removed, remove them
+            const membersToRemove = currentMembersIds.filter((member) => !members.includes(member));
+            for (const member of membersToRemove) {
+                await slackClient.conversations.kick({
+                    channel: teamId,
+                    user: member,
+                });
+            }
+
+            // If there are new members, invite them
+            for (const member of currentMembersIds) {
+                if (!members.includes(member)) {
+                    await slackClient.conversations.invite({
+                        channel: teamId,
+                        users: member,
+                    });
+                }
+            }
+        }
+
+
+        // Update the channel name on Slack
+        await slackClient.conversations.rename({
+            channel: teamId,
+            name: teamName.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+        });
+
+        res.status(200).json(updatedTeam);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Failed to update team' });
     }
 }
