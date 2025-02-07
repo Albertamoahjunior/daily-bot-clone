@@ -35,7 +35,7 @@ function App() {
             </TeamsContextProvider>
           } />
           
-          <Route path='teams/edit/:teamId/:team' element={
+          <Route path='teams/edit/:teamId' element={
             <TeamsContextProvider>
               <StandupsContextProvider>
                 <EditTeamPage/>
