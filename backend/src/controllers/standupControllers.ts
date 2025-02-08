@@ -56,18 +56,24 @@ export async function getStandupRespondents(req: Request, res: Response) {
         //get all members in the team
         const members = await getTeamMembers(teamId);
 
-        //filter members who do not have a record in the standup responses with createdAt date to be today
+        // console.log(members);
+        // console.log(standupResponses);
+        
+        // For non-respondents (people who haven't responded today)
         const standupNonRespondents = members.filter(member => {
             const memberResponses = standupResponses.filter(response => response.userId === member);
-            return memberResponses.length === 0 || memberResponses.some(response => new Date(response.createdAt).toDateString() === new Date().toDateString());
+            return !memberResponses.some(response => 
+            new Date(response.createdAt).toDateString() === new Date().toDateString()
+            );
         });
         
+        // For respondents (people who have responded today)
         const standupRespondents = members.filter(member => {
             const memberResponses = standupResponses.filter(response => response.userId === member);
-            return memberResponses.some(response => 
-                new Date(response.createdAt).toDateString() === new Date().toDateString()
+            return memberResponses.some(response =>
+            new Date(response.createdAt).toDateString() === new Date().toDateString()
             );
-        });        
+        });     
 
 
         res.status(200).json({ standupNonRespondents, standupRespondents });

@@ -97,6 +97,8 @@ interface CreateMoodPayload {
     emojiId: "001"| "002"| "003"| "004"|"-005";
     teamId: string;
     description: string;
+    emojiId: string;
+    moodScore: number;
 }
 
 interface MoodResponsePayload {
@@ -108,9 +110,9 @@ interface MoodResponsePayload {
 
 export const moodService = {
     // Create a new mood
-    createMood: async (payload: CreateMoodPayload) => {
+    createMood: async (payload: CreateMoodPayload[]) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/mood`, payload);
+            const response = await axios.post(`${API_BASE_URL}/mood`, {moods: payload});
             return response.data;
         } catch (error) {
             return error;

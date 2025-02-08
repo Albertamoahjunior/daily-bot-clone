@@ -8,6 +8,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Smile, Frown, Meh, Laugh, Angry } from 'lucide-react';
 import { toast } from 'react-toastify';
+import {moodService} from '../services/api'
 
 interface MoodScoreItem {
     score: number;
@@ -15,6 +16,7 @@ interface MoodScoreItem {
     label: string;
     comment: string;
     error: string;
+    emojiId: string;
   }
 
 export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
@@ -72,7 +74,8 @@ export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
         return !hasErrors;
     };
 
-    const createMoodCheckIn = ( ) => {
+    //create mood over here....
+    const createMoodCheckIn = async ( ) => {
         if(moodInputFields && moodInputFields.length < 3){
             toast.error("Choose At Least Three Emojis");
             return
@@ -85,8 +88,33 @@ export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
         }
         
 
-        //run submit functionality here/api call
+        //mood data
+        // Gather data in one object
+        const moodData = {
+            selectedTeam,
+            question: moodQuestion,
+            selectedEmojiIds: selectedEmojis, // Emoji names or IDs
+            moodResponses: moodInputFields.map(item => ({
+                emoji: item.emojiId, 
+                score: item.score,
+                moodLabel: item.label
+            }))
+        };
 
+
+        const individualMoodObjects = moodData.moodResponses.map(response => ({
+            teamId: moodData.selectedTeam,
+            mood: moodData.question,
+            emojiId: response.emoji,
+            moodScore: response.score,
+            description: response.moodLabel
+          }));
+
+        //run submit functionality here/api call
+          const moodCreated = await moodService.createMood(individualMoodObjects)
+          if(moodCreated){
+            onClose();
+          }
         
     }
 
@@ -111,19 +139,19 @@ export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
 
         switch(emoji){
             case "Excited": 
-                setMoodInputFields((prevFields) => [...prevFields, {emoji: '😄', score: 0, label: "", comment:"Excited", error: "" }])
+                setMoodInputFields((prevFields) => [...prevFields, {emoji: '😄', score: 0, label: "", comment:"Excited", error: "", emojiId: "001" }])
                 break;
             case "Sad": 
-                setMoodInputFields((prevFields) => [...prevFields, {emoji: '🙁', score: 0, label: "", comment:"Sad", error: "" }])
+                setMoodInputFields((prevFields) => [...prevFields, {emoji: '🙁', score: 0, label: "", comment:"Sad", error: "", emojiId: "002" }])
                 break;
             case "Smile": 
-                setMoodInputFields((prevFields) => [...prevFields, {emoji: '🙂', score: 0, label: "", comment:"Smile", error: "" }])
+                setMoodInputFields((prevFields) => [...prevFields, {emoji: '🙂', score: 0, label: "", comment:"Smile", error: "", emojiId: "003" }])
                 break;
             case "Meh": 
-                setMoodInputFields((prevFields) => [...prevFields, {emoji: '😐', score: 0, label: "", comment:"Meh", error: "" }])
+                setMoodInputFields((prevFields) => [...prevFields, {emoji: '😐', score: 0, label: "", comment:"Meh", error: "", emojiId: "004" }])
                 break;
             case "Angry": 
-                setMoodInputFields((prevFields) => [...prevFields, {emoji: '😡', score: 0, label: "", comment:"Angry", error: "" }])
+                setMoodInputFields((prevFields) => [...prevFields, {emoji: '😡', score: 0, label: "", comment:"Angry", error: "", emojiId: "005" }])
                 break;
             default:
                 break;
@@ -189,7 +217,7 @@ export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
                             Question
                         </label>
                         <input className="transition-all ease-in-out duration-300 focus:shadow-md border-[1px] border-gray-400 p-4 focus:bg-white " 
-                        type="text" placeholder="Enter your Mood Question" value={moodQuestion} onChange={(e:React.ChangeEvent<HTMLInputElement> ) => {setMoodQuestion(e.target.value)}}/>
+                        type="text" placeholder="Enter your Mood question" value={moodQuestion} onChange={(e:React.ChangeEvent<HTMLInputElement> ) => {setMoodQuestion(e.target.value)}}/>
                     </div>
 
                     <div className="flex flex-col gap-2 mt-4 ">
@@ -207,6 +235,11 @@ export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
                             Select Emoji To Represent Mood
                         </label>
                         <div className='mx-auto px-20 flex justify-between rounded-lg border-gray-700 border-2  bg-gray-100 h-30 w-full items-center'>
+                            {/* <Smile onClick={() => {selectedEmojis.includes("Smile")? removeEmoji("Smile"): handleEmojiClick("Smile") }} className={`${selectedEmojis.includes("Smile") && 'text-yellow-500'} h-10 w-10 hover:text-yellow-500 transition-colors duration-300`} />
+                            <Frown onClick={() => {selectedEmojis.includes("Sad")? removeEmoji("Sad"):handleEmojiClick("Sad")}} className={`${selectedEmojis.includes("Sad") && 'text-red-500'} h-10 w-10 hover:text-red-500 transition-colors duration-300`} />
+                            <Meh onClick={() => {selectedEmojis.includes("Meh")? removeEmoji("Meh"):handleEmojiClick("Meh")}} className={`${selectedEmojis.includes("Meh") && 'text-gray-500'} h-10 w-10 hover:text-gray-500 transition-colors duration-300`} />
+                            <Laugh onClick={() => {selectedEmojis.includes("Excited")? removeEmoji("Excited"):handleEmojiClick("Excited")}} className={`${selectedEmojis.includes("Excited") && 'text-green-500'}  h-10 w-10 hover:text-green-500 transition-colors duration-300`} />
+                            <Angry onClick={() => {selectedEmojis.includes("Angry")? removeEmoji("Angry"):handleEmojiClick("Angry")}} className={`${selectedEmojis.includes("Angry") && 'text-orange-500'} h-10 w-10 hover:text-orange-500 transition-colors duration-300`} /> */}
                             <Smile onClick={() => {selectedEmojis.includes("Smile")? removeEmoji("Smile"): handleEmojiClick("Smile") }} className={`${selectedEmojis.includes("Smile") && 'text-yellow-500'} h-10 w-10 hover:text-yellow-500 transition-colors duration-300`} />
                             <Frown onClick={() => {selectedEmojis.includes("Sad")? removeEmoji("Sad"):handleEmojiClick("Sad")}} className={`${selectedEmojis.includes("Sad") && 'text-red-500'} h-10 w-10 hover:text-red-500 transition-colors duration-300`} />
                             <Meh onClick={() => {selectedEmojis.includes("Meh")? removeEmoji("Meh"):handleEmojiClick("Meh")}} className={`${selectedEmojis.includes("Meh") && 'text-gray-500'} h-10 w-10 hover:text-gray-500 transition-colors duration-300`} />
