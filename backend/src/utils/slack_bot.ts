@@ -1,4 +1,4 @@
-import { createStandupResponses, getStandupQuestions, getTeamMembers, getTeamStandups, getStandupResponses, getUserKudosCount, createKudos, getTeamKudosCategories, createPollResponses, getPollResponses, createMoodResponse} from '../db';
+import { createStandupResponses, getStandupQuestions, getTeamMembers, getTeamStandups, getStandupResponses, getUserKudosCount, createKudos, getTeamKudosCategories, createPollResponses, getPollResponses, createMoodResponse, getTeamMoodConfiguration} from '../db';
 import { app } from '../config/bot.config';
 import schedule from 'node-schedule';
 import { WebClient } from '@slack/web-api';
@@ -50,8 +50,10 @@ async function getStandupNonRespondents(teamId: string) {
 
         //filter members who do not have a record in the standup responses with createdAt date to be today
         const standupNonRespondents = members.filter(member => {
-            const memberResponses = standupResponses.filter(response => response.userId === member);
-            return memberResponses.length === 0 || memberResponses.some(response => new Date(response.createdAt).toDateString() === new Date().toDateString());
+          const memberResponses = standupResponses.filter(response => response.userId === member);
+          return memberResponses.length === 0 || !memberResponses.some(response => 
+            new Date(response.createdAt).toDateString() === new Date().toDateString()
+          );
         });
 
 
@@ -224,8 +226,9 @@ export function scheduleReminders({
             //get all non respondents
             const standupNonRespondents = await getStandupNonRespondents(channelId);
             const  memberIds = standupNonRespondents.standupNonRespondents;
+            console.log(memberIds)
 
-            //console.log(standupNonRespondents)
+            console.log(standupNonRespondents)
 
             const job = schedule.scheduleJob(
                 `reminder-${timeIndex}-${dayIndex}`,
@@ -234,7 +237,7 @@ export function scheduleReminders({
                     try {
                          //Send it to the channel
                          let channel_reminder: any;
-                         if(memberIds && memberIds.length > 0){
+                         if(memberIds && memberIds.length){
                             channel_reminder = await slackClient.chat.postMessage({
                                 channel: channelId,
                                 text: '🎯 Hey team! Here is your daily standup reminder. Please check your dms. I have sent your daily standup to fill',
@@ -407,6 +410,23 @@ app.action('open_standup_modal', async ({ ack, body, client }: SlackActionMiddle
       });
 
       //after let users choose from a list of moods(buttons) for the day
+      // Helper function to map emojiIds to actual emojis
+      const getEmojiForId = (emojiId: string): string => {
+        const emojiMap: Record<string, string> = {
+          '001': '🤩',
+          '002': '🥺',
+          '003': '😁',
+          '004': '🙂',
+          '005': '😴',
+        };
+        
+        return emojiMap[emojiId] || '❓'; // Return a fallback emoji if ID not found
+      };
+
+      const teamMoodConfigs = await getTeamMoodConfiguration(teamId);
+
+      
+
       await client.chat.postMessage({
         channel: userId,
         text: 'Select your mood for the day:',
@@ -420,35 +440,15 @@ app.action('open_standup_modal', async ({ ack, body, client }: SlackActionMiddle
           },
           {
             type: 'actions',
-            elements: [
-              {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: '😁 happy',
-                },
-                value: 'happy',
-                action_id: 'update_mood_happy',
+            elements: teamMoodConfigs.map(config => ({
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: `${getEmojiForId(config.emojiId)} ${config.description}`,
               },
-              {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: '🙂 okay',
-                },
-                value: 'okay',
-                action_id: 'update_mood_okay',
-              },
-              {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: '🥺 sad',
-                },
-                value: 'sad',
-                action_id: 'update_mood_sad',
-              },
-            ],
+              value: config.description,
+              action_id: `update_mood_${config.description.toLowerCase()}`,
+            })),
           },
         ],
       });
@@ -468,6 +468,7 @@ app.action('open_standup_modal', async ({ ack, body, client }: SlackActionMiddle
             text: `Your mood has been updated to ${mood}!`,
           });
         } catch (error) {
+          console.log(error)
           console.error('Error updating mood:', error);
         }
       });
