@@ -1,16 +1,13 @@
 //import {useState} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {  faCircleXmark } from '@fortawesome/free-regular-svg-icons';
-// import { CreateTeamMembersSearch } from './CreateTeamMembersSearch';
-// import { AddMembersTable } from './AddMembersTable';
-// import {TeamInput } from './TeamInput';
-// import {TeamInputDropdown } from './TeamDropdownInput';
-// import { useTimeZoneSelection } from '../hooks/useTimeZoneSelection';
-// import ToggleSwitch from './ToggleSwitch';
+
 import {StandupForm} from './StandupForm';
+import StandupModalContextProvider from '@/contexts/StandupModalContext'
 
 
-export const ConfigureStandupModal = ({isOpen, onClose}:ICreateTeamProps) => {
+
+export const ConfigureStandupModal = ({isOpen, onClose, teamId}:ICreateTeamProps) => {
 
     // Function to close the modal when clicking outside
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -38,7 +35,9 @@ export const ConfigureStandupModal = ({isOpen, onClose}:ICreateTeamProps) => {
                 </div>
 
                 <div className="mt-10 mx-20">
-                 <StandupForm/>
+                <StandupModalContextProvider>
+                 <StandupForm teamId={teamId? teamId : undefined}/>
+                </StandupModalContextProvider>
                 </div>
 
             </div>

@@ -12,6 +12,8 @@ import ToggleSwitch from './ToggleSwitch';
 import {StandupForm} from './StandupForm';
 import { teamService } from '@/services/api';
 import {toast} from 'react-toastify';
+import StandupModalContextProvider from '@/contexts/StandupModalContext'
+
 
 
 export const CreateTeamModal = ({isOpen, onClose}:ICreateTeamProps) => {
@@ -19,7 +21,7 @@ export const CreateTeamModal = ({isOpen, onClose}:ICreateTeamProps) => {
     const [teamName, setTeamName] = useState("");
     const { selectedTimezone, handleTimezoneChange, timezoneOptions } = useTimeZoneSelection({timezone:''});
     const {teams, setTeams, addMembers, teamMembers, setTeamMembers} = useTeamsContext();
-
+    const [teamId, setTeamId] = useState<string>('');
     const navigate = useNavigate()
 
 
@@ -51,6 +53,8 @@ export const CreateTeamModal = ({isOpen, onClose}:ICreateTeamProps) => {
                 timezone: teamCreated.timezone,
                 standup: teamCreated.standup
             } 
+
+            setTeamId(teamCreated?.id);
 
             //also add selected members
             const members_added = await addMembers(teamCreated.id);
@@ -126,7 +130,10 @@ export const CreateTeamModal = ({isOpen, onClose}:ICreateTeamProps) => {
                 </div>
 
                 <div className="mt-10 mx-20">
-                {isChecked && <StandupForm />}
+                <StandupModalContextProvider>
+                
+                    {isChecked && <StandupForm teamId={teamId}/>}
+                </StandupModalContextProvider>
                 </div>
 
                 <div className="mt-20 w-full flex justify-center">

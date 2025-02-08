@@ -83,6 +83,7 @@ export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
             toast.error("Your Form Has Errors");
             return;
         }
+        
 
         //run submit functionality here/api call
 

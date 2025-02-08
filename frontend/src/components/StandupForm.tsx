@@ -1,9 +1,20 @@
 import MultiSelectDropdown from './MultiSelectDropdown'
 import TimeSelectDropdown from './TimeSelectDropdown'
 import StandupQuestionForm from './StandupQuestionForm'
-import StandupModalContextProvider from '@/contexts/StandupModalContext'
+import {useStandupModalContext} from "../hooks/useStandupModalContext"
+import {useEffect} from 'react'
 
-export const StandupForm = () => {
+interface IStandupForm{
+    teamId: string | undefined
+}
+export const StandupForm = ({teamId}: IStandupForm ) => {
+    const { setTeamId } = useStandupModalContext()
+
+    useEffect(() => {
+        if(teamId){
+            setTeamId(teamId)
+        }
+    }, [])
 
     const daysOfWeek = [
         "Monday",
@@ -14,7 +25,6 @@ export const StandupForm = () => {
       ];
 
     return (
-        <StandupModalContextProvider>
         <div className="w-full">
             <div className="space-y-10">
                 <MultiSelectDropdown label="Select Standup Days" options={daysOfWeek} />
@@ -23,6 +33,5 @@ export const StandupForm = () => {
                 <StandupQuestionForm onSubmit={()=> {}}/>
             </div>
         </div>
-        </StandupModalContextProvider>
     )
 }

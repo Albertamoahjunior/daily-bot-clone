@@ -6,6 +6,8 @@ interface IStandupModalContextProvider {
 }
 
 export const standupModalContext = createContext<{
+    setTeamId: React.Dispatch<React.SetStateAction<string>>;
+    teamId: string;
     selectedTimes: string[],
     selectedOptions: string[],
     selectedTimesError: boolean;
@@ -22,6 +24,7 @@ const StandupModalContextProvider = ({children}: IStandupModalContextProvider) =
     const [selectedTimesError, setSelectedTimesError] = useState<boolean>(false);
     const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
     const [selectedOptionsError, setSelectedOptionsError] = useState<boolean>(false);
+    const [teamId, setTeamId] = useState<string>('');
     
     
 
@@ -29,7 +32,8 @@ const StandupModalContextProvider = ({children}: IStandupModalContextProvider) =
         <standupModalContext.Provider value = {{ selectedOptions, selectedTimes,
                                                 selectedTimesError, selectedOptionsError, 
                                                 setSelectedTimesError, setSelectedOptionsError,
-                                                setSelectedOptions, setSelectedTimes}}>
+                                                setSelectedOptions, setSelectedTimes,
+                                                teamId, setTeamId}}>
             {children}
         </standupModalContext.Provider>
     )

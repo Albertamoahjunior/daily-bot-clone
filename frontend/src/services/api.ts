@@ -286,9 +286,9 @@ export const pollService = {
 };
 
 //Standup API services
-interface standupQuestion {
+ export interface standupQuestion {
     questionText: string;
-    options: [];
+    options: string[];
     questionType: "freeText" | "multiple_choice" | "single_choice",
     required: boolean;
 }

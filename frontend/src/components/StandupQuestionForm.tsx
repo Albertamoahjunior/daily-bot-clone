@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { useStandupModalContext } from "@/hooks/useStandupModalContext";
+import {standupQuestion, standupService} from "../services/api"
+import {toast} from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 
 type QuestionFormat = "freeText" | "multiple_choice" | "single_choice";
@@ -13,7 +16,9 @@ interface QuestionFormProps {
   }) => void;
 }
 
-const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
+
+
+const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit}) => {
   const [format, setFormat] = useState<QuestionFormat>("freeText");
   const [question, setQuestion] = useState<string>("");
 
@@ -22,8 +27,13 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
 
   const [optionEmpty, setOptionEmpty] = useState<boolean>(false);
   const [questionEmpty, setQuestionEmpty] = useState<boolean>(false);
-  const {selectedTimes, setSelectedTimesError, selectedOptions, setSelectedOptionsError} = useStandupModalContext();
-  const [allQuestions, setAllQuestions] = useState<>();
+  const {selectedTimes, setSelectedTimesError, selectedOptions, setSelectedOptionsError, teamId} = useStandupModalContext();
+  const [allQuestions, setAllQuestions] = useState<standupQuestion[] >([]);
+
+
+  const navigate = useNavigate();
+
+
 
   const handleOptionChange = (index: number, value: string) => {
     const updatedOptions = [...options];
@@ -53,11 +63,6 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
 
   const saveQuestion = () => {
 
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
     // Validate form
     if (question.trim() === "") {
       setQuestionEmpty(true);
@@ -74,8 +79,47 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
       return;
     }
 
+    setAllQuestions((prevAllQuestions) => [
+      ...(prevAllQuestions || []), // Fallback to an empty array if prevAllQuestions is undefined
+      {
+          questionText: question,
+          options: format === "multiple_choice" ? options : [],
+          // options: options, // Ensure options is an array
+          questionType: format,
+          required: required
+      }
+  ]);
+  
+    console.log("All Questions", allQuestions)
+    resetForm();
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate form
+    // if (question.trim() === "") {
+    //   setQuestionEmpty(true);
+    //   return;
+    // }
+
+    // if (format === "multiple_choice" && options.some((option) => option.trim() === "")) {
+    //   setOptionEmpty(true);
+    //   return;
+    // }
+
+    // if(selectedOptions.length <= 0){
+    //   setSelectedOptionsError(true);
+    //   return;
+    // }
+
     if(selectedTimes.length <= 0){
       setSelectedTimesError(true);
+      return;
+    }
+
+    if(selectedOptions.length <= 0){
+      setSelectedOptionsError(true);
       return;
     }
 
@@ -84,18 +128,32 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
 
     // Prepare and submit data
     const data = {
-      format,
-      question,
-      options: format === "multiple_choice" ? options : undefined,
-      required,
+      teamId: teamId,
+      reminderTimes: selectedTimes,
+      standupDays: selectedOptions,
+      questions: allQuestions,
     };
+
+    try{
+      const response = await standupService.configureStandup(data);
+      if(response){
+        console.log(response)
+        toast.success("🎊Successfully created Standup");
+        navigate(`/teams/edit/${teamId}`)
+      }
+      else{
+        console.log(response)
+        toast.error("Error creating Standup")
+      }
+    }catch(err){
+      console.log("Try Catch Error Creating Standup", err);
+    }
 
 
     
-    onSubmit(data);
+    // onSubmit(data);
     resetForm(); // Call reset after successful submission
   };
-
   return (
     <div className="w-full bg-white">
       <form onSubmit={handleSubmit}>
@@ -114,7 +172,7 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
             <option value="single_choice">Single Choice</option>
           </select>
         </div>
-
+  
         {/* Question Input */}
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">
@@ -136,7 +194,7 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
             </div>
           )}
         </div>
-
+  
         {/* Options for Multiple Choice */}
         {format === "multiple_choice" && (
           <div className="mb-4">
@@ -169,7 +227,7 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
             </button>
           </div>
         )}
-
+  
         {/* Options for Single Choice */}
         {format === "single_choice" && (
           <div className="mb-4">
@@ -182,7 +240,7 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
             </ul>
           </div>
         )}
-
+  
         {/* Required Checkbox */}
         <div className="mb-4">
           <label className="flex items-center">
@@ -195,23 +253,29 @@ const StandupQuestionForm: React.FC<QuestionFormProps> = ({ onSubmit }) => {
             <span className="text-gray-700">Required</span>
           </label>
         </div>
+  
+        {/* Buttons */}
+        <div className="flex flex-col space-y-2">
+          <button
+            type="button"
+            onClick={saveQuestion}
+            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition"
+          >
+            Save Question
+          </button>
+        </div>
 
-        {/* Submit Button */}
-        <button
-          onClick={saveQuestion}
-          className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition"
-        >
-          Save Question
-        <button
-        type='submit'
-        className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition" >
-          CONFIGURE STANDUP QUESTION
-        <button>
-          
-        </button>
+
+          <button
+            type="submit"
+            className="w-full mt-10 bg-gray-500 brder-black text-white p-2 rounded-md hover:bg-green-600 transition"
+          >
+            CONFIGURE STANDUP QUESTION
+          </button>
       </form>
     </div>
   );
-};
+}  
+
 
 export default StandupQuestionForm;

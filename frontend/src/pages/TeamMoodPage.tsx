@@ -229,12 +229,13 @@ export const TeamMoodPage: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" stroke="#888" />
                     <YAxis stroke="#888" />
-                    <Tooltip contentStyle={{ backgroundColor: "#f3f4f6", color: "#111" }} />    { name: "Excited", value: moodData.reduce((acc, day) => acc + (day.excited || 0), 0), fill: "#34D399" },
-    { name: "Smile", value: moodData.reduce((acc, day) => acc + (day.smile || 0), 0), fill: "#4ADE80" },
+                    <Tooltip contentStyle={{ backgroundColor: "#f3f4f6", color: "#111" }} />    
+    {/* { name: "Excited", value: moodData.reduce((acc, day) => acc + (day.excited || 0), 0), fill: "#34D399" }, */}
+    {/* { name: "Smile", value: moodData.reduce((acc, day) => acc + (day.smile || 0), 0), fill: "#4ADE80" },
     { name: "Meh", value: moodData.reduce((acc, day) => acc + (day.meh || 0), 0), fill: "#FBBF24" },
     { name: "Angry", value: moodData.reduce((acc, day) => acc + (day.angry || 0), 0), fill: "#F87171" },
-    { name: "Sad", value: moodData.reduce((acc, day) => acc + (day.sad || 0), 0), fill: "#6B7280" },
-                    <Line type="smile" dataKey="happy" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
+    { name: "Sad", value: moodData.reduce((acc, day) => acc + (day.sad || 0), 0), fill: "#6B7280" }, */}
+                    <Line type="monotone" dataKey="happy" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
                     <Line type="monotone" dataKey="neutral" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
                     <Line type="monotone" dataKey="unhappy" stroke="#F87171" strokeWidth={2} dot={{ r: 5 }} />
                   </LineChart>
