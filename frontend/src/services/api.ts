@@ -94,11 +94,9 @@ export const memberService = {
 interface CreateMoodPayload {
     mood: string;
     moodScore: number;
-    emojiId: "001"| "002"| "003"| "004"|"-005";
+    emojiId: "001"| "002"| "003"| "004"|"005";
     teamId: string;
     description: string;
-    emojiId: string;
-    moodScore: number;
 }
 
 interface MoodResponsePayload {
