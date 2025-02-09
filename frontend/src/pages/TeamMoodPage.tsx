@@ -127,8 +127,10 @@ export const TeamMoodPage: React.FC = () => {
     
       // Populate membersList based on the selected team
       useEffect(() => {
-        const fetchMoodData = async (userId: string) => {
-          const data = await moodService.getMoodAnalyticsForTeam(userId);
+        const fetchMoodData = async (teamId: string) => {
+          const data = await moodService.getMoodAnalyticsForTeam(teamId);
+          console.log("Selected Team: ", teamId);
+          console.log("Mood Data For Selected Team", data);
           setTeamMoodSummaryByDate(data);
         };
         
@@ -180,6 +182,29 @@ export const TeamMoodPage: React.FC = () => {
     setMoodCheckInConfigured(false)
   }
 
+// Custom Tooltip Component
+  const CustomTooltip: React.FC<{ active?: boolean; payload?: any[] }> = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div style={{ backgroundColor: '#f3f4f6', padding: '10px', borderRadius: '5px' }}>
+          <p style={{ color: '#111' }}>{`Date: ${payload[0].payload.date}`}</p>
+          {payload.map((entry, index) => {
+            if (entry.value !== undefined) {
+              return (
+                <p key={`item-${index}`} style={{ color: entry.color }}>
+                  {`${entry.name}: ${entry.value}`}
+                </p>
+              );
+            }
+            return null;
+          })}
+        </div>
+      );
+    }
+
+    return null;
+  };
+
 
   return (
     <AnimationWrapper key={"mood-page"}>
@@ -219,39 +244,45 @@ export const TeamMoodPage: React.FC = () => {
             </div>
 
             {selectedTeam.length ? 
-            <Card className="bg-white shadow-2xl rounded-2xl">
-              <CardHeader>
-                <CardTitle>Team Mood Trends</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={teamMoodSummaryByDate} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" stroke="#888" />
-                    <YAxis stroke="#888" />
-                    <Tooltip contentStyle={{ backgroundColor: "#f3f4f6", color: "#111" }} />    
-    {/* { name: "Excited", value: moodData.reduce((acc, day) => acc + (day.excited || 0), 0), fill: "#34D399" }, */}
-    {/* { name: "Smile", value: moodData.reduce((acc, day) => acc + (day.smile || 0), 0), fill: "#4ADE80" },
-    { name: "Meh", value: moodData.reduce((acc, day) => acc + (day.meh || 0), 0), fill: "#FBBF24" },
-    { name: "Angry", value: moodData.reduce((acc, day) => acc + (day.angry || 0), 0), fill: "#F87171" },
-    { name: "Sad", value: moodData.reduce((acc, day) => acc + (day.sad || 0), 0), fill: "#6B7280" }, */}
-                    <Line type="monotone" dataKey="happy" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
-                    <Line type="monotone" dataKey="neutral" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
-                    <Line type="monotone" dataKey="unhappy" stroke="#F87171" strokeWidth={2} dot={{ r: 5 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+              teamMoodSummaryByDate?.length !== 0?
+                <Card className="bg-white shadow-2xl rounded-2xl">
+                  <CardHeader>
+                    <CardTitle>Team Mood Trends</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={teamMoodSummaryByDate} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" stroke="#888" />
+                        <YAxis stroke="#888" />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Line type="monotone" dataKey="excited" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="smile" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="angry" stroke="#F87171" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="meh" stroke="#A1A1AA" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="sad" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card> : 
+                <Card className="bg-white shadow-2xl rounded-2xl">
+                  <CardHeader>
+                    <CardTitle>Team Mood Trends</CardTitle>
+                  </CardHeader>
+                <CardContent className="w-full">
+                  <p className="text-center text-gray-500">No mood data available</p>
+                </CardContent>
+              </Card>
             :
             <Card className='bg-white'>
                 <CardHeader>
                     <CardTitle className="text-lg font-medium">
-                        No Poll Selected
+                        No Team Selected
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="text-sm text-gray-500">
-                        Please select a team poll to view the results.
+                        Please select a team to view the mood results.
                     </div>
                 </CardContent>
             </Card>
@@ -277,12 +308,12 @@ export const TeamMoodPage: React.FC = () => {
               <Card className='bg-white'>
                   <CardHeader>
                       <CardTitle className="text-lg font-medium">
-                          No Poll Selected
+                          No Team Selected
                       </CardTitle>
                   </CardHeader>
                   <CardContent>
                       <div className="text-sm text-gray-500">
-                          Please select a team poll to view the results.
+                          Please select a team to view the mood results.
                       </div>
                   </CardContent>
               </Card>

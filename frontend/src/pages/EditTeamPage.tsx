@@ -20,13 +20,16 @@ export const EditTeamPage = () => {
     const {teamId, team} = useParams();
     const {teams, members} = useTeamsContext();
     const teamObj = teams?.find(t => t.id === teamId);
-    const [teamName, setTeamName] = useState((teamObj as Team).teamName || team);
+    const hasStandup = teamObj?.standup !== null;
+    const [teamName, setTeamName] = useState((teamObj as Team).teamName);
     const [isModalOpen, setModalOpen] = useState(false);
     const [isStandupModalOpen, setStandupModalOpen] = useState(false);
     const { selectedTimezone, handleTimezoneChange, timezoneOptions } = useTimeZoneSelection({ timezone: (teamObj as Team).timezone });
     const {  standupQuestions } = useStandupContext();
+    // Find the current team's standups
+    const teamStandupQuestions: StandupQuestion[] = standupQuestions.filter(s => s.teamID === teamId);
 
-    console.log(members)
+    // console.log(members)
 
     const handleNameChange = (e:React.ChangeEvent<HTMLInputElement> ) => {setTeamName(e.target.value)}
 
@@ -40,8 +43,6 @@ export const EditTeamPage = () => {
     }
 
   
-    // Find the current team's standups
-    const teamStandupQuestions: StandupQuestion[] = standupQuestions.filter(s => s.teamID === teamId);
     
     const handleDeleteQuestion = (questionIndex: number) => {
       // Implement delete functionality
@@ -66,7 +67,7 @@ export const EditTeamPage = () => {
             <div className="space-y-6">
                 <TeamInput 
                 labelName={"Team Name"} 
-                inputType={'text'} inputPlaceholder={"Enter New Team Name"} inputValue={(teamObj as Team).teamName} onInputChange={handleNameChange}
+                inputType={'text'} inputPlaceholder={"Enter New Team Name"} inputValue={teamName} onInputChange={handleNameChange}
                 />
 
                 {/*Team Input Dropdown */}
@@ -96,13 +97,13 @@ export const EditTeamPage = () => {
                     <h2 className="text-xl font-semibold text-slate-800">Standup Questions</h2>
                     <p className="text-sm text-slate-500">Configure your team's daily standup questions</p>
                     </div>
-                    <button onClick={() => setStandupModalOpen(true)} className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200">
+                    {teamStandupQuestions.length <= 0 && <button onClick={() => setStandupModalOpen(true)} className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200">
                         <Settings className="h-4 w-4" />
                         <span>Configure Questions</span>
-                    </button>
+                    </button>}
                 </div>
 
-                {teamStandupQuestions.length > 0 ? (
+                { teamStandupQuestions.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {teamStandupQuestions.map((question, idx) => (
                         <StandupQuestionCard
@@ -128,7 +129,7 @@ export const EditTeamPage = () => {
 
         </div>
 
-        {isModalOpen && <AddMemberModal isOpen={isModalOpen} teamId={teamId || ""} onClose={() => handleModalClose()} />}
+        {isModalOpen && <AddMemberModal  isOpen={isModalOpen} teamId={teamId || ""} onClose={() => handleModalClose()} />}
         {isStandupModalOpen && <ConfigureStandupModal teamId={teamId || ""} isOpen={isStandupModalOpen} onClose={() => handleStandupModalClose()} />}
 
     </>

@@ -1,13 +1,17 @@
-import {AddMembersTable} from "./AddMembersTable";
-import { MembersSearch } from "./MembersSearch";
+import { EditTeamMembersSearch } from "./EditTeamMembersSearch";
+import {EditTeamAddMembersTable} from "./EditTeamAddMembersTable";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {  faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { useTeamsContext } from "@/hooks/useTeamsContext";
-
+import { toast } from "react-toastify";
+import {useNavigate} from "react-router-dom"
+import {useState} from 'react'
 
 export const AddMemberModal: React.FC<AddMemberModalProps> = ({isOpen, teamId, onClose}) => {
     // const [searchValue, setSearchValue] = useState("");
-    const {teams} = useTeamsContext();
+    const {teams, addMembers} = useTeamsContext();
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
 
     // console.log(members);
 
@@ -21,6 +25,25 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({isOpen, teamId, o
         onClose();
         }
     };
+
+    const addNewMembers = async () => {
+      try{
+        setIsLoading(true)
+        await addMembers(teamId);
+        setIsLoading(false)
+        toast.success("😎Members successfully added")
+        navigate(`/teams/edit/${teamId}`)
+
+      }catch(err){
+
+        setIsLoading(false)
+        toast.error("Error Adding Members To Team")
+        console.log("Error Adding Members To Team")
+      }
+      finally{
+        setIsLoading(false)
+      }
+    }
 
 
 
@@ -43,11 +66,17 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({isOpen, teamId, o
 
 
         <div className="flex flex-col gap-2 mt-4 mx-20">
-            <MembersSearch />
+            <EditTeamMembersSearch team={teamId}/>
         </div>
 
         <div className="w-full mt-10 flex justify-center">
-            <AddMembersTable />
+            <EditTeamAddMembersTable team={teamId}/>
+        </div>
+
+        <div className="w-full mt-20 px-20 ">
+          <button onClick={addNewMembers} className="w-full rounded-lg hover:bg-teal-500 text-teal-600 border bg-white hover:text-white hover:border  py-4 font-bold ">
+            {isLoading ? "Saving":"Save Members"}
+          </button>
         </div>
 
       </div>

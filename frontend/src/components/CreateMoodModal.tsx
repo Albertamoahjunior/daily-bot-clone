@@ -75,48 +75,47 @@ export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
     };
 
     //create mood over here....
-    const createMoodCheckIn = async ( ) => {
-        if(moodInputFields && moodInputFields.length < 3){
+    const createMoodCheckIn = async () => {
+        // Check if there are enough mood input fields
+        if (moodInputFields && moodInputFields.length < 3) {
             toast.error("Choose At Least Three Emojis");
-            return
+            return;
         }
-
-
-        if(!validateMoodInputs()){
+    
+        // Validate mood inputs
+        if (!validateMoodInputs()) {
             toast.error("Your Form Has Errors");
             return;
         }
-        
-
-        //mood data
-        // Gather data in one object
-        const moodData = {
-            selectedTeam,
-            question: moodQuestion,
-            selectedEmojiIds: selectedEmojis, // Emoji names or IDs
-            moodResponses: moodInputFields.map(item => ({
-                emoji: item.emojiId, 
-                score: item.score,
-                moodLabel: item.label
-            }))
-        };
-
-
-        const individualMoodObjects = moodData.moodResponses.map(response => ({
-            teamId: moodData.selectedTeam,
-            mood: moodData.question,
-            emojiId: response.emoji,
+    
+        // Prepare individual mood objects
+        const individualMoodObjects = moodInputFields.map(response => ({
+            teamId: selectedTeam,
+            mood: response.comment.toLowerCase(),
+            emojiId: response.emojiId as "001" | "002" | "003" | "004" | "005",
             moodScore: response.score,
-            description: response.moodLabel
-          }));
-
-        //run submit functionality here/api call
-          const moodCreated = await moodService.createMood(individualMoodObjects)
-          if(moodCreated){
-            onClose();
-          }
-        
-    }
+            description: response.label
+        }));
+    
+        try {
+            // Run submit functionality here/API call
+            const moodCreated = await moodService.createMood(individualMoodObjects);
+            
+            // Check if the mood was created successfully
+            if (moodCreated) {
+                console.log("MoodCreated", moodCreated);
+                toast.success("🥳Mood successfully created!");
+                onClose();
+            } else {
+                toast.error("☠Failed to create mood. Please try again.");
+            }
+        } catch (error) {
+            // Handle errors from the API call
+            console.error("Error creating mood:", error);
+            toast.error("An error occurred while creating the mood. Please try again.");
+        }
+    };
+    
 
     const removeEmoji = (emoji:string) => {
         setSelectedEmojis((prevEmojis) => {
@@ -235,16 +234,16 @@ export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
                             Select Emoji To Represent Mood
                         </label>
                         <div className='mx-auto px-20 flex justify-between rounded-lg border-gray-700 border-2  bg-gray-100 h-30 w-full items-center'>
-                            {/* <Smile onClick={() => {selectedEmojis.includes("Smile")? removeEmoji("Smile"): handleEmojiClick("Smile") }} className={`${selectedEmojis.includes("Smile") && 'text-yellow-500'} h-10 w-10 hover:text-yellow-500 transition-colors duration-300`} />
-                            <Frown onClick={() => {selectedEmojis.includes("Sad")? removeEmoji("Sad"):handleEmojiClick("Sad")}} className={`${selectedEmojis.includes("Sad") && 'text-red-500'} h-10 w-10 hover:text-red-500 transition-colors duration-300`} />
-                            <Meh onClick={() => {selectedEmojis.includes("Meh")? removeEmoji("Meh"):handleEmojiClick("Meh")}} className={`${selectedEmojis.includes("Meh") && 'text-gray-500'} h-10 w-10 hover:text-gray-500 transition-colors duration-300`} />
-                            <Laugh onClick={() => {selectedEmojis.includes("Excited")? removeEmoji("Excited"):handleEmojiClick("Excited")}} className={`${selectedEmojis.includes("Excited") && 'text-green-500'}  h-10 w-10 hover:text-green-500 transition-colors duration-300`} />
-                            <Angry onClick={() => {selectedEmojis.includes("Angry")? removeEmoji("Angry"):handleEmojiClick("Angry")}} className={`${selectedEmojis.includes("Angry") && 'text-orange-500'} h-10 w-10 hover:text-orange-500 transition-colors duration-300`} /> */}
-                            <Smile onClick={() => {selectedEmojis.includes("Smile")? removeEmoji("Smile"): handleEmojiClick("Smile") }} className={`${selectedEmojis.includes("Smile") && 'text-yellow-500'} h-10 w-10 hover:text-yellow-500 transition-colors duration-300`} />
-                            <Frown onClick={() => {selectedEmojis.includes("Sad")? removeEmoji("Sad"):handleEmojiClick("Sad")}} className={`${selectedEmojis.includes("Sad") && 'text-red-500'} h-10 w-10 hover:text-red-500 transition-colors duration-300`} />
-                            <Meh onClick={() => {selectedEmojis.includes("Meh")? removeEmoji("Meh"):handleEmojiClick("Meh")}} className={`${selectedEmojis.includes("Meh") && 'text-gray-500'} h-10 w-10 hover:text-gray-500 transition-colors duration-300`} />
-                            <Laugh onClick={() => {selectedEmojis.includes("Excited")? removeEmoji("Excited"):handleEmojiClick("Excited")}} className={`${selectedEmojis.includes("Excited") && 'text-green-500'}  h-10 w-10 hover:text-green-500 transition-colors duration-300`} />
-                            <Angry onClick={() => {selectedEmojis.includes("Angry")? removeEmoji("Angry"):handleEmojiClick("Angry")}} className={`${selectedEmojis.includes("Angry") && 'text-orange-500'} h-10 w-10 hover:text-orange-500 transition-colors duration-300`} />
+                            <Smile onClick={() => {selectedEmojis.includes("Smile")? removeEmoji("Smile"): handleEmojiClick("Smile") }} 
+                                   className={`${selectedEmojis.includes("Smile") && 'text-yellow-500'} h-10 w-10 hover:text-yellow-500 transition-colors duration-300`} />
+                            <Frown onClick={() => {selectedEmojis.includes("Sad")? removeEmoji("Sad"):handleEmojiClick("Sad")}} 
+                                   className={`${selectedEmojis.includes("Sad") && 'text-red-500'} h-10 w-10 hover:text-red-500 transition-colors duration-300`} />
+                            <Meh onClick={() => {selectedEmojis.includes("Meh")? removeEmoji("Meh"):handleEmojiClick("Meh")}} 
+                                 className={`${selectedEmojis.includes("Meh") && 'text-gray-500'} h-10 w-10 hover:text-gray-500 transition-colors duration-300`} />
+                            <Laugh onClick={() => {selectedEmojis.includes("Excited")? removeEmoji("Excited"):handleEmojiClick("Excited")}} 
+                                   className={`${selectedEmojis.includes("Excited") && 'text-green-500'}  h-10 w-10 hover:text-green-500 transition-colors duration-300`} />
+                            <Angry onClick={() => {selectedEmojis.includes("Angry")? removeEmoji("Angry"):handleEmojiClick("Angry")}} 
+                                   className={`${selectedEmojis.includes("Angry") && 'text-orange-500'} h-10 w-10 hover:text-orange-500 transition-colors duration-300`} />
                         </div>
                     </div>
 
@@ -261,7 +260,7 @@ export const CreateMoodModal = ({isOpen, onClose}:ICreateMoodProps) => {
                                                 <span className="text-base text-gray-400">{item.comment}</span>
                                             </div>
                                             
-                                            <input placeholder='Enter score' type='number' min='0' max='10' 
+                                            <input placeholder='Enter score(number)' type='number' min='0' max='10' 
                                             onChange={(e) => handleScoreChange(index, e.target.value)}
                                             className="w-80 items-center border rounded-md p-2 placeholder:text-gray-500 text-black "/>
                                             

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useTeamsContext } from "../hooks/useTeamsContext";
 
-interface Member {
-  id: string;
-  memberName: string;
-  teams: string[];
-  status: "Active" | "Pending activation";
-}
+// interface Member {
+//   id: string;
+//   memberName: string;
+//   teams: string[];
+//   status: "Active" | "Pending activation";
+// }
 
 
 interface MembersSearchProps {
@@ -15,21 +15,22 @@ interface MembersSearchProps {
 }
 
 export const MembersSearch  = ({label, labelClassName}: MembersSearchProps) => {
-    const {members, setMembers} = useTeamsContext();
+  const {members, setMembers} = useTeamsContext();
   const [searchValue, setSearchValue] = useState("");
 
-  console.log(members)
+  console.log("Members",members)
   // Filter the users based on the search value
-  const filteredUsers = members.filter(
-    (user: Member) =>
-      (user.memberName.toLowerCase().includes(searchValue.toLowerCase()) || 
+  const filteredUsers = members?.filter((user: Member) =>
+      (user?.memberName.toLowerCase().includes(searchValue.toLowerCase()) || 
        user.id.toLowerCase().includes(searchValue.toLowerCase())) && 
       !members.some((member: Member) => member.id === user.id) // Exclude already selected members
   );
 
+  console.log("Filtered Users: ", filteredUsers);
+
   // Add selected user to members array
   const handleSelectUser = (user: Member) => {
-    setMembers([...members, user]);
+    setMembers([...members!, user]);
     setSearchValue(""); // Clear the search value after selection
   };
 
@@ -52,9 +53,9 @@ export const MembersSearch  = ({label, labelClassName}: MembersSearchProps) => {
       />
 
       {/* Dropdown List */}
-      {searchValue && filteredUsers.length > 0 && (
+      {searchValue && filteredUsers && filteredUsers.length > 0 && (
         <ul className="absolute z-10 bg-white border border-gray-300 rounded-md mt-1 w-full max-h-40 overflow-y-auto">
-          {filteredUsers.map((user) => (
+          {filteredUsers?.map((user) => (
 
             <li
               key={user.id}
@@ -71,7 +72,7 @@ export const MembersSearch  = ({label, labelClassName}: MembersSearchProps) => {
       )}
 
       {/* No Results Message */}
-      {searchValue && filteredUsers.length === 0 && (
+      {searchValue && filteredUsers && filteredUsers.length === 0 && (
         <p className="absolute z-10 bg-white border border-gray-300 rounded-md mt-1 w-full p-2 text-gray-500">
           No users found.
         </p>

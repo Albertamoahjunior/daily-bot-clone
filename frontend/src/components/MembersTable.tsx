@@ -12,8 +12,8 @@ export const MembersTable: React.FC<MembersTableProps> = ({team}) => {
     const { members, setMembers } = useTeamsContext();
     const [teamMembers, setTeamMembers] = useState<Member[]>([])
     
-    console.log(team);
-    console.log(members)
+    // console.log(team);
+    // console.log(members)
     //filter out members that belong to  a particular team
     useEffect(() => {
         // Ensure we only update state if members exist

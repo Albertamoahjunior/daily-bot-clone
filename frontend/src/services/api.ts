@@ -52,13 +52,14 @@ export const teamService = {
             return error;
         }
     },
-
+    
     // Remove members from a team
     removeMembersFromTeam: async (teamId: string, payload: AddMembersPayload) => {
         try {
             const response = await axios.delete(`${API_BASE_URL}/team/teams/${teamId}/members`, {
                 data: payload
             });
+            console.log("Response.data", response.data);
             return response.data;
         } catch (error) {
             return error;
@@ -147,9 +148,9 @@ export const moodService = {
     },
 
     // Get mood response by user ID
-    getMoodAnalyticsForTeam: async (userId: string) => {
+    getMoodAnalyticsForTeam: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/mood/${userId}/analytics`);
+            const response = await axios.get(`${API_BASE_URL}/mood/${teamId}/analytics`);
             return response.data;
         } catch (error) {
             return error;

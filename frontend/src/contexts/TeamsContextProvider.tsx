@@ -12,34 +12,39 @@ const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
     const [teams, setTeams] = useState<Team[] | undefined>(undefined);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
+
     const [teamMembers, setTeamMembers] = useState<Member[] | undefined>(undefined);
-    const [members_to_be_added_team, setMembersToBeAddedToTeam] = useState<string[]|[]>([]);
+    const [members_to_be_added_team, setMembersToBeAddedToTeam] = useState<{name: string, value: string}[]|[]>([]);
+    
     const [reloadTeams, setReloadTeams] = useState<boolean>(false);
     // const members_to_be_added_team = teamMembers?.map(member => member.id)
 
     // const membersPayload ={
     //     members: members_to_be_added_team ? members_to_be_added_team : [] 
     // }
+
+
     const toggleReloadTeams = () => setReloadTeams(true);
 
-    useEffect(() => {
-        if(reloadTeams){
-            setReloadTeams(false);
-        }
-        const members_to_be_added_team = teamMembers?.map(member => member.id);
-        if(members_to_be_added_team && members_to_be_added_team.length){
-            setMembersToBeAddedToTeam(members_to_be_added_team);
-        }
-        else{
-            setMembersToBeAddedToTeam( []);
-        }
+    // useEffect(() => {
+    //     if(reloadTeams){
+    //         setReloadTeams(false);
+    //     }
+    //     const members_to_be_added_team = teamMembers?.map(member => member.id);
+    //     if(members_to_be_added_team && members_to_be_added_team.length){
+    //         setMembersToBeAddedToTeam(members_to_be_added_team);
+    //     }
+    //     else{
+    //         setMembersToBeAddedToTeam( []);
+    //     }
+    // },[teamMembers])
 
-
-    },[teamMembers])
 
     const addMembers = async (teamId: string) => {
         try{
-            await teamService.addMembersToTeam(teamId,{ members: members_to_be_added_team});
+            const memberIds = members_to_be_added_team.map(member => member.value);
+            await teamService.addMembersToTeam(teamId,{ members: memberIds});
             setMembersToBeAddedToTeam([]);
             return 'Members added successfully';
         }catch(err){
@@ -48,6 +53,8 @@ const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
             return 'Failed to add members';
         }
     }
+
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -98,7 +105,7 @@ const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
     }, [reloadTeams]);
 
     return (
-        <teamsContext.Provider value={{ members, teams, setMembers, setTeams, toggleReloadTeams, loading, error, addMembers, teamMembers, setTeamMembers }}>
+        <teamsContext.Provider value={{ members, teams, setMembers, setTeams, toggleReloadTeams, loading, error, addMembers, teamMembers, setTeamMembers, members_to_be_added_team, setMembersToBeAddedToTeam }}>
             {children}
         </teamsContext.Provider>
     );
