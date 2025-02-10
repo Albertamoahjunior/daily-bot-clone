@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3000/api/v1'; // adjust this to match your backend URL
+const API_BASE_URL = 'http://localhost:3000/api/v1'; 
+const BASE_URL = 'http://localhost:3000';
 
 interface CreateTeamPayload {
     teamName: string;
@@ -10,19 +11,46 @@ interface CreateTeamPayload {
 interface AddMembersPayload {
     members: string[] | [];
 }
+const token = 'token'
+//auth
+const options = {
+    headers: {
+        'Authorization': `Bearer ${token}`
+        }   
+}
 
+//Auth services
+export const authService = {
+    // Login a user
+    login: async (email: string) => {
+        try {
+            const response = await axios.post(`${BASE_URL}/auth/login`, { email });
+            return response.data;
+            //then put the data into the auth context
+        } catch (error) {
+            return error;
+        }
+    },
+
+    // Logout a user
+    // logout: async () => {
+    //     try {
+    //         await axios.post(`${API_BASE_URL}/auth/logout`, {}, options);
+    //     } catch (error) {
+    //         return error;
+    //     }
+    // },
+
+    // Get user information
+}
 
 
 // Team API services
 export const teamService = {
     // Create a new team
-    createTeam: async (payload: CreateTeamPayload, token: string) => {
+    createTeam: async (payload: CreateTeamPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/team`, payload, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.post(`${API_BASE_URL}/team`, payload, options);
             return response.data;
         } catch (error) {
             return error;
@@ -30,13 +58,9 @@ export const teamService = {
     },
 
     // Get all teams
-    getTeams: async (token: string) => {
+    getTeams: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/team`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/team`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -44,13 +68,9 @@ export const teamService = {
     },
 
     // Get specific team by ID
-    getTeam: async (teamId: string, token: string) => {
+    getTeam: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/team/teams/${teamId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/team/teams/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -58,13 +78,9 @@ export const teamService = {
     },
 
     // Add members to a team
-    addMembersToTeam: async (teamId: string, payload: AddMembersPayload, token: string) => {
+    addMembersToTeam: async (teamId: string, payload: AddMembersPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/team/teams/${teamId}/members`, payload, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.post(`${API_BASE_URL}/team/teams/${teamId}/members`, payload, options);
             return response.data;
         } catch (error) {
             return error;
@@ -72,13 +88,11 @@ export const teamService = {
     },
     
     // Remove members from a team
-    removeMembersFromTeam: async (teamId: string, payload: AddMembersPayload, token: string) => {
+    removeMembersFromTeam: async (teamId: string, payload: AddMembersPayload) => {
         try {
             const response = await axios.delete(`${API_BASE_URL}/team/teams/${teamId}/members`, {
                 data: payload,
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }
+                headers:options.headers
             });
             console.log("Response.data", response.data);
             return response.data;
@@ -88,13 +102,9 @@ export const teamService = {
     },
 
     // Delete a team
-    removeTeam: async (teamId: string, token: string) => {
+    removeTeam: async (teamId: string ) => {
         try {
-            await axios.delete(`${API_BASE_URL}/team/teams/${teamId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            await axios.delete(`${API_BASE_URL}/team/teams/${teamId}`);
             return true;
         } catch (error) {
             return error;
@@ -105,13 +115,9 @@ export const teamService = {
 //Members API services
 export const memberService = {
     // Get all members
-    getMembers: async (token: string) => {
+    getMembers: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/members`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/members`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -138,26 +144,18 @@ interface MoodResponsePayload {
 
 export const moodService = {
     // Create a new mood
-    createMood: async (payload: CreateMoodPayload[], token: string) => {
+    createMood: async (payload: CreateMoodPayload[]) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/mood`, {moods: payload}, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.post(`${API_BASE_URL}/mood`, {moods: payload}, options);
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    getMoods: async (token: string) => {
+    getMoods: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/mood`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/mood`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -165,13 +163,9 @@ export const moodService = {
     },
 
     // Create a mood response
-    createMoodResponse: async (payload: MoodResponsePayload, token: string) => {
+    createMoodResponse: async (payload: MoodResponsePayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/mood-response`, payload, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.post(`${API_BASE_URL}/mood-response`, payload, options);
             return response.data;
         } catch (error) {
             return error;
@@ -179,13 +173,9 @@ export const moodService = {
     },
 
     // Get mood response by user ID
-    getMoodResponse: async (userId: string, token: string) => {
+    getMoodResponse: async (userId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/mood-response/${userId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/mood-response/${userId}`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -193,13 +183,9 @@ export const moodService = {
     },
 
     // Get mood response by user ID
-    getMoodAnalyticsForTeam: async (teamId: string, token: string) => {
+    getMoodAnalyticsForTeam: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/mood/${teamId}/analytics`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/mood/${teamId}/analytics`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -223,78 +209,54 @@ interface CreateKudosCategoryPayload {
 }
 
 export const kudosService = {
-    createKudos: async (payload: CreateKudosPayload, token: string) => {
+    createKudos: async (payload: CreateKudosPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/kudos`, payload, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.post(`${API_BASE_URL}/kudos`, payload, options);
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    getTeamKudos: async (teamId: string, token: string) => {
+    getTeamKudos: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/kudos/team/${teamId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/kudos/team/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    getUserKudosCount: async (userId: string, token: string) => {
+    getUserKudosCount: async (userId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/kudos/user/${userId}/count`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/kudos/user/${userId}/count`, options);
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    createKudosCategory: async (payload: CreateKudosCategoryPayload, token: string) => {
+    createKudosCategory: async (payload: CreateKudosCategoryPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/kudos/category`, payload, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.post(`${API_BASE_URL}/kudos/category`, payload, options);
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    getTeamKudosCategories: async (teamId: string, token: string) => {
+    getTeamKudosCategories: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/kudos/categories/team/${teamId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/kudos/categories/team/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    getKudosAnalytics: async (token: string) => {
+    getKudosAnalytics: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/kudos/analytics`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/kudos/analytics`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -322,52 +284,36 @@ interface CreatePollResponsesPayload {
 }
 
 export const pollService = {
-    createPollQuestions: async (payload: CreatePollQuestionsPayload, token: string) => {
+    createPollQuestions: async (payload: CreatePollQuestionsPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/poll/questions`, { polls: payload }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.post(`${API_BASE_URL}/poll/questions`, { polls: payload }, options);
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    getTeamPollQuestions: async (teamId: string, token: string) => {
+    getTeamPollQuestions: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/poll/questions/${teamId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/poll/questions/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    createPollResponses: async (payload: CreatePollResponsesPayload, token: string) => {
+    createPollResponses: async (payload: CreatePollResponsesPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}poll/responses`, payload, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.post(`${API_BASE_URL}poll/responses`, payload, options);
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    getTeamPollResponses: async (teamId: string, token: string) => {
+    getTeamPollResponses: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/poll/responses/${teamId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/poll/responses/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -391,52 +337,36 @@ interface ConfigureStandupPayload {
 }
 
 export const standupService = {
-    configureStandup: async (payload: ConfigureStandupPayload, token: string) => {
+    configureStandup: async (payload: ConfigureStandupPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/standup/configure`, payload, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.post(`${API_BASE_URL}/standup/configure`, payload, options)
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    getStandupRespondents: async (teamId: string, token: string) => {
+    getStandupRespondents: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/standup/respondents/${teamId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/standup/respondents/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    getAllStandups: async (token: string) => {
+    getAllStandups: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/standup/all-standups`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/standup/all-standups`, options);
             return response.data;
         } catch (error) {
             return error;
         }
     },
 
-    getAllStandupQuestions: async (token: string) => {
+    getAllStandupQuestions: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/standup/all-questions`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    }   
-            });
+            const response = await axios.get(`${API_BASE_URL}/standup/all-questions`, options);
             return response.data;
         } catch (error) {
             return error;
