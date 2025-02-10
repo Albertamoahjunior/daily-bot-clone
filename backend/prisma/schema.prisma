@@ -17,7 +17,8 @@ datasource db {
 model Member {
   id            String   @id @default(cuid())
   teams        String[]
-  memberName          String
+  memberName    String
+  email         String?  @unique
   // team          Team     @relation(fields: [teamId], references: [id])
   kudosGiven    Kudos[]  @relation("KudosGiver")
   kudosReceived Kudos[]  @relation("KudosReceiver")
@@ -129,4 +130,12 @@ model Mood {
   description String   // DESCRIPTION
   createdAt   DateTime  @default(now())// CREATEDAT
 }
+
+model token {
+  id   String @id @default(cuid())
+  email String 
+  token String  @unique
+  expiresAt DateTime
+}
+
 
