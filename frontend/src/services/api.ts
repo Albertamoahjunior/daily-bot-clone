@@ -86,8 +86,8 @@ export const useAuthService = () => {
                 const response = await axios.get(`${BASE_URL}/auth/verify?token=${token}`);
                 if (response.status === 200) {
                     dispatch(LOGIN(response.data));
-                    toast.success("Successfully Signed In!!✨🎉");
-                    navigate("/");
+                    // toast.success("Successfully Signed In!!✨🎉");
+                    // navigate("/");
                 }
                 return response.data;
             } catch (error) {
@@ -120,17 +120,19 @@ export const useAuthService = () => {
         },
 
         redirectAfterLogin: (userData: user) => {
-            const routes = {
-              admin: '/admin-dashboard',
-              user: '/user-dashboard'
-            };
+            // const routes = {
+            //   admin: '/admin-dashboard',
+            //   user: '/user-dashboard'
+            // };
         
-            const redirectPath = userData.is_admin 
-              ? routes.admin 
-              : routes.user;
+            // const redirectPath = userData.is_admin 
+            //   ? routes.admin 
+            //   : routes.user;
+
+            const redirectPath = "/"
         
             window.location.href = redirectPath;
-          },
+        },
     };
 };
 
@@ -139,6 +141,7 @@ export const useAuthService = () => {
 export const teamService = {
     // Create a new team
     createTeam: async (payload: CreateTeamPayload) => {
+        
         try {
             const response = await axios.post(`${API_BASE_URL}/team`, payload, getAuthHeaders());
             return response.data;

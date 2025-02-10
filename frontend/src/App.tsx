@@ -30,6 +30,8 @@ function App() {
       <Routes>
         <Route path="/register" element={<Signin/>} />
         <Route path="/auth/verify" element={<TokenVerification/>} />
+
+        
         <Route path="/" element={<DashBoardLayout/>} >
           <Route path='teams' element={
             <TeamsContextProvider>

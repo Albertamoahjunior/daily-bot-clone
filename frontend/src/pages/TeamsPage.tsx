@@ -9,6 +9,8 @@ import { useStandupContext } from '../hooks/useStandupContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Plus, Users } from 'lucide-react';
 import { TeamStandup } from '@/types/StandupDashboard';
+import {useSelector} from 'react-redux';
+
 
 export interface TeamsOverviewCardProps {
     title: string;
@@ -18,6 +20,7 @@ export interface TeamsOverviewCardProps {
   }
 
 export const TeamsPage = () => {
+    // const authState = useSelector(())
     const [isModalOpen, setIsModalOpen] = useState(false);
     const {teams, members} = useTeamsContext();
     const {standups} = useStandupContext();

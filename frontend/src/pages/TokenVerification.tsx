@@ -1,18 +1,22 @@
 import {useEffect} from 'react';
-import { authService } from '../services/api';
+import { useAuthService } from '../services/api';
+import { toast } from 'react-toastify';
 
 // TokenVerification.tsx
 export function TokenVerification() {
+  const {verifyUser, redirectAfterLogin} = useAuthService();
+
     useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search);
       const token = urlParams.get('token');
   
       async function handleTokenVerification() {
         if (token) {
-          const userData = await authService.verifyUser(token);
+          const userData = await verifyUser(token);
           
           if (userData) {
-            authService.redirectAfterLogin(userData);
+            toast.success("Successfully Signed In!!✨🎉");
+            redirectAfterLogin(userData);
           } else {
             alert('Invalid or expired login link');
           }
