@@ -2,12 +2,7 @@ import { useState } from "react";
 import {teamService} from "../services/api"
 import { useTeamsContext } from "./useTeamsContext";
 
-// export interface Member {
-//   id: string;
-//   memberName: string;
-//   status?: "Active" | "Pending activation" | undefined;
-//   teams : string[];
-// }
+
 
 interface UseMembersProps {
   teamID: string;

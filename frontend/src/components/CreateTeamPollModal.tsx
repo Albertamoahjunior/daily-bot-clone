@@ -6,6 +6,7 @@ import { useTeamsContext } from '../hooks/useTeamsContext';
 import {toast} from 'react-toastify';
 import ToggleSwitch from './ToggleSwitch';
 import { pollService } from '@/services/api';
+import {useNavigate} from 'react-router-dom'
 
 
 export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
@@ -20,7 +21,7 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
   const [optionEmpty, setOptionEmpty] = useState<boolean>(false);
   const [questionEmpty, setQuestionEmpty] = useState<boolean>(false);
   const [anonymous, setAnonymous] = useState<boolean>(false);
-
+  const navigate = useNavigate();
 
   const addOption = () => {
     if (questionText.trim() === "") {
@@ -90,7 +91,8 @@ export const CreateTeamPollModal = ({ isOpen, onClose }: ICreateTeamProps) => {
 
     console.log("Data: ", data)
     const createPolls = await pollService.createPollQuestions(data)
-    console.log(createPolls)
+    console.log("Polls Created: ",createPolls)
+    navigate('team-polls');  
   };
 
   // Function to close the modal when clicking outside

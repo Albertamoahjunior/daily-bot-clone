@@ -17,6 +17,7 @@ import {MoodResponse,MoodData, AllMoods} from "../types/Mood";
 
 
 import {moodService} from "../services/api"
+import {toast} from "react-toastify";
 
 
 
@@ -51,19 +52,23 @@ export const TeamMoodPage: React.FC = () => {
   
 
     // Filter logic
-    const handleFilter = () => {
+    const handleFilter = async () => {
 
       let filtered = allMoodResponses;
       
 
-      if (selectedMoodHistTeam) {
-        filtered = filtered?.filter((team) => team.teamId === selectedMoodHistTeam);
+      if (selectedMoodHistTeam && !moodHistSelectedUser) {
+        toast.error("Select A Member to view his/her mood response")
+        // filtered = filtered?.filter((team) => team.teamId === selectedMoodHistTeam);
       }
 
       if (selectedMoodHistTeam && moodHistSelectedUser) {
         console.log("Filters Mood Hist Team: ", selectedMoodHistTeam);
         console.log("Filters Mood Hist Member: ", moodHistSelectedUser);
-        filtered = filtered?.filter((moodResponse) => (moodResponse.teamId === selectedMoodHistTeam && moodResponse.userId === moodHistSelectedUser ));
+        filtered = await moodService.getMoodResponse(moodHistSelectedUser);
+        // console.log("Filtered Mood Responses", filtered);
+        if(filtered && filtered.length > 1)
+          filtered = filtered?.filter((moodResponse) => (moodResponse.teamId === selectedMoodHistTeam && moodResponse.userId === moodHistSelectedUser ));
       }
 
       if(moodHistDate){

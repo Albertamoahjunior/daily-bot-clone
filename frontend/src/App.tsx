@@ -14,11 +14,12 @@ import {StandupDashboardPage} from './pages/StandupDashboardPage'
 import {KudosPage} from './pages/KudosPage'
 import {TeamMoodPage} from './pages/TeamMoodPage'
 import {AnalyticsPage} from './pages/AnalyticsPage'
+import Signin from './pages/Signin';
 
 import TeamsContextProvider from './contexts/TeamsContextProvider'
 import PollsContextProvider from './contexts/PollsContextProvider'
 import StandupsContextProvider from './contexts/StandupsContextProvider'
-import TeamMoodContextProvider from './contexts/TeamMoodContextProvider'
+import TeamMoodContextProvider from './contexts/TeamMoodContextProvider'; './contexts/TeamMoodContextProvider'
 
 
 function App() {
@@ -26,7 +27,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-   
+        <Route path="/register" element={<Signin/>} />
 
         <Route path="/" element={<DashBoardLayout/>} >
           <Route path='teams' element={

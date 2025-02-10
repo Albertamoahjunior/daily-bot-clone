@@ -16,13 +16,13 @@ export const TeamPollsPage = () => {
     const [pageState, setPageState] = useState<"insights"|"all-polls">("insights");
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
       const { teams, members } = useTeamsContext();
-      const { allPolls, allPollsResponse } = usePollsContext();
+      const { allPolls, allPollsResponse, setTeamId } = usePollsContext();
     
     const [selectedTeam, setSelectedTeam] = useState('');
     const [membersList, setMembersList] = useState<{ value: string; label: string }[] | undefined>(undefined);
     const [teamsList, setTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
     
-    const [teamPollsList, setTeamPollsList] = useState<Poll[]>();
+    // const [teamPollsList, setTeamPollsList] = useState<Poll[]>();
     const [selectedPoll, setSelectedPoll] = useState('');
 
     const [selectedTeamPoll, setSelectedTeamPoll] = useState<Poll | undefined>(undefined);
@@ -42,23 +42,24 @@ export const TeamPollsPage = () => {
 
     // Populate teamsList
     useEffect(() => {
-    setTeamsList(
-        teams?.map((team) => ({
-        value: team.id,
-        label: team.teamName,
-        }))
-    );    
+        setTeamsList(
+            teams?.map((team) => ({
+            value: team.id,
+            label: team.teamName,
+            }))
+        );    
     }, [teams]);
 
 
 
-    // Populate membersList based on the selected team
+    // Populate pollsList based on the selected team
     useEffect(() => {
 
         if(selectedTeam){
-            const teamPolls = allPolls?.filter((poll) => poll.teamId === selectedTeam );
+            setTeamId(selectedTeam);
+            // const teamPolls = allPolls?.filter((poll) => poll.teamId === selectedTeam );
             setSelectedPoll("");
-            setTeamPollsList(teamPolls);
+            // setTeamPollsList(teamPolls);
 
             const filteredMembers = members?.filter((member:Member) => member.teams.includes(selectedTeam))
             .map((member:Member) => ({
@@ -77,6 +78,7 @@ export const TeamPollsPage = () => {
     };
 
     const handleTeamChange = (value: string) => {
+        setTeamId(value);
         setSelectedTeam(value);
     };
 
@@ -109,17 +111,17 @@ export const TeamPollsPage = () => {
 
                     <div className="w-1/2">
                         <TeamInputDropdown
-                            inputName="Select a Team To Check Its Mood Recently"
+                            inputName="Select a Team To View Its Poll Recently"
                             options={teamsList}
                             selectedValue={selectedTeam}
                             onOptionChange={handleTeamChange}
-                            />
+                        />
 
                     </div>
                     <div className="w-1/2">
                         <TeamPollsDropdown 
                             inputName="Select a Team Poll To View Its Analytics Recently"
-                            options={teamPollsList}
+                            options={allPolls}
                             optionText="Select A Team Poll"
                             selectedValue={selectedPoll}
                             onOptionChange={handlePollChange}

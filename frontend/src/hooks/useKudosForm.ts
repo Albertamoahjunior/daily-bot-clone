@@ -10,6 +10,7 @@ export const useKudosForm = (teams: Team[]|undefined, members: Member[]|undefine
   const [selectedUsers, setSelectedUsers] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('teamwork');
   const [kudosReason, setKudosReason] = useState('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
     const [giverId, setGiverId] = useState<string>('');
@@ -107,26 +108,34 @@ export const useKudosForm = (teams: Team[]|undefined, members: Member[]|undefine
       };
   
       try {
+        setIsLoading(true);
         // Send the request using Axios
         const response = await kudosService.createKudos(kudosPayload);
         console.log("Response", response)
         // Check if the response indicates success
         if (response ) {
-          console.log('Kudos created successfully');
+          console.log('Kudos created successfully', response);
           toast.success('Kudos sent successfully!');
+
+          setIsLoading(false)
           // Reset form fields
-          navigate('/kudos');
+          navigate('kudos');
           setSelectedTeam('');
           setSelectedUsers('');
           setGiverId('');
           setKudosReason('');
         } else {
+          setIsLoading(false)
           console.error('Error creating kudos. Make sure all fields are filled', response);
           toast.error('Failed to send kudos. Please try again.');
         }
       } catch (error) {
+        setIsLoading(false)
         console.error('Error creating kudos:', error);
         toast.error('Failed to send kudos. Please try again.');
+      }
+      finally{
+        setIsLoading(false)
       }
     } else {
       toast.error('Please select a recipient and provide a kudos reason.');
@@ -156,6 +165,7 @@ export const useKudosForm = (teams: Team[]|undefined, members: Member[]|undefine
     handleGiverSelect,
     handleGiverDeselect,
     
+    isLoading,
     handleSubmit,
   };
 };
