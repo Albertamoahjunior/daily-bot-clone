@@ -84,11 +84,13 @@ export const useAuthService = () => {
         verifyUser: async (token: string) => {
             try {
                 const response = await axios.get(`${BASE_URL}/auth/verify?token=${token}`);
-                if (response.status === 200) {
-                    dispatch(LOGIN(response.data));
+                // console.log("After Verify token route");
+                // if (response.data) {
+                    console.log("Inside response status 200", response);
+                    // dispatch(LOGIN(response.data));
                     // toast.success("Successfully Signed In!!✨🎉");
                     // navigate("/");
-                }
+                // }
                 return response.data;
             } catch (error) {
                 return error;

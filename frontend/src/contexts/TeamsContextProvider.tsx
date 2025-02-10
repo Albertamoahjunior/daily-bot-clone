@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { teamService, memberService } from "../services/api"; // Adjust path accordingly
 import {teamsContext} from './teamContext';
+import {useSelector} from 'react-redux';
+import { RootState } from "@/state/store";
+
 
 interface ITeamsContextProvider {
     children: React.ReactNode;
@@ -8,6 +11,8 @@ interface ITeamsContextProvider {
 
 
 const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
+    const token = useSelector((state: RootState) => state.authState.token);
+    
     const [members, setMembers] = useState<Member[] | undefined>(undefined);
     const [teams, setTeams] = useState<Team[] | undefined>(undefined);
     const [loading, setLoading] = useState<boolean>(true);
@@ -103,6 +108,10 @@ const TeamsContextProvider = ({ children }: ITeamsContextProvider) => {
 
         fetchData();
     }, [reloadTeams]);
+
+    useEffect(() => {
+        console.log("Token ", token);
+    }, [])
 
     return (
         <teamsContext.Provider value={{ members, teams, setMembers, setTeams, toggleReloadTeams, loading, error, addMembers, teamMembers, setTeamMembers, members_to_be_added_team, setMembersToBeAddedToTeam }}>
