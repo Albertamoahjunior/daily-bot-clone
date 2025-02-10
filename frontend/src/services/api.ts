@@ -27,12 +27,45 @@ const getAuthHeaders = () => {
     };
 };
 
+interface user {
+    id: string;
+    token: string;
+    is_admin: boolean;
+} 
+
+
+interface user {
+    id: string;
+    token: string;
+    is_admin: boolean;
+} 
+
+
 
 export const useAuthService = () => {
 
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
+  
+    // redirectAfterLogin: (userData: user) => {
+    //     const routes = {
+    //       admin: '/admin-dashboard',
+    //       user: '/user-dashboard'
+    //     };
+    
+    //     const redirectPath = userData.is_admin 
+    //       ? routes.admin 
+    //       : routes.user;
+    
+    //     window.location.href = redirectPath;
+    //   },
+    
+    //   logout: () => {
+    //     localStorage.removeItem('user');
+    //     localStorage.removeItem('token');
+    //     window.location.href = '/login';
+    //   }
 
 
     return {
@@ -68,7 +101,8 @@ export const useAuthService = () => {
                 await axios.post(`${BASE_URL}/auth/logout`, {}, getAuthHeaders());
                 dispatch(LOGOUT()); // Ensure the user is logged out in Redux state
                 toast.info("Logged out successfully.");
-                navigate("/login");
+                window.location.href = '/login';
+                // navigate("/login");
                 return true;
             } catch (error) {
                 return error;
@@ -84,6 +118,19 @@ export const useAuthService = () => {
                 return error;
             }
         },
+
+        redirectAfterLogin: (userData: user) => {
+            const routes = {
+              admin: '/admin-dashboard',
+              user: '/user-dashboard'
+            };
+        
+            const redirectPath = userData.is_admin 
+              ? routes.admin 
+              : routes.user;
+        
+            window.location.href = redirectPath;
+          },
     };
 };
 
