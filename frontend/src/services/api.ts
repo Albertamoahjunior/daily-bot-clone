@@ -26,20 +26,41 @@ export const authService = {
         try {
             const response = await axios.post(`${BASE_URL}/auth/login`, { email });
             return response.data;
-            //then put the data into the auth context
+        } catch (error) {
+            return error;
+        }
+    },
+
+    //verify user
+    verifyUser: async (token: string) => {
+        try {
+            const response = await axios.get(`${BASE_URL}/auth/verify?token=${token}`);
+            return response.data;
+            //save the data in the context
         } catch (error) {
             return error;
         }
     },
 
     // Logout a user
-    // logout: async () => {
-    //     try {
-    //         await axios.post(`${API_BASE_URL}/auth/logout`, {}, options);
-    //     } catch (error) {
-    //         return error;
-    //     }
-    // },
+    logout: async () => {
+        try {
+            await axios.post(`${BASE_URL}/auth/logout`, {}, options);
+            return true;
+        } catch (error) {
+            return error;
+        }
+    },
+
+    // Get user information
+    getUser: async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/auth/user`, options);
+            return response.data;
+        } catch (error) {
+            return error;
+        }
+    }
 
     // Get user information
 }
