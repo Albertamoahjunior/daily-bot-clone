@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3000/api/v1'; // adjust this to match your backend URL
+const API_BASE_URL = 'http://localhost:3000/api/v1'; 
+const BASE_URL = 'http://localhost:3000';
 
 interface CreateTeamPayload {
     teamName: string;
@@ -10,13 +11,46 @@ interface CreateTeamPayload {
 interface AddMembersPayload {
     members: string[] | [];
 }
+const token = 'token'
+//auth
+const options = {
+    headers: {
+        'Authorization': `Bearer ${token}`
+        }   
+}
+
+//Auth services
+export const authService = {
+    // Login a user
+    login: async (email: string) => {
+        try {
+            const response = await axios.post(`${BASE_URL}/auth/login`, { email });
+            return response.data;
+            //then put the data into the auth context
+        } catch (error) {
+            return error;
+        }
+    },
+
+    // Logout a user
+    // logout: async () => {
+    //     try {
+    //         await axios.post(`${API_BASE_URL}/auth/logout`, {}, options);
+    //     } catch (error) {
+    //         return error;
+    //     }
+    // },
+
+    // Get user information
+}
+
 
 // Team API services
 export const teamService = {
     // Create a new team
     createTeam: async (payload: CreateTeamPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/team`, payload);
+            const response = await axios.post(`${API_BASE_URL}/team`, payload, options);
             return response.data;
         } catch (error) {
             return error;
@@ -26,7 +60,7 @@ export const teamService = {
     // Get all teams
     getTeams: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/team`);
+            const response = await axios.get(`${API_BASE_URL}/team`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -36,7 +70,7 @@ export const teamService = {
     // Get specific team by ID
     getTeam: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/team/teams/${teamId}`);
+            const response = await axios.get(`${API_BASE_URL}/team/teams/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -46,7 +80,7 @@ export const teamService = {
     // Add members to a team
     addMembersToTeam: async (teamId: string, payload: AddMembersPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/team/teams/${teamId}/members`, payload);
+            const response = await axios.post(`${API_BASE_URL}/team/teams/${teamId}/members`, payload, options);
             return response.data;
         } catch (error) {
             return error;
@@ -57,7 +91,8 @@ export const teamService = {
     removeMembersFromTeam: async (teamId: string, payload: AddMembersPayload) => {
         try {
             const response = await axios.delete(`${API_BASE_URL}/team/teams/${teamId}/members`, {
-                data: payload
+                data: payload,
+                headers:options.headers
             });
             console.log("Response.data", response.data);
             return response.data;
@@ -67,7 +102,7 @@ export const teamService = {
     },
 
     // Delete a team
-    removeTeam: async (teamId: string) => {
+    removeTeam: async (teamId: string ) => {
         try {
             await axios.delete(`${API_BASE_URL}/team/teams/${teamId}`);
             return true;
@@ -82,7 +117,7 @@ export const memberService = {
     // Get all members
     getMembers: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/members`);
+            const response = await axios.get(`${API_BASE_URL}/members`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -111,7 +146,7 @@ export const moodService = {
     // Create a new mood
     createMood: async (payload: CreateMoodPayload[]) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/mood`, {moods: payload});
+            const response = await axios.post(`${API_BASE_URL}/mood`, {moods: payload}, options);
             return response.data;
         } catch (error) {
             return error;
@@ -120,7 +155,7 @@ export const moodService = {
 
     getMoods: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/mood`);
+            const response = await axios.get(`${API_BASE_URL}/mood`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -130,7 +165,7 @@ export const moodService = {
     // Create a mood response
     createMoodResponse: async (payload: MoodResponsePayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/mood-response`, payload);
+            const response = await axios.post(`${API_BASE_URL}/mood-response`, payload, options);
             return response.data;
         } catch (error) {
             return error;
@@ -140,7 +175,7 @@ export const moodService = {
     // Get mood response by user ID
     getMoodResponse: async (userId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/mood-response/${userId}`);
+            const response = await axios.get(`${API_BASE_URL}/mood-response/${userId}`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -150,7 +185,7 @@ export const moodService = {
     // Get mood response by user ID
     getMoodAnalyticsForTeam: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/mood/${teamId}/analytics`);
+            const response = await axios.get(`${API_BASE_URL}/mood/${teamId}/analytics`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -176,7 +211,7 @@ interface CreateKudosCategoryPayload {
 export const kudosService = {
     createKudos: async (payload: CreateKudosPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/kudos`, payload);
+            const response = await axios.post(`${API_BASE_URL}/kudos`, payload, options);
             return response.data;
         } catch (error) {
             return error;
@@ -185,7 +220,7 @@ export const kudosService = {
 
     getTeamKudos: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/kudos/team/${teamId}`);
+            const response = await axios.get(`${API_BASE_URL}/kudos/team/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -194,7 +229,7 @@ export const kudosService = {
 
     getUserKudosCount: async (userId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/kudos/user/${userId}/count`);
+            const response = await axios.get(`${API_BASE_URL}/kudos/user/${userId}/count`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -203,7 +238,7 @@ export const kudosService = {
 
     createKudosCategory: async (payload: CreateKudosCategoryPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/kudos/category`, payload);
+            const response = await axios.post(`${API_BASE_URL}/kudos/category`, payload, options);
             return response.data;
         } catch (error) {
             return error;
@@ -212,7 +247,7 @@ export const kudosService = {
 
     getTeamKudosCategories: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/kudos/categories/team/${teamId}`);
+            const response = await axios.get(`${API_BASE_URL}/kudos/categories/team/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -221,7 +256,7 @@ export const kudosService = {
 
     getKudosAnalytics: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/kudos/analytics`);
+            const response = await axios.get(`${API_BASE_URL}/kudos/analytics`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -251,7 +286,7 @@ interface CreatePollResponsesPayload {
 export const pollService = {
     createPollQuestions: async (payload: CreatePollQuestionsPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/poll/questions`, { polls: payload });
+            const response = await axios.post(`${API_BASE_URL}/poll/questions`, { polls: payload }, options);
             return response.data;
         } catch (error) {
             return error;
@@ -260,7 +295,7 @@ export const pollService = {
 
     getTeamPollQuestions: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/poll/questions/${teamId}`);
+            const response = await axios.get(`${API_BASE_URL}/poll/questions/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -269,7 +304,7 @@ export const pollService = {
 
     createPollResponses: async (payload: CreatePollResponsesPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}poll/responses`, payload);
+            const response = await axios.post(`${API_BASE_URL}poll/responses`, payload, options);
             return response.data;
         } catch (error) {
             return error;
@@ -278,7 +313,7 @@ export const pollService = {
 
     getTeamPollResponses: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/poll/responses/${teamId}`);
+            const response = await axios.get(`${API_BASE_URL}/poll/responses/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -304,7 +339,7 @@ interface ConfigureStandupPayload {
 export const standupService = {
     configureStandup: async (payload: ConfigureStandupPayload) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/standup/configure`, payload);
+            const response = await axios.post(`${API_BASE_URL}/standup/configure`, payload, options)
             return response.data;
         } catch (error) {
             return error;
@@ -313,7 +348,7 @@ export const standupService = {
 
     getStandupRespondents: async (teamId: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/standup/respondents/${teamId}`);
+            const response = await axios.get(`${API_BASE_URL}/standup/respondents/${teamId}`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -322,7 +357,7 @@ export const standupService = {
 
     getAllStandups: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/standup/all-standups`);
+            const response = await axios.get(`${API_BASE_URL}/standup/all-standups`, options);
             return response.data;
         } catch (error) {
             return error;
@@ -331,7 +366,7 @@ export const standupService = {
 
     getAllStandupQuestions: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/standup/all-questions`);
+            const response = await axios.get(`${API_BASE_URL}/standup/all-questions`, options);
             return response.data;
         } catch (error) {
             return error;
