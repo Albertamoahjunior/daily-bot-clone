@@ -16,9 +16,10 @@ datasource db {
 //database schemas
 model Member {
   id            String   @id @default(cuid())
-  teams        String[]
+  teams         String[]
   memberName    String
   email         String?  @unique
+  is_admin       Boolean?
   // team          Team     @relation(fields: [teamId], references: [id])
   kudosGiven    Kudos[]  @relation("KudosGiver")
   kudosReceived Kudos[]  @relation("KudosReceiver")

@@ -82,7 +82,7 @@ async function removeMembersFromTeam(teamId: string, memberIds: string[]) {
 }
 
 //create members in a batch
-async function createMembers(members: { id: string; memberName: string, email:string }[]) {
+async function createMembers(members: { id: string; memberName: string, email:string, is_admin:boolean }[]) {
   const createdMembers = await prisma.member.createMany({
     data: members,
   });

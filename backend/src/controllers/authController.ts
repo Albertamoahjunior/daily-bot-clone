@@ -51,7 +51,7 @@ interface TokenRequest extends Request {
       await auth.deleteToken(token);
       const jwt = generateJWT(user.id);
       
-      res.json({ token: jwt });
+      res.json({id:user.id, is_admin:user.is_admin, token: jwt });
     } catch (error) {
       console.error('Verification error:', error);
       res.status(500).json({ error: 'Failed to verify token' });

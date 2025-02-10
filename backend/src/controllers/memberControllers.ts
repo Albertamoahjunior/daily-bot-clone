@@ -11,6 +11,7 @@ interface SlackMember {
   profile?: {
     email?: string;
   };
+  is_admin: boolean;
   is_bot?: boolean;
   deleted?: boolean;
 }
@@ -23,6 +24,8 @@ async function syncSlackMembers() {
     if (!slackMembers) {
       return 'Failed to fetch members from Slack';
     }
+
+    console.log(slackMembers)
 
     const membersToCreate = [];
 
@@ -45,6 +48,7 @@ async function syncSlackMembers() {
           id: slackMember.id,
           memberName: slackMember.real_name,
           email: slackMember.profile.email,
+          is_admin: slackMember.is_admin
         });
       } else if (
         existingMember.memberName !== slackMember.real_name || 

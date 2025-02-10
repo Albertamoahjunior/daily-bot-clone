@@ -29,6 +29,7 @@ export function addJoinedMmebers(){
                       id: userInfo.id,
                       memberName: userInfo.real_name as string || userInfo.name as string,
                       email: userInfo.profile?.email as string,
+                      is_admin: userInfo.is_admin as boolean,
                   };
                   await createMembers([newUser]);
               }
@@ -67,6 +68,7 @@ export function addJoinedTeamMembers() {
             id: userInfo.id,
             memberName: userInfo.real_name || userInfo.name,
             email: userInfo.profile?.email as string,
+            is_admin: userInfo.is_admin as boolean,
           };
           await createMembers([newUser]);
           console.log(`New workspace member ${userInfo.id} added to database`);
