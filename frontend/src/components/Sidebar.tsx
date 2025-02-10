@@ -15,7 +15,7 @@ export const Sidebar: React.FC =() => {
             <SidebarLink whereTo={"kudos"} icon={faStar} iconclassName={"text-white"} navName={"Kudos"}/>
             <SidebarLink whereTo={"team-mood"} icon={faSmile} iconclassName={"text-white"} navName={"Mood"}/>
             <SidebarLink whereTo={"team-polls"} icon={faSquarePollVertical} iconclassName={"text-white"} navName={"Polls"}/>
-            {/* <SidebarLink whereTo={"analytics"} icon={faMagnifyingGlassChart} iconclassName={"text-white"} navName={"Stats"}/> */}
+            <SidebarLink whereTo={"analytics"} icon={faMagnifyingGlassChart} iconclassName={"text-white"} navName={"Stats"}/>
         </div>
     )
 }
