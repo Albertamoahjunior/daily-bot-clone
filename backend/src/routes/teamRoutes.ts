@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { createTeamController, addMembersToTeamController, getTeamsController, getTeamController, removeTeamController, removeMembersFromTeamController, updateTeamController } from '../controllers/teamControllers';
+//import { authenticateJWT } from '../middleware/auth';
 
 const router = Router();
 

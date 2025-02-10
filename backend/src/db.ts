@@ -1,5 +1,11 @@
 import { PrismaClient } from '@prisma/client'
 
+interface TokenRecord {
+  email: string;
+  token: string;
+  expiresAt: Date;
+}
+
 const prisma = new PrismaClient()
 
 interface Mood {
@@ -76,7 +82,7 @@ async function removeMembersFromTeam(teamId: string, memberIds: string[]) {
 }
 
 //create members in a batch
-async function createMembers(members: { id: string; memberName: string }[]) {
+async function createMembers(members: { id: string; memberName: string, email:string, is_admin:boolean }[]) {
   const createdMembers = await prisma.member.createMany({
     data: members,
   });
@@ -532,6 +538,47 @@ async function getMoodAnalyticsPerTeam(teamId: string) {
   return analyticsArray;
 }
 
+//auth db
+const auth = {
+  async createToken(data: TokenRecord) {
+    //first check if data.token is of a member in the database
+    const member = await prisma.member.findUnique({
+      where: { email: data.email },
+    });
+
+    if (!member) {
+      throw new Error('Member not found');
+    }
+
+    //if data.token is of a member, create  a token record
+    return prisma.token.create({
+      data: {
+        token: data.token,
+        email: data.email,
+        expiresAt: data.expiresAt
+      },
+    });
+  },
+
+  async findToken(token: string) {
+    return prisma.token.findUnique({
+      where: { token }
+    });
+  },
+
+  async deleteToken(token: string) {
+    return prisma.token.delete({
+      where: { token }
+    });
+  },
+
+  async findUser(email: string) {
+    return prisma.member.findUnique({
+      where: { email },
+    });
+  }
+};
+
 
 
 
@@ -573,4 +620,5 @@ export {
   getMoodAnalytics,
   getMoodAnalyticsPerTeam,
   getTeamMoodConfiguration,
+  auth
 }
