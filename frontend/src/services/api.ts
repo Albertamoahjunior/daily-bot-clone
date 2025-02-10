@@ -19,6 +19,12 @@ const options = {
         }   
 }
 
+interface user {
+    id: string;
+    token: string;
+    is_admin: boolean;
+} 
+
 //Auth services
 export const authService = {
     // Login a user
@@ -42,25 +48,25 @@ export const authService = {
         }
     },
 
-    // Logout a user
-    logout: async () => {
-        try {
-            await axios.post(`${BASE_URL}/auth/logout`, {}, options);
-            return true;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    // Get user information
-    getUser: async () => {
-        try {
-            const response = await axios.get(`${BASE_URL}/auth/user`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    }
+  
+    redirectAfterLogin: (userData: user) => {
+        const routes = {
+          admin: '/admin-dashboard',
+          user: '/user-dashboard'
+        };
+    
+        const redirectPath = userData.is_admin 
+          ? routes.admin 
+          : routes.user;
+    
+        window.location.href = redirectPath;
+      },
+    
+      logout: () => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
 
     // Get user information
 }

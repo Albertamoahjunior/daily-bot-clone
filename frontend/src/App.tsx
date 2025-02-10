@@ -19,7 +19,7 @@ import Signin from './pages/Signin';
 import TeamsContextProvider from './contexts/TeamsContextProvider'
 import PollsContextProvider from './contexts/PollsContextProvider'
 import StandupsContextProvider from './contexts/StandupsContextProvider'
-import TeamMoodContextProvider from './contexts/TeamMoodContextProvider'; './contexts/TeamMoodContextProvider'
+import TeamMoodContextProvider from './contexts/TeamMoodContextProvider';
 
 
 function App() {
