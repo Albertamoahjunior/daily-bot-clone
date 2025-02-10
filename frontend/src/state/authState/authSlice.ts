@@ -2,21 +2,24 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 
 interface AuthState {
-    email: string | null;
+    // email: string | null;
     userId: string|null;
+    is_admin:  boolean|null;
     token: string|null;
 }
 
 const initialState: AuthState = {
-    email: null,
+    // email: null,
+    is_admin:  null,
     userId: null,
     token: null,
 }
 
 interface ValidUser{
-    email: string;
+    // email: string;
     userId: string;
     token: string;
+    is_admin:  boolean;
 }
 
 const userSlice = createSlice({
@@ -27,8 +30,7 @@ const userSlice = createSlice({
             state = action.payload ;
         },
         LOGOUT: (state) => {
-            state.userId =  null ;
-            state.email = null;
+            state =  initialState ;
         }
     }
 })

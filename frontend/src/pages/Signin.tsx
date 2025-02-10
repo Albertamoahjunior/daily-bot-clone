@@ -3,18 +3,21 @@ import { Mail } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { LOGIN, LOGOUT} from '../state/authState/authSlice';
 import { useDispatch } from 'react-redux';
+import { useAuthService } from '@/services/api';
+import {toast} from 'react-toastify'
 
 
 const Signin = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const dispatch = useDispatch();
+  const [redirected, setRedirected] = useState(false);
+  const { login } = useAuthService();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setError('');
     
     if (!email) {
@@ -31,11 +34,15 @@ const Signin = () => {
     
     // Simulate API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
       console.log('Signing in with:', email);
+      const response = await login(email);
+      if(response.message){
+        toast.success("Click on the link sent to your email to register");
+        setRedirected(true);
+      }
       // Add your actual authentication logic here
-      const userId = "1332323244"
-      dispatch(LOGIN({email, userId}))
+      // const userId = "1332323244"
+      // // dispatch(LOGIN({email, userId}))
 
     } catch (err) {
       setError('An error occurred while signing in');
@@ -51,7 +58,20 @@ const Signin = () => {
           <div className="w-12 h-14  flex bg-blue-500 rounded-full items-center justify-center" ><p className="font-bold items-center justify-center">TDG</p></div>
         </div>
         
+        {redirected? 
         <Card className="w-full">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-semibold text-slate-900">
+            Redirected
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent>
+          <p className="text-sm text-slate-500">You have been redirected. Click on the link sent to your email to register</p>
+        </CardContent>
+      </Card>
+
+        : <Card className="w-full">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-semibold text-slate-900">
               Welcome Back
@@ -93,7 +113,7 @@ const Signin = () => {
             
 
           </CardContent>
-        </Card>
+        </Card>}
       </div>
     </div>
   );
