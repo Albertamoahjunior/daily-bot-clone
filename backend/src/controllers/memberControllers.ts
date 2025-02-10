@@ -80,7 +80,7 @@ async function syncSlackMembers() {
 
 export async function getMembersController(req: Request, res: Response) {
   try {
-    await syncSlackMembers();
+    //await syncSlackMembers();
     
     const members = await prisma.member.findMany({
       select: {
