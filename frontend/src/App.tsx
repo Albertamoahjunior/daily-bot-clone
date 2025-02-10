@@ -15,6 +15,7 @@ import {KudosPage} from './pages/KudosPage'
 import {TeamMoodPage} from './pages/TeamMoodPage'
 import {AnalyticsPage} from './pages/AnalyticsPage'
 import Signin from './pages/Signin';
+import { TokenVerification } from './pages/TokenVerification';
 
 import TeamsContextProvider from './contexts/TeamsContextProvider'
 import PollsContextProvider from './contexts/PollsContextProvider'
@@ -28,7 +29,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/register" element={<Signin/>} />
-
+        <Route path="/auth/verify" element={<TokenVerification/>} />
         <Route path="/" element={<DashBoardLayout/>} >
           <Route path='teams' element={
             <TeamsContextProvider>
