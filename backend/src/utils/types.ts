@@ -4,11 +4,11 @@ interface TokenRecord {
     expiresAt: Date;
   }
   
-  interface User {
-    id: string;
-    email: string;
-    createdAt: Date;
-  }
+interface User {
+id: string;
+email: string;
+createdAt: Date;
+}
 
 
 

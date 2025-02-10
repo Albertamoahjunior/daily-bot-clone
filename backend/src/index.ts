@@ -26,18 +26,18 @@ express_app.get('/', (req, res) => {
     res.send('Hello, this is the Slack Bot Server!');
 });
 express_app.use('/auth', authRouter);
-express_app.use('/api/v1/team', teamRoutes);  //express_app.use('/api/v1/team', teamRoutes); 
-express_app.use('/api/v1/members', memberRoutes);   //express_app.use('/api/v1/members', authenticateJWT, memberRoutes);
-express_app.use('/api/v1/standup', standupRoutes);  //express_app.use('/api/v1/standup', authenticateJWT, standupRoutes);
-express_app.use('/api/v1/poll', pollRoutes);       //express_app.use('/api/v1/poll', authenticateJWT, pollRoutes);  
-express_app.use('/api/v1/kudos', kudosRoutes);    //express_app.use('/api/v1/kudos', authenticateJWT, kudosRoutes);   
-express_app.use('/api/v1/mood', mood);           //express_app.use('/api/v1/mood', authenticateJWT, mood);        
+express_app.use('/api/v1/team', authenticateJWT, teamRoutes); 
+express_app.use('/api/v1/members', authenticateJWT, memberRoutes);
+express_app.use('/api/v1/standup', authenticateJWT, standupRoutes);
+express_app.use('/api/v1/poll', authenticateJWT, pollRoutes);  
+express_app.use('/api/v1/kudos', authenticateJWT, kudosRoutes);   
+express_app.use('/api/v1/mood', authenticateJWT, mood);        
 //slack listeners
 homeDesign();
 listenForChannelCreation();
 addJoinedMmebers();
 listenKudos();
-addJoinedTeamMembers();
+
 
 
 

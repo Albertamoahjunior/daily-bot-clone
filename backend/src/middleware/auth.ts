@@ -2,13 +2,24 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../utils/config';
-import '../utils/types/express';
 
 
-export function authenticateJWT(req: Request, res: Response, next: NextFunction) {
+    interface AuthRequest extends Request {
+  
+      user?: {
+  
+        id: string;
+  
+      };
+  
+    }
+  
+  
+export function authenticateJWT(req: AuthRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({ error: 'Unauthorized' });
+    return
   }
 
   const token = authHeader.split(' ')[1];
@@ -17,6 +28,7 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
     req.user = { id: payload.userId };
     next();
   } catch (error) {
-    return res.status(401).json({ error: 'Invalid token' });
+    res.status(401).json({ error: 'Invalid token' });
+    return
   }
 }

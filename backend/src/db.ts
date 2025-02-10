@@ -1,5 +1,11 @@
 import { PrismaClient } from '@prisma/client'
 
+interface TokenRecord {
+  email: string;
+  token: string;
+  expiresAt: Date;
+}
+
 const prisma = new PrismaClient()
 
 interface Mood {
@@ -535,12 +541,22 @@ async function getMoodAnalyticsPerTeam(teamId: string) {
 //auth db
 const auth = {
   async createToken(data: TokenRecord) {
+    //first check if data.token is of a member in the database
+    const member = await prisma.member.findUnique({
+      where: { email: data.email },
+    });
+
+    if (!member) {
+      throw new Error('Member not found');
+    }
+
+    //if data.token is of a member, create  a token record
     return prisma.token.create({
       data: {
-        email: data.email,
         token: data.token,
+        email: data.email,
         expiresAt: data.expiresAt
-      }
+      },
     });
   },
 
