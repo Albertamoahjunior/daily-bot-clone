@@ -14,13 +14,18 @@ import {
   RadarChart, 
   Radar, 
   PolarGrid, 
-  PolarAngleAxis 
+  PolarAngleAxis,
+  ResponsiveContainer 
 } from 'recharts';
 import { 
   Download, 
   Filter, 
-  Calendar 
+  Calendar ,
+  Trophy, 
+  CheckCircle2,
+  TrendingUp, 
 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -38,6 +43,49 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
+
+const dummyTeamData = [
+  { 
+    teamName: 'Engineering', 
+    standupCompletion: 92, 
+    avgResponseTime: 15, 
+    kudosGiven: 45, 
+    pollParticipation: 88,
+    avgMood: 4.2
+  },
+  { 
+    teamName: 'Sales', 
+    standupCompletion: 85, 
+    avgResponseTime: 22, 
+    kudosGiven: 36, 
+    pollParticipation: 75,
+    avgMood: 3.9
+  },
+  { 
+    teamName: 'Marketing', 
+    standupCompletion: 78, 
+    avgResponseTime: 30, 
+    kudosGiven: 28, 
+    pollParticipation: 65,
+    avgMood: 3.7
+  },
+  { 
+    teamName: 'Customer Support', 
+    standupCompletion: 95, 
+    avgResponseTime: 12, 
+    kudosGiven: 52, 
+    pollParticipation: 92,
+    avgMood: 4.5
+  },
+  { 
+    teamName: 'Product', 
+    standupCompletion: 88, 
+    avgResponseTime: 18, 
+    kudosGiven: 40, 
+    pollParticipation: 82,
+    avgMood: 4.0
+  }
+];
 
 // Dummy data (would be replaced with actual data fetching)
 const standupCompletionData = [
@@ -129,7 +177,7 @@ export const AnalyticsPage: React.FC = () => {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Teams</SelectItem>
+              <SelectItem value="All">All Teams</SelectItem>
               <SelectItem value="Engineering">Engineering</SelectItem>
               <SelectItem value="Marketing">Marketing</SelectItem>
               <SelectItem value="Sales">Sales</SelectItem>
@@ -143,6 +191,150 @@ export const AnalyticsPage: React.FC = () => {
           </Button>
         </div>
       </div>
+
+
+
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4 mb-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="standup">Standup Metrics</TabsTrigger>
+          <TabsTrigger value="engagement">Engagement</TabsTrigger>
+          <TabsTrigger value="mood">Mood Tracking</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Team Performance Comparison Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Trophy className="mr-2 h-5 w-5 text-yellow-500" />
+                  Team Performance
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={dummyTeamData}>
+                    <XAxis dataKey="teamName" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="standupCompletion" fill="#3b82f6" name="Standup Completion %" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Kudos Distribution Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <CheckCircle2 className="mr-2 h-5 w-5 text-green-500" />
+                  Kudos Distribution
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={dummyTeamData}
+                      dataKey="kudosGiven"
+                      nameKey="teamName"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      label
+                    >
+                      {dummyTeamData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={`hsl(${index * 60}, 70%, 50%)`} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Response Time Trends Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <TrendingUp className="mr-2 h-5 w-5 text-purple-500" />
+                  Response Time Trends
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={dummyTeamData}>
+                    <XAxis dataKey="teamName" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="avgResponseTime" stroke="#10b981" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Additional tabs would be implemented similarly */}
+        <TabsContent value="standup">
+          {/* Standup-specific metrics */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Standup Completion Rates</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={dummyTeamData}>
+                  <XAxis dataKey="teamName" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="standupCompletion" fill="#3b82f6" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="engagement">
+          {/* Engagement-specific metrics */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Team Engagement Metrics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={dummyTeamData}>
+                  <XAxis dataKey="teamName" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="pollParticipation" fill="#10b981" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="mood">
+          {/* Mood tracking metrics */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Team Mood Trends</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={dummyTeamData}>
+                  <XAxis dataKey="teamName" />
+                  <YAxis domain={[0, 5]} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="avgMood" stroke="#f43f5e" />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Analytics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
