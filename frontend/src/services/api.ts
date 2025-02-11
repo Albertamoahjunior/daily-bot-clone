@@ -1,15 +1,9 @@
-import axios from 'axios';
-import { LOGIN, LOGOUT} from '../state/authState/authSlice';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import {useSelector} from 'react-redux';
-import { RootState } from '@/state/store';
+import apiClient from './apiClient';
 
-
-const API_BASE_URL = 'http://localhost:3000/api/v1'; 
+const API_BASE_URL = 'http://localhost:3000/api/v1';
 const BASE_URL = 'http://localhost:3000';
 
+// Types
 interface CreateTeamPayload {
     teamName: string;
     timezone: string;
@@ -18,262 +12,7 @@ interface CreateTeamPayload {
 interface AddMembersPayload {
     members: string[] | [];
 }
-// const getAuthHeaders = () => {
-//     const token = useSelector((state: RootState) => state.authState.token);
-//     return {
-//         headers: {
-//             Authorization: `Bearer ${token}`,
-//         },
-//     };
-// };
 
-interface user {
-    id: string;
-    token: string;
-    is_admin: boolean;
-} 
-
-
-interface user {
-    id: string;
-    token: string;
-    is_admin: boolean;
-} 
-
-
-
-export const useAuthService = () => {
-
-
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-  
-    // redirectAfterLogin: (userData: user) => {
-    //     const routes = {
-    //       admin: '/admin-dashboard',
-    //       user: '/user-dashboard'
-    //     };
-    
-    //     const redirectPath = userData.is_admin 
-    //       ? routes.admin 
-    //       : routes.user;
-    
-    //     window.location.href = redirectPath;
-    //   },
-    
-    //   logout: () => {
-    //     localStorage.removeItem('user');
-    //     localStorage.removeItem('token');
-    //     window.location.href = '/login';
-    //   }
-
-
-    return {
-        // Login a user
-        login: async (email: string) => {
-            try {
-                console.log("Inside login")
-                const response = await axios.post(`${BASE_URL}/auth/login`, { email });
-                return response.data;
-            } catch (error) {
-                return error;
-            }
-        },
-
-        // Verify user
-        verifyUser: async (token: string) => {
-            try {
-                const response = await axios.get(`${BASE_URL}/auth/verify?token=${token}`);
-                // console.log("After Verify token route");
-                // if (response.data) {
-                    console.log("Inside response status 200", response);
-                    // dispatch(LOGIN(response.data));
-                    // toast.success("Successfully Signed In!!✨🎉");
-                    // navigate("/");
-                // }
-                return response.data;
-            } catch (error) {
-                return error;
-            }
-        },
-
-        // Logout a user
-        logout: async () => {
-            try {
-                const token = useSelector((state: RootState) => state.authState.token);
-                const options =  {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                };
-                await axios.post(`${BASE_URL}/auth/logout`, {}, options);
-                dispatch(LOGOUT()); // Ensure the user is logged out in Redux state
-                toast.info("Logged out successfully.");
-                window.location.href = '/login';
-                // navigate("/login");
-                return true;
-            } catch (error) {
-                return error;
-            }
-        },
-
-        // Get user information
-        getUser: async () => {
-            try {
-                const token = useSelector((state: RootState) => state.authState.token);
-                const options =  {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                };
-                const response = await axios.get(`${BASE_URL}/auth/user`, options);
-                return response.data;
-            } catch (error) {
-                return error;
-            }
-        },
-
-        redirectAfterLogin: (userData: user) => {
-            // const routes = {
-            //   admin: '/admin-dashboard',
-            //   user: '/user-dashboard'
-            // };
-        
-            // const redirectPath = userData.is_admin 
-            //   ? routes.admin 
-            //   : routes.user;
-
-            const redirectPath = "/"
-        
-            window.location.href = redirectPath;
-        },
-    };
-};
-
-
-// Team API services
-export const teamService = {
-    // Create a new team
-    createTeam: async (payload: CreateTeamPayload) => {
-
-        try {
-        const token = useSelector((state: RootState) => state.authState.token);
-        const options =  {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        };
-        
-            const response = await axios.post(`${API_BASE_URL}/team`, payload, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    // Get all teams
-    getTeams: async () => {
-        try {
-        const token = useSelector((state: RootState) => state.authState.token);
-        const options =  {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        };
-
-            const response = await axios.get(`${API_BASE_URL}/team`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    // Get specific team by ID
-    getTeam: async (teamId: string) => {
-        try {
-        const token = useSelector((state: RootState) => state.authState.token);
-        const options =  {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        };
-
-            const response = await axios.get(`${API_BASE_URL}/team/teams/${teamId}`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    // Add members to a team
-    addMembersToTeam: async (teamId: string, payload: AddMembersPayload) => {
-        try {
-        const token = useSelector((state: RootState) => state.authState.token);
-        const options =  {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        };
-            const response = await axios.post(`${API_BASE_URL}/team/teams/${teamId}/members`, payload, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-    
-    // Remove members from a team
-    removeMembersFromTeam: async (teamId: string, payload: AddMembersPayload) => {
-        try {
-        const token = useSelector((state: RootState) => state.authState.token);
-        const options =  {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        };
-            const response = await axios.delete(`${API_BASE_URL}/team/teams/${teamId}/members`, {
-                data: payload,
-                headers:options.headers
-            });
-            console.log("Response.data", response.data);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    // Delete a team
-    removeTeam: async (teamId: string ) => {
-        try {
-            await axios.delete(`${API_BASE_URL}/team/teams/${teamId}`);
-            return true;
-        } catch (error) {
-            return error;
-        }
-    }
-};
-
-//Members API services
-export const memberService = {
-    
-    // Get all members
-    getMembers: async () => {
-        try {
-        const token = useSelector((state: RootState) => state.authState.token);
-        const options =  {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        };
-            const response = await axios.get(`${API_BASE_URL}/members`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    }
-};
-
-
-// Mood API services
 interface CreateMoodPayload {
     mood: string;
     moodScore: number;
@@ -289,88 +28,6 @@ interface MoodResponsePayload {
     anonymous: boolean;
 }
 
-export const moodService = {
-    // Create a new mood
-    createMood: async (payload: CreateMoodPayload[]) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.post(`${API_BASE_URL}/mood`, {moods: payload}, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    getMoods: async () => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/mood`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    // Create a mood response
-    createMoodResponse: async (payload: MoodResponsePayload) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.post(`${API_BASE_URL}/mood-response`, payload, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    // Get mood response by user ID
-    getMoodResponse: async (userId: string) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/mood-response/${userId}`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    // Get mood response by user ID
-    getMoodAnalyticsForTeam: async (teamId: string) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/mood/${teamId}/analytics`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    }
-};
-
-// Kudos API services
 interface CreateKudosPayload {
     giverId: string;
     receiverId: string|string[];
@@ -385,100 +42,6 @@ interface CreateKudosCategoryPayload {
     description: string;
 }
 
-export const kudosService = {
-    createKudos: async (payload: CreateKudosPayload) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.post(`${API_BASE_URL}/kudos`, payload, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    getTeamKudos: async (teamId: string) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/kudos/team/${teamId}`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    getUserKudosCount: async (userId: string) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/kudos/user/${userId}/count`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    createKudosCategory: async (payload: CreateKudosCategoryPayload) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.post(`${API_BASE_URL}/kudos/category`, payload, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    getTeamKudosCategories: async (teamId: string) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/kudos/categories/team/${teamId}`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    getKudosAnalytics: async () => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/kudos/analytics`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    }
-};
-
-
-// Poll API services
 interface CreatePollQuestionsPayload {
     teamId: string;
     question: string;
@@ -496,73 +59,10 @@ interface CreatePollResponsesPayload {
     }[];
 }
 
-export const pollService = {
-    createPollQuestions: async (payload: CreatePollQuestionsPayload) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.post(`${API_BASE_URL}/poll/questions`, { polls: payload }, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    getTeamPollQuestions: async (teamId: string) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/poll/questions/${teamId}`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    createPollResponses: async (payload: CreatePollResponsesPayload) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.post(`${API_BASE_URL}poll/responses`, payload, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
-
-    getTeamPollResponses: async (teamId: string) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/poll/responses/${teamId}`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    }
-};
-
-//Standup API services
- export interface standupQuestion {
+export interface standupQuestion {
     questionText: string;
     options: string[];
-    questionType: "freeText" | "multiple_choice" | "single_choice",
+    questionType: "freeText" | "multiple_choice" | "single_choice";
     required: boolean;
 }
 
@@ -573,64 +73,185 @@ interface ConfigureStandupPayload {
     questions: standupQuestion[];
 }
 
+// Auth Service
+export const authService = () => {
+    return {
+        login: async (email: string) => {
+            const response = await apiClient.post(`${BASE_URL}/auth/login`, { email });
+            return response.data;
+            
+        },
+
+        verifyUser: async (token: string) => {
+            const response = await apiClient.get(`${BASE_URL}/auth/verify`, {
+                params: { token }
+            });
+            return response.data;
+      
+        },
+
+        logout: async () => {
+            const logged_out = await apiClient.get(`${BASE_URL}/auth/logout`);
+            return logged_out;
+        },
+
+        getUser: async () => {
+            const response = await apiClient.get(`${BASE_URL}/auth/user`);
+            return response.data;
+        },
+    };
+};
+
+// Team Service
+export const teamService = {
+    createTeam: async (payload: CreateTeamPayload) => {
+        const response = await apiClient.post(`${API_BASE_URL}/team`, payload);
+        return response.data;
+    },
+
+    getTeams: async () => {
+        const response = await apiClient.get(`${API_BASE_URL}/team`);
+        return response.data;
+    },
+
+    getTeam: async (teamId: string) => {
+        const response = await apiClient.get(`${API_BASE_URL}/team/teams/${teamId}`);
+        return response.data;
+    },
+
+    addMembersToTeam: async (teamId: string, payload: AddMembersPayload) => {
+        const response = await apiClient.post(
+            `${API_BASE_URL}/team/teams/${teamId}/members`, 
+            payload
+        );
+        return response.data;
+    },
+    
+    removeMembersFromTeam: async (teamId: string, payload: AddMembersPayload) => {
+        const response = await apiClient.delete(
+            `${API_BASE_URL}/team/teams/${teamId}/members`,
+            { data: payload }
+        );
+        return response.data;
+    },
+
+    removeTeam: async (teamId: string) => {
+        await apiClient.delete(`${API_BASE_URL}/team/teams/${teamId}`);
+        return true;
+    }
+};
+
+// Member Service
+export const memberService = {
+    getMembers: async () => {
+        const response = await apiClient.get(`${API_BASE_URL}/members`);
+        return response.data;
+    }
+};
+
+// Mood Service
+export const moodService = {
+    createMood: async (payload: CreateMoodPayload[]) => {
+        const response = await apiClient.post(`${API_BASE_URL}/mood`, { moods: payload });
+        return response.data;
+    },
+
+    getMoods: async () => {
+        const response = await apiClient.get(`${API_BASE_URL}/mood`);
+        return response.data;
+    },
+
+    createMoodResponse: async (payload: MoodResponsePayload) => {
+        const response = await apiClient.post(`${API_BASE_URL}/mood-response`, payload);
+        return response.data;
+    },
+
+    getMoodResponse: async (userId: string) => {
+        const response = await apiClient.get(`${API_BASE_URL}/mood-response/${userId}`);
+        return response.data;
+    },
+
+    getMoodAnalyticsForTeam: async (teamId: string) => {
+        const response = await apiClient.get(`${API_BASE_URL}/mood/${teamId}/analytics`);
+        return response.data;
+    }
+};
+
+// Kudos Service
+export const kudosService = {
+    createKudos: async (payload: CreateKudosPayload) => {
+        const response = await apiClient.post(`${API_BASE_URL}/kudos`, payload);
+        return response.data;
+    },
+
+    getTeamKudos: async (teamId: string) => {
+        const response = await apiClient.get(`${API_BASE_URL}/kudos/team/${teamId}`);
+        return response.data;
+    },
+
+    getUserKudosCount: async (userId: string) => {
+        const response = await apiClient.get(`${API_BASE_URL}/kudos/user/${userId}/count`);
+        return response.data;
+    },
+
+    createKudosCategory: async (payload: CreateKudosCategoryPayload) => {
+        const response = await apiClient.post(`${API_BASE_URL}/kudos/category`, payload);
+        return response.data;
+    },
+
+    getTeamKudosCategories: async (teamId: string) => {
+        const response = await apiClient.get(`${API_BASE_URL}/kudos/categories/team/${teamId}`);
+        return response.data;
+    },
+
+    getKudosAnalytics: async () => {
+        const response = await apiClient.get(`${API_BASE_URL}/kudos/analytics`);
+        return response.data;
+    }
+};
+
+// Poll Service
+export const pollService = {
+    createPollQuestions: async (payload: CreatePollQuestionsPayload) => {
+        const response = await apiClient.post(`${API_BASE_URL}/poll/questions`, { polls: payload });
+        return response.data;
+    },
+
+    getTeamPollQuestions: async (teamId: string) => {
+        const response = await apiClient.get(`${API_BASE_URL}/poll/questions/${teamId}`);
+        return response.data;
+    },
+
+    createPollResponses: async (payload: CreatePollResponsesPayload) => {
+        const response = await apiClient.post(`${API_BASE_URL}/poll/responses`, payload);
+        return response.data;
+    },
+
+    getTeamPollResponses: async (teamId: string) => {
+        const response = await apiClient.get(`${API_BASE_URL}/poll/responses/${teamId}`);
+        return response.data;
+    }
+};
+
+// Standup Service
 export const standupService = {
     configureStandup: async (payload: ConfigureStandupPayload) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.post(`${API_BASE_URL}/standup/configure`, payload, options)
-            return response.data;
-        } catch (error) {
-            return error;
-        }
+        const response = await apiClient.post(`${API_BASE_URL}/standup/configure`, payload);
+        return response.data;
     },
 
     getStandupRespondents: async (teamId: string) => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/standup/respondents/${teamId}`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
+        const response = await apiClient.get(`${API_BASE_URL}/standup/respondents/${teamId}`);
+        return response.data;
     },
 
     getAllStandups: async () => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/standup/all-standups`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
+        const response = await apiClient.get(`${API_BASE_URL}/standup/all-standups`);
+        return response.data;
     },
 
     getAllStandupQuestions: async () => {
-        try {
-            const token = useSelector((state: RootState) => state.authState.token);
-            const options =  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get(`${API_BASE_URL}/standup/all-questions`, options);
-            return response.data;
-        } catch (error) {
-            return error;
-        }
-    },
+        const response = await apiClient.get(`${API_BASE_URL}/standup/all-questions`);
+        return response.data;
+    }
 };

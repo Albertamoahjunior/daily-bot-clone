@@ -26,13 +26,19 @@ const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        LOGIN: (state , action:PayloadAction<ValidUser>) => {
-            state = action.payload ;
+        LOGIN: (state, action: PayloadAction<ValidUser>) => {
+          // Direct state mutation instead of reassignment
+          state.id = action.payload.id;
+          state.token = action.payload.token;
+          state.is_admin = action.payload.is_admin;
         },
         LOGOUT: (state) => {
-            state =  initialState ;
+          // Direct state mutation instead of reassignment
+          state.id = null;
+          state.token = null;
+          state.is_admin = null;
         }
-    }
+      }
 })
 
 export const { LOGIN, LOGOUT } = userSlice.actions;

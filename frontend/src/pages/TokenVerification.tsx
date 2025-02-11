@@ -1,5 +1,6 @@
 import {useEffect} from 'react';
-import { useAuthService } from '../services/api';
+import {useNavigate} from 'react-router-dom';
+import { authService } from '../services/api';
 import { toast } from 'react-toastify';
 import {useDispatch} from 'react-redux';
 import {LOGIN} from "../state/authState/authSlice"
@@ -7,7 +8,8 @@ import {LOGIN} from "../state/authState/authSlice"
 // TokenVerification.tsx
 export function TokenVerification(){
   const dispatch = useDispatch();
-  const {verifyUser, redirectAfterLogin} = useAuthService();
+  const {verifyUser} = authService();
+  const navigate = useNavigate();
 
     useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -21,7 +23,8 @@ export function TokenVerification(){
             toast.success("Successfully Signed In!!✨🎉");
             dispatch(LOGIN(userData));
 
-            // redirectAfterLogin(userData);
+            //redirect to home page
+            navigate('/');
           } else {
             alert('Invalid or expired login link');
           }
@@ -29,7 +32,7 @@ export function TokenVerification(){
       }
   
       handleTokenVerification();
-    }, []);
+    }, [dispatch, verifyUser, navigate]);
   
     return <div>Verifying your login...</div>;
   }

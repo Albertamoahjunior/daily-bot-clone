@@ -3,8 +3,8 @@ import { Mail } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useDispatch } from 'react-redux';
-import { useAuthService } from '@/services/api';
+//import { useDispatch } from 'react-redux';
+import { authService } from '@/services/api';
 import {toast} from 'react-toastify'
 
 
@@ -13,7 +13,7 @@ const Signin = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [redirected, setRedirected] = useState(false);
-  const { login } = useAuthService();
+  const { login } = authService();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +36,7 @@ const Signin = () => {
     try {
       console.log('Signing in with:', email);
       const response = await login(email);
-      if(response.message){
+      if(response){
         toast.success("Click on the link sent to your email to register");
         setRedirected(true);
       }
@@ -45,7 +45,7 @@ const Signin = () => {
       // // dispatch(LOGIN({email, userId}))
 
     } catch (err) {
-      setError('An error occurred while signing in');
+      setError(err ? err as string : 'An error occurred while signing in');
     } finally {
       setIsLoading(false);
     }

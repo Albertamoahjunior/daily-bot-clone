@@ -17,13 +17,14 @@ interface TokenRequest extends Request {
       const { email } = req.body;
       const token = generateToken();
       
-      await auth.createToken({
+      const auth_token = await auth.createToken({
         email,
         token,
         expiresAt: new Date(Date.now() + config.MAGIC_LINK_EXPIRY)
       });
 
-      await sendMagicLink(email, token);
+      
+      await sendMagicLink(email, auth_token.token);
       
       res.json({ message: 'Magic link sent to your email' });
     } catch (error) {
@@ -40,7 +41,8 @@ interface TokenRequest extends Request {
       }
   
       const storedToken = await auth.findToken(token);
-      if (!storedToken || storedToken.expiresAt < new Date()) {
+      console.log(storedToken);
+      if (!storedToken) {
         return res.status(400).json({ error: 'Invalid or expired token' });
       }
   
@@ -48,7 +50,7 @@ interface TokenRequest extends Request {
       if (!user) {
         return res.status(400).json({ error: 'User not found' });
       }
-      await auth.deleteToken(token);
+      //await auth.deleteToken(token);
       const jwt = generateJWT(user.id);
       
       res.status(200).json({id:user.id, is_admin:user.is_admin, token: jwt });
