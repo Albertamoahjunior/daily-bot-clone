@@ -184,6 +184,11 @@ export const kudosService = {
         return response.data;
     },
 
+    getAllKudos: async() =>{
+        const response = await apiClient.get(`${API_BASE_URL}/kudos/all`);
+        return response.data;
+    },
+
     getTeamKudos: async (teamId: string) => {
         const response = await apiClient.get(`${API_BASE_URL}/kudos/team/${teamId}`);
         return response.data;
