@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createKudos, getTeamKudos, getUserKudosCount, createKudosCategory, getTeamKudosCategories, getKudosAnalytics } from '../db';
+import { createKudos, getTeamKudos, getUserKudosCount, createKudosCategory, getTeamKudosCategories, getKudosAnalytics, getAllKudos } from '../db';
 import { app } from '../config/bot.config';
 
 const slackClient = app.client;
@@ -85,5 +85,16 @@ export async function getKudosAnalyticsController(req: Request, res: Response) {
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Failed to get kudos analytics' });
+    }
+}
+
+//controller to get all kudos
+export async function getAllKudosController(req: Request, res: Response) {
+    try {
+        const kudos = await getAllKudos();
+        res.status(200).json(kudos);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Failed to get all kudos' });
     }
 }

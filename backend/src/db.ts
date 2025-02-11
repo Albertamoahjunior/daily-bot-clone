@@ -321,6 +321,12 @@ async function createKudos(
   return kudos;
 }
 
+//function to get all kudos
+async function getAllKudos(){
+  const kudos = await prisma.kudos.findMany();
+  return kudos;
+}
+
 //function to get all kudos for a team
 async function getTeamKudos(teamId: string) {
   const kudos = await prisma.kudos.findMany({
@@ -479,7 +485,7 @@ async function getMoodAnalytics() {
   // Build an object with date keys and mood counts as values
   const analyticsMap = moodResponses.reduce((acc, response) => {
     const date = response.createdAt.toISOString().split('T')[0];
-    const mood = moods.find(m => m.id === response.moodId);
+    const mood = moods.find(m => m.description === response.moodId);
 
     if (!mood) return acc;
 
@@ -487,11 +493,11 @@ async function getMoodAnalytics() {
       acc[date] = {};
     }
 
-    if (!acc[date][mood.mood]) {
-      acc[date][mood.mood] = 0;
+    if (!acc[date][mood.description]) {
+      acc[date][mood.description] = 0;
     }
 
-    acc[date][mood.mood] += 1;
+    acc[date][mood.description] += 1;
     return acc;
   }, {} as Record<string, Record<string, number>>);
 
@@ -513,7 +519,7 @@ async function getMoodAnalyticsPerTeam(teamId: string) {
   // Build an object with date keys and mood counts as values
   const analyticsMap = moodResponses.reduce((acc, response) => {
     const date = response.createdAt.toISOString().split('T')[0];
-    const mood = moods.find(m => m.id === response.moodId);
+    const mood = moods.find(m => m.description === response.moodId);
 
     if (!mood) return acc;
 
@@ -521,11 +527,11 @@ async function getMoodAnalyticsPerTeam(teamId: string) {
       acc[date] = {};
     }
 
-    if (!acc[date][mood.mood]) {
-      acc[date][mood.mood] = 0;
+    if (!acc[date][mood.description]) {
+      acc[date][mood.description] = 0;
     }
 
-    acc[date][mood.mood] += 1;
+    acc[date][mood.description] += 1;
     return acc;
   }, {} as Record<string, Record<string, number>>);
 
@@ -613,6 +619,7 @@ export {
   createMoodResponse,
   createKudosCategory,
   getTeamKudosCategories,
+  getAllKudos,
   getKudosAnalytics,
   createMood,
   getMoodResponse,
