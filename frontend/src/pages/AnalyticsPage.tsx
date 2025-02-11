@@ -135,7 +135,7 @@ export const AnalyticsPage: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
+    <div className="p-6 bg-slate-50 border border-[#5fb0bc] rounded-lg min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-slate-900">
@@ -205,7 +205,7 @@ export const AnalyticsPage: React.FC = () => {
         <TabsContent value="overview">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Team Performance Comparison Card */}
-            <Card>
+            <Card className="">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Trophy className="mr-2 h-5 w-5 text-yellow-500" />
@@ -225,7 +225,7 @@ export const AnalyticsPage: React.FC = () => {
             </Card>
 
             {/* Kudos Distribution Card */}
-            <Card>
+            <Card className="bg-white">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <CheckCircle2 className="mr-2 h-5 w-5 text-green-500" />
@@ -256,7 +256,7 @@ export const AnalyticsPage: React.FC = () => {
             </Card>
 
             {/* Response Time Trends Card */}
-            <Card>
+            <Card className="bg-white">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <TrendingUp className="mr-2 h-5 w-5 text-purple-500" />
@@ -280,7 +280,7 @@ export const AnalyticsPage: React.FC = () => {
         {/* Additional tabs would be implemented similarly */}
         <TabsContent value="standup">
           {/* Standup-specific metrics */}
-          <Card>
+          <Card className="bg-white">
             <CardHeader>
               <CardTitle>Standup Completion Rates</CardTitle>
             </CardHeader>
@@ -299,7 +299,7 @@ export const AnalyticsPage: React.FC = () => {
 
         <TabsContent value="engagement">
           {/* Engagement-specific metrics */}
-          <Card>
+          <Card className="bg-white">
             <CardHeader>
               <CardTitle>Team Engagement Metrics</CardTitle>
             </CardHeader>
@@ -318,7 +318,7 @@ export const AnalyticsPage: React.FC = () => {
 
         <TabsContent value="mood">
           {/* Mood tracking metrics */}
-          <Card>
+          <Card className="bg-white">
             <CardHeader>
               <CardTitle>Team Mood Trends</CardTitle>
             </CardHeader>
@@ -339,7 +339,7 @@ export const AnalyticsPage: React.FC = () => {
       {/* Analytics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Standup Completion */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
             <CardTitle>Standup Completion Rates</CardTitle>
           </CardHeader>
@@ -354,7 +354,7 @@ export const AnalyticsPage: React.FC = () => {
         </Card>
 
         {/* Mood Trends */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
             <CardTitle>Team Mood Trends</CardTitle>
           </CardHeader>
@@ -372,7 +372,7 @@ export const AnalyticsPage: React.FC = () => {
         </Card>
 
         {/* Kudos Distribution */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
             <CardTitle>Kudos Distribution</CardTitle>
           </CardHeader>
@@ -401,7 +401,7 @@ export const AnalyticsPage: React.FC = () => {
         </Card>
 
         {/* Poll Participation */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
             <CardTitle>Poll Participation</CardTitle>
           </CardHeader>
@@ -416,7 +416,7 @@ export const AnalyticsPage: React.FC = () => {
         </Card>
 
         {/* Team Comparison Radar Chart */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
             <CardTitle>Team Performance Radar</CardTitle>
           </CardHeader>
@@ -459,7 +459,7 @@ export const AnalyticsPage: React.FC = () => {
         </Card>
 
         {/* Detailed Engagement Table */}
-        <Card className="col-span-full">
+        <Card className="bg-white col-span-full">
           <CardHeader>
             <CardTitle>Detailed Team Engagement Metrics</CardTitle>
           </CardHeader>

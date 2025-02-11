@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { useTeamsContext } from '../hooks/useTeamsContext';
@@ -12,9 +12,14 @@ import { GiverInput } from './GiverInput';
 interface GiveKudosModalProps {
   isOpen: boolean;
   onClose: () => void;
+  userId: string | ""
 }
 
-export const GiveKudosModal: React.FC<GiveKudosModalProps> = ({ isOpen, onClose }) => {
+export const GiveKudosModal: React.FC<GiveKudosModalProps> = ({ isOpen, onClose, userId }) => {
+  useEffect(() => {
+    setGiverId(userId);
+  }, [userId])
+
   const { teams, members } = useTeamsContext();
   const {
     teamsList,
@@ -27,9 +32,10 @@ export const GiveKudosModal: React.FC<GiveKudosModalProps> = ({ isOpen, onClose 
     selectedCategory,
     handleCategoryChange,
     kudosReason,
+
     giverId,
-    handleGiverSelect,
-    handleGiverDeselect,
+    setGiverId,
+
     setKudosReason,
     handleSubmit,
   } = useKudosForm(teams, members);
@@ -56,12 +62,15 @@ export const GiveKudosModal: React.FC<GiveKudosModalProps> = ({ isOpen, onClose 
         </div>
 
         <div className="flex flex-col gap-6 my-6 mb-8 mx-20">
-          <GiverInput
+          {/* <GiverInput
             members={members}
             selectedUsers={giverId}
             onUserSelect={handleGiverSelect}
             onUserDeselect={handleGiverDeselect}
-          />
+          /> */}
+          <div className="flex items-center px-4 py-2 bg-white border border-gray-400 rounded-lg cursor-pointer overflow-auto">
+            <p className="text-gray-700">{members?.find((member) => member.id === giverId)?.memberName || "No Giver"}</p>
+          </div>
 
           <TeamInputDropdown
             inputName="Select a Team "

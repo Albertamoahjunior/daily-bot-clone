@@ -8,12 +8,26 @@ import {KudosReceived} from "../components/KudosReceived";
 import {KudosGiven} from "../components/KudosGiven";
 import { GiveKudosModal } from '@/components/GiveKudosModal';
 import { AnimationWrapper } from '@/common/page-animation';
+import { kudosService } from '../services/api'
+import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
+
 
 
 export const KudosPage = () => {
+    const authState = useSelector((state: RootState) => state.authState.id);
+    const [userId, setUserId] = useState<string>("");
+    useEffect(() => {
+      if (authState) {
+        setUserId(authState);
+      }
+    }, [authState]); // Dependency on authState
 
     const [pageState, setPageState] = useState<"home"|"kudos-given"|"kudos-received"|"kudos-categories">("home");
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+    const [allKudos, setAllKudos] = useState<Kudos[]|[]>([]);
+
     const handleModalClose = () => {
         setModalIsOpen(false)
     }
@@ -40,6 +54,24 @@ export const KudosPage = () => {
         )
     }
 
+    useEffect(() => {
+      const fetchAllKudos = async () => {
+        try{
+          const allKudos = await kudosService.getAllKudos()
+          if(allKudos){
+            console.log("All Kudos", allKudos);
+            setAllKudos(allKudos);
+          }
+        }catch(err){
+          toast.error("Failed To Fetch All Kudos")
+          console.log("Failed To Fetch All Kudos", err)
+        }
+      }
+
+      fetchAllKudos();
+
+    }, [])
+
 
   return (
     <>
@@ -60,7 +92,7 @@ export const KudosPage = () => {
 
       {pageState === "home" &&
       <AnimationWrapper key={"kudos-home"}>
-        <KudosHome/>
+        <KudosHome userId={userId} allKudos={allKudos}/>
         {/* Give Kudos Section */}
         <GiveKudosCard/>
       </AnimationWrapper> 
@@ -68,7 +100,7 @@ export const KudosPage = () => {
 
       {pageState === "kudos-received" &&
       <AnimationWrapper key={"kudos-received"}>
-        <KudosReceived/>
+        <KudosReceived  userId={userId} allKudos={allKudos}/>
         {/* Give Kudos Section */}
         <GiveKudosCard/>
       </AnimationWrapper> 
@@ -76,7 +108,7 @@ export const KudosPage = () => {
 
       {pageState === "kudos-given" &&
       <AnimationWrapper key={"kudos-given"}>
-        <KudosGiven/>
+        <KudosGiven userId={userId} allKudos={allKudos}/>
         {/* Give Kudos Section */}
         <GiveKudosCard/>
       </AnimationWrapper> 
@@ -90,7 +122,7 @@ export const KudosPage = () => {
 
 
     </div>
-    {modalIsOpen && <GiveKudosModal isOpen={modalIsOpen} onClose={handleModalClose} />}
+    {modalIsOpen && <GiveKudosModal userId = {userId} isOpen={modalIsOpen} onClose={handleModalClose} />}
     </>
   );
 };

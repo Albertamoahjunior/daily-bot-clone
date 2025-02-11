@@ -305,7 +305,7 @@ export const TeamPollsMetrics = ({selectedTeamPoll, selectedTeamPollResponses, t
         }
 
         {/* Report Streak */}
-        {selectedTeamPoll ? 
+        {/* {selectedTeamPoll ? 
         <Card className="col-span-2">
             <CardHeader>
             <CardTitle className="text-lg font-medium">Report streak 🚀</CardTitle>
@@ -344,7 +344,7 @@ export const TeamPollsMetrics = ({selectedTeamPoll, selectedTeamPollResponses, t
                 </div>
             </CardContent>
         </Card>
-        }
+        } */}
       </div>
 
     </div>
