@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { createPollQuestions, getTeamPollQuestions, createPollResponses, getTeamPollResponses } from '../db';
+import { createPollQuestions, getTeamPollQuestions, createPollResponses, getTeamPollResponses, getAllPolls } from '../db';
 import { createPoll } from '../utils/slack_bot';
-import { channel } from 'diagnostics_channel';
+
 
 // Controller to create poll questions
 export const createPollQuestionsController = async (req: Request, res: Response) => {
@@ -37,6 +37,16 @@ export const createPollResponsesController = async (req: Request, res: Response)
         res.status(201).json(pollResponses);
     } catch (error) {
         res.status(500).json({ error: 'Failed to create poll responses' });
+    }
+};
+
+//controller to get all polls
+export const getAllPollsController = async (req: Request, res: Response) => {
+    try {
+        const polls = await getAllPolls();
+        res.status(200).json(polls);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to get all polls' });
     }
 };
 

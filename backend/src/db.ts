@@ -293,6 +293,14 @@ async function getTeamPollResponses(teamId: string) {
   return pollResponses;
 }
 
+//function to get all polls 
+async function getAllPolls() {
+  const polls = await prisma.pollResponse.findMany();
+  return polls;
+}
+
+//function to get poll by id
+
 //function to get poll responses for a poll
 async function getPollResponses(pollId: string) {
   const pollResponses = await prisma.pollResponse.findMany({
@@ -613,6 +621,7 @@ export {
   createPollResponses,
   getTeamPollResponses,
   getPollResponses,
+  getAllPolls,
   createKudos,
   getTeamKudos,
   getUserKudosCount,

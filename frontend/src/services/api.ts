@@ -162,12 +162,17 @@ export const moodService = {
     },
 
     createMoodResponse: async (payload: MoodResponsePayload) => {
-        const response = await apiClient.post(`${API_BASE_URL}/mood-response`, payload);
+        const response = await apiClient.post(`${API_BASE_URL}/mood/mood-response`, payload);
         return response.data;
     },
 
+    getAllmoodResponses : async() =>{
+        const response = await apiClient.get(`${API_BASE_URL}/mood/mood-response`);
+        return response.data
+    },
+
     getMoodResponse: async (userId: string) => {
-        const response = await apiClient.get(`${API_BASE_URL}/mood-response/${userId}`);
+        const response = await apiClient.get(`${API_BASE_URL}/mood/mood-response/${userId}`);
         return response.data;
     },
 
@@ -224,6 +229,11 @@ export const pollService = {
 
     getTeamPollQuestions: async (teamId: string) => {
         const response = await apiClient.get(`${API_BASE_URL}/poll/questions/${teamId}`);
+        return response.data;
+    },
+
+    getAllPolls: async() =>{
+        const response = await apiClient.get(`${API_BASE_URL}/poll`);
         return response.data;
     },
 
