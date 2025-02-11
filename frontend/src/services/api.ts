@@ -4,16 +4,16 @@ const API_BASE_URL = 'http://localhost:3000/api/v1';
 const BASE_URL = 'http://localhost:3000';
 
 // Types
-interface CreateTeamPayload {
+export interface CreateTeamPayload {
     teamName: string;
     timezone: string;
 }
 
-interface AddMembersPayload {
+export interface AddMembersPayload {
     members: string[] | [];
 }
 
-interface CreateMoodPayload {
+export interface CreateMoodPayload {
     mood: string;
     moodScore: number;
     emojiId: "001"| "002"| "003"| "004"|"005";
@@ -21,14 +21,14 @@ interface CreateMoodPayload {
     description: string;
 }
 
-interface MoodResponsePayload {
+export interface MoodResponsePayload {
     userId: string;
     mood: string;
     teamId: string;
     anonymous: boolean;
 }
 
-interface CreateKudosPayload {
+export interface CreateKudosPayload {
     giverId: string;
     receiverId: string|string[];
     teamId: string;
@@ -36,13 +36,13 @@ interface CreateKudosPayload {
     category: string;
 }
 
-interface CreateKudosCategoryPayload {
+export interface CreateKudosCategoryPayload {
     teamId: string;
     category: string;
     description: string;
 }
 
-interface CreatePollQuestionsPayload {
+export interface CreatePollQuestionsPayload {
     teamId: string;
     question: string;
     options: string[];
@@ -50,7 +50,7 @@ interface CreatePollQuestionsPayload {
     anonymous: boolean;
 }
 
-interface CreatePollResponsesPayload {
+export interface CreatePollResponsesPayload {
     responses: {
         userId: string;
         teamId: string;
@@ -66,7 +66,7 @@ export interface standupQuestion {
     required: boolean;
 }
 
-interface ConfigureStandupPayload {
+export interface ConfigureStandupPayload {
     teamId: string;
     standupDays: string[];
     reminderTimes: string[];
