@@ -14,6 +14,8 @@ export function TokenVerification(){
     useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search);
       const token = urlParams.get('token');
+
+      localStorage.setItem('refreshToken', token as string);
   
       async function handleTokenVerification() {
         if (token) {

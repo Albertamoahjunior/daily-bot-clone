@@ -1,4 +1,4 @@
-import React,{useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import { AnimationWrapper } from '../common/page-animation';
 import { TeamInputDropdown } from '../components/TeamDropdownInput';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,9 @@ import {CreateTeamPollModal } from '../components/CreateTeamPollModal'
 import {pollService} from "../services/api"
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+//import { usePolls } from '@/services/query_hooks/usePolls';
+
+
 
 
 export const TeamPollsPage = () => {
@@ -20,6 +23,10 @@ export const TeamPollsPage = () => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
       const { teams, members } = useTeamsContext();
       const { allPolls, allPollsResponse, everyPollsResponse, setTeamId } = usePollsContext();
+
+
+    //const { data: allPolls} = usePolls();
+
     
     const [selectedTeam, setSelectedTeam] = useState('');
     const [membersList, setMembersList] = useState<{ value: string; label: string }[] | undefined>(undefined);
