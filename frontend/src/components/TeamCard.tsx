@@ -7,15 +7,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { teamService } from "@/services/api";
 import { toast } from "react-toastify";
 import { useTeamsContext } from "@/hooks/useTeamsContext";
+import {useSelector} from 'react-redux';
+import { RootState } from '../state/store';
 
 interface ITeamProps {
     teamId: string;
     teamName: string;
 }
 
+
+
 export const TeamCard = ({ teamId, teamName }: ITeamProps) => {
     const [isModalOpen, setModalOpen] = useState(false);
     const { toggleReloadTeams } = useTeamsContext();
+    const is_admin = useSelector((state: RootState) => state.authState.is_admin);
 
     const handleOpenModal = () => setModalOpen(true);
     const handleCloseModal = () => setModalOpen(false);
@@ -42,13 +47,20 @@ export const TeamCard = ({ teamId, teamName }: ITeamProps) => {
 
 
             <div className="flex relative items-center">
-                <Link to={`edit/${teamId}`} className="mx-2 rounded-lg p-2 px-4 flex hover:text-white hover:bg-black transition duration-500 ease-in-out">
+                {
+                    is_admin &&
 
-                    Edit Team
-                </Link>
-                <button onClick={handleOpenModal} className="mx-2 rounded-lg p-1 px-3 border-2 border-black bg-white text-black hover:bg-[#dc966d]">
-                    <FontAwesomeIcon icon={faTrashCan} />
-                </button>
+                    <Link to={`edit/${teamId}`} className="mx-2 rounded-lg p-2 px-4 flex hover:text-white hover:bg-black transition duration-500 ease-in-out">
+
+                        Edit Team
+                    </Link>
+                }
+                {
+                    is_admin &&
+                    <button onClick={handleOpenModal} className="mx-2 rounded-lg p-1 px-3 border-2 border-black bg-white text-black hover:bg-[#dc966d]">
+                        <FontAwesomeIcon icon={faTrashCan} />
+                    </button>
+                }
                 <div className="relative group">
                     <button className="mx-2 rounded-lg p-1 px-3 border-2 border-black bg-white text-black hover:bg-teal-300">
                         <FontAwesomeIcon icon={faFileExport} />

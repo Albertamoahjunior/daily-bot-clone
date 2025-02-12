@@ -32,7 +32,7 @@ function App() {
         <Route path="/auth/verify" element={<TokenVerification/>} />
 
         
-        <Route path="/" element={<DashBoardLayout/>} >
+        <Route path="/" element={<TeamsContextProvider><StandupsContextProvider><DashBoardLayout/></StandupsContextProvider></TeamsContextProvider>} >
           <Route path='teams' element={
             <TeamsContextProvider>
               <StandupsContextProvider>

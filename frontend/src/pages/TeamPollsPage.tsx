@@ -11,8 +11,10 @@ import {TeamPollsMetrics} from '../components/TeamPollsMetrics'
 import {TeamPollsDropdown } from '../components/TeamPollsDropdown '
 import {CreateTeamPollModal } from '../components/CreateTeamPollModal'
 import {pollService} from "../services/api"
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {useSelector} from 'react-redux';
+import { RootState } from '../state/store';
+// import { Label } from '@/components/ui/label';
+// import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 //import { usePolls } from '@/services/query_hooks/usePolls';
 
 
@@ -21,9 +23,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 export const TeamPollsPage = () => {
     const [pageState, setPageState] = useState<"insights"|"all-polls">("insights");
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-      const { teams, members } = useTeamsContext();
-      const { allPolls, allPollsResponse, everyPollsResponse, setTeamId } = usePollsContext();
-
+    const { teams, members } = useTeamsContext();
+    const { allPolls, allPollsResponse, everyPollsResponse, setTeamId } = usePollsContext();
+    const is_admin = useSelector((state: RootState) => state.authState.is_admin);
 
     //const { data: allPolls} = usePolls();
 
@@ -155,7 +157,7 @@ export const TeamPollsPage = () => {
 
             <div className="flex w-full justify-between">
             <p className="text-left text-lg mt-2">Track and analyze your team's mood trends and engagement</p>
-            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200 "> Create Polls</button>
+            { is_admin && <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200 "> Create Polls</button>}
             </div>
           </header>
 

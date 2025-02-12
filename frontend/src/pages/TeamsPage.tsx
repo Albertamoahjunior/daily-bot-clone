@@ -1,7 +1,7 @@
 
 import {useState, useEffect} from 'react';
-import {  faCirclePlus } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+//import {  faCirclePlus } from '@fortawesome/free-solid-svg-icons';
+//import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {TeamCard} from "../components/TeamCard";
 import { CreateTeamModal } from '../components/CreateTeamModal';
 import { useTeamsContext } from '../hooks/useTeamsContext';
@@ -10,6 +10,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Plus, Users } from 'lucide-react';
 import { TeamStandup } from '@/types/StandupDashboard';
 import {useSelector} from 'react-redux';
+import { RootState } from '../state/store';
 
 
 export interface TeamsOverviewCardProps {
@@ -27,8 +28,12 @@ export const TeamsPage = () => {
     const totalMembers = members?.length;
     const [activeTeams,setActiveTeams] = useState<number | undefined>();
     const [mostActiveTeams,setMostActiveTeams] = useState<TeamActivity[] | undefined>();
+    const is_admin = useSelector((state: RootState) => state.authState.is_admin);
+    const userId = useSelector((state: RootState) => state.authState.id);
 
-    
+    const user = members?.find(member => member.id === userId);
+   
+
     useEffect(() => {
       const mostActiveTeams = getMostActiveTeams();
       setMostActiveTeams(mostActiveTeams)
@@ -155,7 +160,7 @@ export const TeamsPage = () => {
 
 
       <div className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 rounded-lg mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2">Welcome back, James!</h2>
+        <h2 className="text-3xl font-bold text-white mb-2">Welcome back, {user?.memberName}!</h2>
         <p className="text-white/80">Manage and organize your teams efficiently</p>
       </div>
 
@@ -186,6 +191,8 @@ export const TeamsPage = () => {
                     <h3 className="text-xl font-semibold text-slate-800">Your Teams</h3>
                     <p className="text-slate-500 text-sm">Manage and organize your team structures</p>
                 </div>
+                {
+                  is_admin?
                 <button 
                     onClick={() => setIsModalOpen(true)} 
                     className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200"
@@ -193,6 +200,10 @@ export const TeamsPage = () => {
                     <Plus className="h-5 w-5" />
                     <span>Create New Team</span>
                 </button>
+
+                :
+                <></>
+                }
             </div>
             </div>
 

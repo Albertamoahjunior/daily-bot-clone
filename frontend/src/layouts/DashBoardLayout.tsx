@@ -7,6 +7,10 @@ import { faMessage } from "@fortawesome/free-regular-svg-icons";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
 import { faBell } from "@fortawesome/free-regular-svg-icons";
 import { faSearch, faAngleDown } from "@fortawesome/free-solid-svg-icons";
+import { useTeamsContext } from '../hooks/useTeamsContext';
+import {useSelector} from 'react-redux';
+import { RootState } from '../state/store';
+import { useStandupContext } from '../hooks/useStandupContext';
 // import { SidebarLink } from "../components/SidebarLink";
 // import { NavBarLink } from "../components/NavBarLink";
 // import {  faUserGroup } from '@fortawesome/free-solid-svg-icons';
@@ -14,7 +18,14 @@ import { faSearch, faAngleDown } from "@fortawesome/free-solid-svg-icons";
 
 
 const DashBoardLayout = () => {
+  const userId = useSelector((state: RootState) => state.authState.id);
+  const {members} = useTeamsContext();
+  const {standups} = useStandupContext();
 
+  const user = members?.find(member=> member.id === userId)
+  const user_standups = standups.filter(standup => user?.teams.includes(standup.teamId) && standup.standup.length)
+
+  console.log(userId);
 
     return (
     <>
@@ -53,7 +64,7 @@ const DashBoardLayout = () => {
           alt="User avatar"
           className="w-8 h-8 rounded-full bg-gray-100"
         />
-        <span className="text-gray-400 font-medium flex">Zoia M. Shalayana</span>
+        <span className="text-gray-400 font-medium flex">{user?.memberName}</span>
         <FontAwesomeIcon icon={faAngleDown} className="text-gray-400" />
       </div>
     </div>
@@ -84,28 +95,24 @@ const DashBoardLayout = () => {
           <div className="py-4 px-2 w-full mb-12">
             <div className="rounded-lg mx-2 mb-2 py-4 text-center justify-center items-center bg-gray-100 space-y-8">
 
-            <h2 className="">Your To-Do-List</h2>
+            <h2 className="">Your Standups</h2>
             
             <div className="flex justify-start items-start ml-2">
               {/* <div className=" text-center h-8 w-8  rounded-full py-2 px-4 bg-fuchsia-500"> */}
                 <FontAwesomeIcon icon={faBell} size="sm" className="rounded-full py-2 px-3 mt-1 bg-black text-white"/>
 
               {/* </div> */}
-              <div className="text-left ml-2 ">
-                <h3>Respond To Dev Watch Standup</h3>
-                <p className="text-sm text-gray-500">Mar 4 at 6:00pm</p>
-              </div>
-
-            </div>
-
-            <div className="flex justify-start items-start ml-2">
-              {/* <div className="text-center h-10 w-10 rounded-full py-2 px-4 bg-fuchsia-500"> */}
-                <FontAwesomeIcon icon={faBell} size="sm" className="rounded-full py-2 px-3 mt-1 bg-black text-white"/>
-              {/* </div> */}
-              <div className="text-left ml-2">
-                <h3>Respond To Dev Watch Standup</h3>
-                <p className="text-sm text-gray-500">Mar 4 at 6:00pm</p>
-              </div>
+              {
+                user_standups.map(standup=>{
+                  return(
+                    <div className="text-left ml-2 ">
+                    <h3>Respond To {standup.teamName} standup</h3>
+                    <p className="text-sm text-gray-500">Keep watch for reminders to answer questions</p>
+                  </div>
+                  )
+                })
+              }
+            
 
             </div>
 
