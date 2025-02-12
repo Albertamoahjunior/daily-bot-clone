@@ -4,13 +4,14 @@ import {useState, useEffect} from 'react';
 //import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {TeamCard} from "../components/TeamCard";
 import { CreateTeamModal } from '../components/CreateTeamModal';
-import { useTeamsContext } from '../hooks/useTeamsContext';
+//import { useTeamsContext } from '../hooks/useTeamsContext';
 import { useStandupContext } from '../hooks/useStandupContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Plus, Users } from 'lucide-react';
 import { TeamStandup } from '@/types/StandupDashboard';
 import {useSelector} from 'react-redux';
 import { RootState } from '../state/store';
+import { useTeams, useMembers } from '@/services/query_hooks/useTeams';
 
 
 export interface TeamsOverviewCardProps {
@@ -23,15 +24,23 @@ export interface TeamsOverviewCardProps {
 export const TeamsPage = () => {
     // const authState = useSelector(())
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const {teams, members} = useTeamsContext();
+
+    //const { members} = useTeamsContext(); //removed teams
+    const {data:teams} = useTeams() //did not get the isloading and error for obvious reasons
+    const {data:members} = useMembers() //did not get the isloading and error for obvious reasons
+    const is_admin = useSelector((state: RootState) => state.authState.is_admin);
+    const userId = useSelector((state: RootState) => state.authState.id);
+    interface Member {
+        id: string;
+        memberName: string;
+        teams: string[];
+    }
+    const user = members?.find((member: Member) => member.id === userId);
+
     const {standups} = useStandupContext();
     const totalMembers = members?.length;
     const [activeTeams,setActiveTeams] = useState<number | undefined>();
     const [mostActiveTeams,setMostActiveTeams] = useState<TeamActivity[] | undefined>();
-    const is_admin = useSelector((state: RootState) => state.authState.is_admin);
-    const userId = useSelector((state: RootState) => state.authState.id);
-
-    const user = members?.find(member => member.id === userId);
    
 
     useEffect(() => {
@@ -41,6 +50,14 @@ export const TeamsPage = () => {
       setActiveTeams(activeTeams);
     }, [standups, teams])
   // Calculate metrics
+
+  interface Team {
+      id: string;
+      teamName: string;
+      standup?: {
+          standupDays: string[];
+      };
+  }
 
   interface TeamActivity {
     teamId: string;
@@ -210,7 +227,7 @@ export const TeamsPage = () => {
 
 
             <div className="w-full flex flex-col gap-4">
-                {teams?.map((team) => {
+                {teams?.map((team: Team) => {
                     return <TeamCard teamId={team.id as string} teamName={team.teamName}/>
                 })}
             </div>
