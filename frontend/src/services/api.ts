@@ -119,6 +119,11 @@ export const teamService = {
         return response.data;
     },
 
+    getTeamReport: async(teamId: string) =>{
+        const response = await apiClient.get(`${API_BASE_URL}/team/report/${teamId}`);
+        return response.data;
+    },
+
     addMembersToTeam: async (teamId: string, payload: AddMembersPayload) => {
         const response = await apiClient.post(
             `${API_BASE_URL}/team/teams/${teamId}/members`, 

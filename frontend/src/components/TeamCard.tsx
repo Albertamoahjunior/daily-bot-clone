@@ -10,10 +10,16 @@ import { useTeamsContext } from "@/hooks/useTeamsContext";
 import {useSelector} from 'react-redux';
 import { RootState } from '../state/store';
 
+//for generating team reports
+import { generate_report} from '../services/teamReport';
+
+
 interface ITeamProps {
     teamId: string;
     teamName: string;
 }
+
+
 
 
 
@@ -41,6 +47,14 @@ export const TeamCard = ({ teamId, teamName }: ITeamProps) => {
         setModalOpen(false);
     };
 
+    const handleGenerateTeamReport = async (team_id: string) =>{
+        console.log(team_id);
+        const team_data = await teamService.getTeamReport(team_id);
+        const report = generate_report(team_data);
+         report.download('team-report.pdf')
+        console.log('report generated successfully')
+    }
+
     return (
         <div className="items-center rounded-md h-24 px-6 my-2 flex w-full justify-between border-2 border-[#5fb0bc] hover:border-[#1F2937] hover:bg-white hover:text-[#1F2937] text-black hover:shadow-lg hover:shadow-[#5fb0bc]/50 transition-shadow duration-300 ease-in-out">
             <h1 className="text-2xl font-normal uppercase">{teamName}</h1>
@@ -62,7 +76,7 @@ export const TeamCard = ({ teamId, teamName }: ITeamProps) => {
                     </button>
                 }
                 <div className="relative group">
-                    <button className="mx-2 rounded-lg p-1 px-3 border-2 border-black bg-white text-black hover:bg-teal-300">
+                    <button className="mx-2 rounded-lg p-1 px-3 border-2 border-black bg-white text-black hover:bg-teal-300" onClick={() => handleGenerateTeamReport(teamId)}>
                         <FontAwesomeIcon icon={faFileExport} />
                     </button>
                     <span className="w-[120px] absolute left-1/2 transform -translate-x-1/2 -translate-y-full mb-2 hidden group-hover:block border border-black bg-gray-100 text-black font-semibold text-xs rounded py-1 px-2" style={{ left: '180%' }}>
