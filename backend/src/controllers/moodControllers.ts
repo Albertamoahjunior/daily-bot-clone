@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createMoodResponse, getMoodResponse, createMood, getTeamMoods, getMoodAnalytics, getMoodAnalyticsPerTeam, getTeamMoodConfiguration} from '../db';
+import { createMoodResponse, getMoodResponse, createMood, getTeamMoods, getMoodAnalytics, getMoodAnalyticsPerTeam, getTeamMoodConfiguration, getAllMoodResponsesGroupedByTeam} from '../db';
 
 const emojis = [
     {
@@ -89,6 +89,16 @@ export async function getMoodResponseController(req: Request, res: Response) {
         }
     } catch (error) {
         res.status(500).json({ error: 'Failed to get mood response' });
+    }
+}
+
+//controller to get all mood responses grouped by team
+export async function getAllMoodResponsesGroupedByTeamController(req: Request, res: Response) {
+    try {
+        const responses = await getAllMoodResponsesGroupedByTeam();
+        res.status(200).json(responses);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to get all mood responses grouped by team' });
     }
 }
 

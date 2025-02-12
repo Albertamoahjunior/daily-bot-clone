@@ -32,10 +32,16 @@ const TeamMoodContextProvider = ({children}: ITeamMoodContextProvider) => {
         console.log("Team Moods",teamMoods);
         setAllTeamMoods(teamMoods);
     }
+    const fetchAllMoodResponses = async () =>{
+        const moodResponses: MoodResponse[] = await moodService.getAllmoodResponses();
+        console.log("Team Mood Responses",moodResponses);
+        setAllMoodRsponses(moodResponses);
+    }
 
     useEffect(() => {
 
         fetchAllTeamMoods()
+        fetchAllMoodResponses()
       
     }, [])
     
@@ -79,69 +85,69 @@ const TeamMoodContextProvider = ({children}: ITeamMoodContextProvider) => {
     
 
     // Sample mood responses
-    const moodResponses: MoodResponse[] = [
-        {
-        id: "res-001",
-        userId: "11",
-        teamId: "ddsdsd",
-        emojiID: "001",
-        anonymous: false,
-        createdAt: "2025-02-04T10:00:00Z",
-        },
-        {
-        id: "res-003",
-        userId: "3",
-        teamId: "team3",
-        emojiID: "003",
-        anonymous: false,
-        createdAt: "2025-02-04T09:00:00Z",
-        },
-        {
-        id: "res-004",
-        userId: "4",
-        teamId: "ddsdsd",
-        emojiID: "001",
-        anonymous: true,
-        createdAt: "2025-02-04T08:45:00Z",
-        },
-        {
-        id: "res-005",
-        userId: "11",
-        teamId: "ad1dd",
-        emojiID: "002",
-        anonymous: false,
-        createdAt: "2025-02-04T14:00:00Z",
-        },
-        {
-        id: "res-006",
-        userId: "3",
-        teamId: "adadd",
-        emojiID: "001",
-        anonymous: true,
-        createdAt: "2025-02-04T11:00:00Z",
-        },
-        {
-        id: "res-007",
-        userId: "23324",
-        teamId: "ddsdsd",
-        emojiID: "003",
-        anonymous: false,
-        createdAt: "2025-02-04T10:45:00Z",
-        },
-        {
-        id: "res-008",
-        userId: "4",
-        teamId: "team3",
-        emojiID: "002",
-        anonymous: true,
-        createdAt: "2025-02-04T09:30:00Z",
-        },
-    ];
+    // const moodResponses = [
+    //     {
+    //     id: "res-001",
+    //     userId: "11",
+    //     teamId: "ddsdsd",
+    //     emojiID: "001",
+    //     anonymous: false,
+    //     createdAt: "2025-02-04T10:00:00Z",
+    //     },
+    //     {
+    //     id: "res-003",
+    //     userId: "3",
+    //     teamId: "team3",
+    //     emojiID: "003",
+    //     anonymous: false,
+    //     createdAt: "2025-02-04T09:00:00Z",
+    //     },
+    //     {
+    //     id: "res-004",
+    //     userId: "4",
+    //     teamId: "ddsdsd",
+    //     emojiID: "001",
+    //     anonymous: true,
+    //     createdAt: "2025-02-04T08:45:00Z",
+    //     },
+    //     {
+    //     id: "res-005",
+    //     userId: "11",
+    //     teamId: "ad1dd",
+    //     emojiID: "002",
+    //     anonymous: false,
+    //     createdAt: "2025-02-04T14:00:00Z",
+    //     },
+    //     {
+    //     id: "res-006",
+    //     userId: "3",
+    //     teamId: "adadd",
+    //     emojiID: "001",
+    //     anonymous: true,
+    //     createdAt: "2025-02-04T11:00:00Z",
+    //     },
+    //     {
+    //     id: "res-007",
+    //     userId: "23324",
+    //     teamId: "ddsdsd",
+    //     emojiID: "003",
+    //     anonymous: false,
+    //     createdAt: "2025-02-04T10:45:00Z",
+    //     },
+    //     {
+    //     id: "res-008",
+    //     userId: "4",
+    //     teamId: "team3",
+    //     emojiID: "002",
+    //     anonymous: true,
+    //     createdAt: "2025-02-04T09:30:00Z",
+    //     },
+    // ];
 
     const [teamMood, setTeamMood] = useState<MoodData[] | undefined>();
     const [allMoods, setAllMood] = useState<MoodGlobal[] | undefined>(moods);
     const [allEmojis, setAllEmojis] = useState<Emoji[] | undefined>(emojis);
-    const [allMoodResponses, setAllMoodRsponses] = useState<MoodResponse[] | undefined>(moodResponses);
+    const [allMoodResponses, setAllMoodRsponses] = useState<MoodResponse[] | undefined>(undefined);
 
 
 

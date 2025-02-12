@@ -33,7 +33,7 @@ export interface MoodResponse {
   id: string;
   userId: string;
   teamId: string;
-  emojiID: string;
+  moodID: string;
   anonymous: boolean;
   createdAt: string;
 }

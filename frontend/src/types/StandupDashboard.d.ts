@@ -19,8 +19,9 @@ export interface TeamStandup {
 
 // Interface for Standup Question
 interface StandupQuestion {
-  questionID: string;        // Unique identifier for the question
-  teamID: string;            // Reference to the team ID
+  // questionID: string;        // Unique identifier for the question
+  id: string;
+  teamId: string;            // Reference to the team ID
   questionText: string;      // Text of the question
   options: string[];         // Possible options for the question
   questionType: string;      // Type of the question (e.g., text, multiple-choice)

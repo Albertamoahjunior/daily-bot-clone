@@ -469,13 +469,16 @@ async function getTeamMoodConfiguration(teamId: string) {
 //function to get all moods and then group them by their teamIds
 async function getTeamMoods() {
   const moods = await prisma.mood.findMany();
-  const groupedMoods = moods.reduce((acc, mood) => {
-    acc[mood.teamId] = (acc[mood.teamId] || []).concat(mood);
-    return acc;
-  }, {} as Record<string, Mood[]>);
 
-  return groupedMoods;
+  return moods;
 }
+
+//get all mood response grouped by their teams
+async function getAllMoodResponsesGroupedByTeam() {
+  const moodResponses = await prisma.moodResponse.findMany();
+  return moodResponses;
+}
+
 
 //get mood response
 async function getMoodResponse(userId: string) {
@@ -632,6 +635,7 @@ export {
   getKudosAnalytics,
   createMood,
   getMoodResponse,
+  getAllMoodResponsesGroupedByTeam,
   getTeamMoods,
   getMoodAnalytics,
   getMoodAnalyticsPerTeam,
