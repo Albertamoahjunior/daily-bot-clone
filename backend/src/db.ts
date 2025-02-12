@@ -555,6 +555,80 @@ async function getMoodAnalyticsPerTeam(teamId: string) {
   return analyticsArray;
 }
 
+//function to get team report
+async function getTeamReport(teamId: string) {
+  // Get team basic info
+  const team = await prisma.team.findUnique({
+    where: { id: teamId },
+    include: { standup: true }
+  });
+
+  if (!team) throw new Error('Team not found');
+
+  // Get team members with names
+  const memberIds = team.members;
+  const members = await prisma.member.findMany({
+    where: { id: { in: memberIds } },
+    select: { id: true, memberName: true }
+  });
+
+  // Get standup questions
+  const standupQuestions = await prisma.standupQuestion.findMany({
+    where: { teamId }
+  });
+
+  // Get participation stats
+  const moodResponses = await prisma.moodResponse.groupBy({
+    by: ['userId'],
+    where: { teamId },
+    _count: true
+  });
+
+  const pollResponses = await prisma.pollResponse.groupBy({
+    by: ['userId'],
+    where: { teamId },
+    _count: true
+  });
+
+  const standupResponses = await prisma.standupResponse.groupBy({
+    by: ['userId'],
+    where: { teamId },
+    _count: true
+  });
+
+  // Get mood trends
+  const moodTrends = await prisma.moodResponse.findMany({
+    where: { teamId },
+    orderBy: { createdAt: 'desc' },
+    take: 30
+  });
+
+  return {
+    teamName: team.teamName,
+    standupConfig: {
+      days: team.standup?.standupDays || [],
+      reminderTimes: team.standup?.reminderTimes || [],
+      questions: standupQuestions
+    },
+    members: members.map(m => m.memberName),
+    participation: {
+      mood: moodResponses.map(r => ({
+        memberName: members.find(m => m.id === r.userId)?.memberName,
+        count: r._count
+      })),
+      polls: pollResponses.map(r => ({
+        memberName: members.find(m => m.id === r.userId)?.memberName,
+        count: r._count
+      })),
+      standups: standupResponses.map(r => ({
+        memberName: members.find(m => m.id === r.userId)?.memberName,
+        count: r._count
+      }))
+    },
+    moodTrends
+  };
+}
+
 //auth db
 const auth = {
   async createToken(data: TokenRecord) {
@@ -640,5 +714,6 @@ export {
   getMoodAnalytics,
   getMoodAnalyticsPerTeam,
   getTeamMoodConfiguration,
+  getTeamReport,
   auth
 }

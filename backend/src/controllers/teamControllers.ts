@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createTeam, addMembersToTeam, getTeams, getTeam, removeTeam, removeMembersFromTeam, updateTeam } from '../db';
+import { createTeam, addMembersToTeam, getTeams, getTeam, removeTeam, removeMembersFromTeam, updateTeam, getTeamReport } from '../db';
 import { app } from '../config/bot.config';
 
 const slackClient = app.client;
@@ -151,5 +151,17 @@ export async function updateTeamController(req: Request, res: Response) {
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Failed to update team' });
+    }
+}
+
+//controller function to get team report
+export async function getTeamReportController(req: Request, res: Response) {
+    const { teamId } = req.params;
+    try {
+        const teamReport = await getTeamReport(teamId);
+        res.status(200).json(teamReport);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Failed to get team report' });
     }
 }
