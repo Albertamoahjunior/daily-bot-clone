@@ -1,11 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { teamService } from '../api'
+import { teamService, memberService } from '../api'
 import { CreateTeamPayload, AddMembersPayload } from '../api'
 
 export function useTeams() {
   return useQuery({
     queryKey: ['teams'],
     queryFn: teamService.getTeams,
+  })
+}
+
+//get all the members
+export function useMembers() {
+  return useQuery({
+    queryKey: ['members'],
+    queryFn: () => memberService.getMembers(),
   })
 }
 

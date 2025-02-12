@@ -36,5 +36,18 @@ export function TokenVerification(){
       handleTokenVerification();
     }, [dispatch, verifyUser, navigate]);
   
-    return <div>Verifying your login...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-lg flex flex-col items-center space-y-4">
+        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <h2 className="text-2xl font-semibold text-gray-700">Logging in</h2>
+        <p className="text-gray-500">Please wait while we secure your session...</p>
+        <div className="flex space-x-1">
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+        </div>
+      </div>
+    </div>
+  );
   }
