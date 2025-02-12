@@ -134,7 +134,7 @@ export const MoodPercentageDisplay = ({ moodData }: { moodData: MoodData[] | und
       {moodPercentages.map(({ mood, percentage, color }) => (
         <div key={mood} className="flex flex-col items-center">
           <CircularProgress percentage={percentage} color={color}>
-            <MoodIcon mood={mood} />
+            <MoodIcon mood={mood.toLowerCase()} />
           </CircularProgress>
           <span className="mt-2 text-xl font-bold">{percentage}%</span>
         </div>

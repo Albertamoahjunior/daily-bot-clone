@@ -18,6 +18,7 @@ import {MoodResponse,MoodData, AllMoods} from "../types/Mood";
 
 import {moodService} from "../services/api"
 import {toast} from "react-toastify";
+import {CustomTooltip} from "../components/CustomTooltip"
 
 
 
@@ -188,28 +189,7 @@ export const TeamMoodPage: React.FC = () => {
     setMoodCheckInConfigured(false)
   }
 
-// Custom Tooltip Component
-  const CustomTooltip: React.FC<{ active?: boolean; payload?: any[] }> = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div style={{ backgroundColor: '#f3f4f6', padding: '10px', borderRadius: '5px' }}>
-          <p style={{ color: '#111' }}>{`Date: ${payload[0].payload.date}`}</p>
-          {payload.map((entry, index) => {
-            if (entry.value !== undefined) {
-              return (
-                <p key={`item-${index}`} style={{ color: entry.color }}>
-                  {`${entry.name}: ${entry.value}`}
-                </p>
-              );
-            }
-            return null;
-          })}
-        </div>
-      );
-    }
 
-    return null;
-  };
 
 
   return (
@@ -263,10 +243,15 @@ export const TeamMoodPage: React.FC = () => {
                         <YAxis stroke="#888" />
                         <Tooltip content={<CustomTooltip />} />
                         <Line type="monotone" dataKey="excited" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Excited" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
                         <Line type="monotone" dataKey="smile" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Smile" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
                         <Line type="monotone" dataKey="angry" stroke="#F87171" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Angry" stroke="#F87171" strokeWidth={2} dot={{ r: 5 }} />
                         <Line type="monotone" dataKey="meh" stroke="#A1A1AA" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Meh" stroke="#A1A1AA" strokeWidth={2} dot={{ r: 5 }} />
                         <Line type="monotone" dataKey="sad" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Sad" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
                       </LineChart>
                     </ResponsiveContainer>
                   </CardContent>

@@ -33,7 +33,7 @@ export interface MoodResponse {
   id: string;
   userId: string;
   teamId: string;
-  moodID: string;
+  moodId: string;
   anonymous: boolean;
   createdAt: string;
 }
@@ -70,4 +70,6 @@ export interface ICreateMoodProps{
   interface MoodData {
     date: string; // date is always a string
     [feeling: "excited"| "smile"| "angry" | "meh" | "sad"]: number ; // Dynamic properties for various feelings
+    [key: string]: string | number | undefined; // Index signature added
+
   }

@@ -9,12 +9,23 @@ interface MoodData {
   angry?: number;
   meh?: number;
   sad?: number;
+  [key: string]: string | number | undefined; // Index signature added
 }
 
 interface IMoodInsights {
   moodData: MoodData[] | undefined;
   selectedTeam: string;
 }
+
+const transformKeysToLowercase = (data: MoodData[]): MoodData[] => {
+  return data.map(day => {
+    return Object.keys(day).reduce((acc, key) => {
+      // Set the lowercase key in the accumulator
+      acc[key.toLowerCase()] = day[key]; // This will now work without errors
+      return acc;
+    }, {} as MoodData);
+  });
+};
 
 export const MoodInsights = ({ moodData, selectedTeam }: IMoodInsights) => {
   if (!moodData || moodData.length === 0) {
@@ -27,14 +38,17 @@ export const MoodInsights = ({ moodData, selectedTeam }: IMoodInsights) => {
     );
   }
 
+  // Transform keys to lowercase
+  const normalizedMoodData = transformKeysToLowercase(moodData);
+
   const calculateTotalMoods = () => {
-    return moodData.reduce((total, day) => {
+    return normalizedMoodData.reduce((total, day) => {
       return total + (day.excited || 0) + (day.smile || 0) + (day.angry || 0) + (day.meh || 0) + (day.sad || 0);
     }, 0);
   };
 
   const totalMoods = calculateTotalMoods();
-  const participation = Math.round((totalMoods / (moodData.length * 19)) * 100);
+  const participation = Math.round((totalMoods / (normalizedMoodData.length * 19)) * 100);
 
   const calculateMoodScore = () => {
     const moodWeights = {
@@ -45,7 +59,7 @@ export const MoodInsights = ({ moodData, selectedTeam }: IMoodInsights) => {
       sad: 0
     };
 
-    const totalWeightedScore = moodData.reduce((total, day) => {
+    const totalWeightedScore = normalizedMoodData.reduce((total, day) => {
       return total + 
         ((day.excited || 0) * moodWeights.excited) +
         ((day.smile || 0) * moodWeights.smile) +
@@ -61,17 +75,17 @@ export const MoodInsights = ({ moodData, selectedTeam }: IMoodInsights) => {
 
   const participationData = [{ name: "Participation", value: participation, fill: "#34D399" }];
 
-  const responseData = moodData.map((day) => ({
+  const responseData = normalizedMoodData.map((day) => ({
     date: day.date,
     responses: (day.excited || 0) + (day.smile || 0) + (day.angry || 0) + (day.meh || 0) + (day.sad || 0),
   }));
 
   const moodScoreData = [
-    { name: "Excited", value: moodData.reduce((acc, day) => acc + (day.excited || 0), 0), fill: "#34D399" },
-    { name: "Smile", value: moodData.reduce((acc, day) => acc + (day.smile || 0), 0), fill: "#4ADE80" },
-    { name: "Meh", value: moodData.reduce((acc, day) => acc + (day.meh || 0), 0), fill: "#FBBF24" },
-    { name: "Angry", value: moodData.reduce((acc, day) => acc + (day.angry || 0), 0), fill: "#F87171" },
-    { name: "Sad", value: moodData.reduce((acc, day) => acc + (day.sad || 0), 0), fill: "#6B7280" },
+    { name: "Excited", value: normalizedMoodData.reduce((acc, day) => acc + (day.excited || 0), 0), fill: "#34D399" },
+    { name: "Smile", value: normalizedMoodData.reduce((acc, day) => acc + (day.smile || 0), 0), fill: "#4ADE80" },
+    { name: "Meh", value: normalizedMoodData.reduce((acc, day) => acc + (day.meh || 0), 0), fill: "#FBBF24" },
+    { name: "Angry", value: normalizedMoodData.reduce((acc, day) => acc + (day.angry || 0), 0), fill: "#F87171" },
+    { name: "Sad", value: normalizedMoodData.reduce((acc, day) => acc + (day.sad || 0), 0), fill: "#6B7280" },
   ];
 
   if (!selectedTeam.length) {

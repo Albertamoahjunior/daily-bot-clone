@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   LineChart, 
   Line, 
@@ -16,7 +16,8 @@ import {
   PolarGrid, 
   PolarAngleAxis,
   ResponsiveContainer ,
-  AreaChart, Area
+  AreaChart, Area,
+  CartesianGrid
 } from 'recharts';
 import { 
   Download, 
@@ -44,128 +45,16 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
+import {TeamMood, MoodResponse} from "../types/Mood"
 import { useTeamsContext } from '@/hooks/useTeamsContext';
 import { useStandupContext } from '../hooks/useStandupContext';
 import { kudosService, pollService, moodService } from '@/services/api';
+import { TeamInputDropdown } from '../components/TeamDropdownInput';
+import {CustomTooltip} from "../components/CustomTooltip"
+import {MoodData} from "../types/Mood"
+import { StandupResponse, UserResponse } from '@/types/StandupDashboard';
 
 
-// Consolidated dummy data
-// const teamsData = [
-//   { 
-//     teamName: 'Engineering',
-//     metrics: {
-//       standup: {
-//         completion: 92,
-//         avgTime: '9:15 AM',
-//         quality: 4.5,
-//         streak: 15,
-//         timingDistribution: [
-//           { time: '9:00', count: 5 },
-//           { time: '9:15', count: 12 },
-//           { time: '9:30', count: 8 },
-//           { time: '9:45', count: 3 }
-//         ]
-//       },
-//       engagement: {
-//         meetingAttendance: 95,
-//         documentCollaboration: 88,
-//         crossTeamInteraction: 78,
-//         responseTime: 12,
-//         kudosGiven: 45,
-//         kudosReceived: 42,
-//         pollParticipation: 88
-//       },
-//       mood: {
-//         current: 4.2,
-//         variance: 0.3,
-//         workloadIndex: 72,
-//         burnoutRisk: 'Low',
-//         satisfaction: 85,
-//         trends: [
-//           { month: 'Jan', value: 4.2 },
-//           { month: 'Feb', value: 4.0 },
-//           { month: 'Mar', value: 4.3 }
-//         ]
-//       }
-//     }
-//   },
-//   {
-//     teamName: 'Sales',
-//     metrics: {
-//       standup: {
-//         completion: 85,
-//         avgTime: '9:30 AM',
-//         quality: 4.2,
-//         streak: 10,
-//         timingDistribution: [
-//           { time: '9:00', count: 3 },
-//           { time: '9:15', count: 8 },
-//           { time: '9:30', count: 15 },
-//           { time: '9:45', count: 4 }
-//         ]
-//       },
-//       engagement: {
-//         meetingAttendance: 90,
-//         documentCollaboration: 82,
-//         crossTeamInteraction: 85,
-//         responseTime: 22,
-//         kudosGiven: 36,
-//         kudosReceived: 38,
-//         pollParticipation: 75
-//       },
-//       mood: {
-//         current: 3.9,
-//         variance: 0.4,
-//         workloadIndex: 68,
-//         burnoutRisk: 'Medium',
-//         satisfaction: 78,
-//         trends: [
-//           { month: 'Jan', value: 4.0 },
-//           { month: 'Feb', value: 4.1 },
-//           { month: 'Mar', value: 3.9 }
-//         ]
-//       }
-//     }
-//   },
-//   {
-//     teamName: 'Marketing',
-//     metrics: {
-//       standup: {
-//         completion: 78,
-//         avgTime: '9:20 AM',
-//         quality: 4.0,
-//         streak: 8,
-//         timingDistribution: [
-//           { time: '9:00', count: 6 },
-//           { time: '9:15', count: 10 },
-//           { time: '9:30', count: 7 },
-//           { time: '9:45', count: 5 }
-//         ]
-//       },
-//       engagement: {
-//         meetingAttendance: 88,
-//         documentCollaboration: 90,
-//         crossTeamInteraction: 92,
-//         responseTime: 15,
-//         kudosGiven: 40,
-//         kudosReceived: 35,
-//         pollParticipation: 82
-//       },
-//       mood: {
-//         current: 4.0,
-//         variance: 0.2,
-//         workloadIndex: 65,
-//         burnoutRisk: 'Low',
-//         satisfaction: 82,
-//         trends: [
-//           { month: 'Jan', value: 3.8 },
-//           { month: 'Feb', value: 3.9 },
-//           { month: 'Mar', value: 4.0 }
-//         ]
-//       }
-//     }
-//   }
-// ];
 
 const kudosCategories = [
   { name: 'Collaboration', value: 400 },
@@ -185,86 +74,36 @@ interface AnalyticsData {
 }
 
 
-const dummyTeamData = [
-  { 
-    teamName: 'Engineering', 
-    standupCompletion: 92, 
-    avgResponseTime: 15, 
-    kudosGiven: 45, 
-    pollParticipation: 88,
-    avgMood: 4.2
-  },
-  { 
-    teamName: 'Sales', 
-    standupCompletion: 85, 
-    avgResponseTime: 22, 
-    kudosGiven: 36, 
-    pollParticipation: 75,
-    avgMood: 3.9
-  },
-  { 
-    teamName: 'Marketing', 
-    standupCompletion: 78, 
-    avgResponseTime: 30, 
-    kudosGiven: 28, 
-    pollParticipation: 65,
-    avgMood: 3.7
-  },
-  { 
-    teamName: 'Customer Support', 
-    standupCompletion: 95, 
-    avgResponseTime: 12, 
-    kudosGiven: 52, 
-    pollParticipation: 92,
-    avgMood: 4.5
-  },
-  { 
-    teamName: 'Product', 
-    standupCompletion: 88, 
-    avgResponseTime: 18, 
-    kudosGiven: 40, 
-    pollParticipation: 82,
-    avgMood: 4.0
-  }
-];
 
-const enhancedTeamData = [
-  { 
-    teamName: 'Engineering',
-    metrics: {
-      standup: {
-        completion: 92,
-        avgTime: '9:15 AM',
-        quality: 4.5,
-        streak: 15,
-        commonBlockers: ['API delays', 'Environment issues']
-      },
-      engagement: {
-        meetingAttendance: 95,
-        documentCollaboration: 88,
-        crossTeamInteraction: 78,
-        responseTime: 12
-      },
-      mood: {
-        current: 4.2,
-        variance: 0.3,
-        workloadIndex: 72,
-        burnoutRisk: 'Low',
-        satisfaction: 85
-      }
-    }
-  }
-  // ... other teams
-];
+// const enhancedTeamData = [
+//   { 
+//     teamName: 'Engineering',
+//     metrics: {
+//       standup: {
+//         completion: 92,
+//         avgTime: '9:15 AM',
+//         quality: 4.5,
+//         streak: 15,
+//         commonBlockers: ['API delays', 'Environment issues']
+//       },
+//       engagement: {
+//         meetingAttendance: 95,
+//         documentCollaboration: 88,
+//         crossTeamInteraction: 78,
+//         responseTime: 12
+//       },
+//       mood: {
+//         current: 4.2,
+//         variance: 0.3,
+//         workloadIndex: 72,
+//         burnoutRisk: 'Low',
+//         satisfaction: 85
+//       }
+//     }
+//   }
+//   // ... other teams
+// ];
 
-// Dummy data (would be replaced with actual data fetching)
-const standupCompletionData = [
-  { team: 'Engineering', completion: 95 },
-  { team: 'Marketing', completion: 88 },
-  { team: 'Sales', completion: 92 },
-  { team: 'Support', completion: 85 },
-  { team: 'Product', completion: 90 }
-];
 
 const moodTrendsData = [
   { date: 'Jan', Engineering: 4.2, Marketing: 3.8, Sales: 4.0 },
@@ -272,35 +111,122 @@ const moodTrendsData = [
   { date: 'Mar', Engineering: 4.3, Marketing: 4.0, Sales: 4.2 }
 ];
 
-const kudosDistributionData = [
-  { name: 'Collaboration', value: 400 },
-  { name: 'Innovation', value: 300 },
-  { name: 'Leadership', value: 200 }
-];
+// const kudosDistributionData = [
+//   { name: 'Collaboration', value: 400 },
+//   { name: 'Innovation', value: 300 },
+//   { name: 'Leadership', value: 200 }
+// ];
 
-const pollParticipationData = [
-  { team: 'Engineering', participation: 92 },
-  { team: 'Marketing', participation: 85 },
-  { team: 'Sales', participation: 88 },
-  { team: 'Support', participation: 80 },
-  { team: 'Product', participation: 90 }
-];
+// const radarData = [
+//   { metric: 'Standups', Engineering: 90, Marketing: 85, Sales: 88 },
+//   { metric: 'Mood', Engineering: 85, Marketing: 80, Sales: 82 },
+//   { metric: 'Kudos', Engineering: 95, Marketing: 75, Sales: 85 },
+//   { metric: 'Polls', Engineering: 92, Marketing: 88, Sales: 90 }
+// ];
 
-const radarData = [
-  { metric: 'Standups', Engineering: 90, Marketing: 85, Sales: 88 },
-  { metric: 'Mood', Engineering: 85, Marketing: 80, Sales: 82 },
-  { metric: 'Kudos', Engineering: 95, Marketing: 75, Sales: 85 },
-  { metric: 'Polls', Engineering: 92, Marketing: 88, Sales: 90 }
-];
+// Interface for each data point in the radar chart
+interface RadarDataPoint {
+  metric: string;
+  [teamName: string]: string | number; // Dynamic team names as properties
+}
+
+// Type for the full radar dataset
+// type RadarDataset = RadarDataPoint[];
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+// Expanded color palette with 20 visually distinct colors
+const COLOR_PALETTE = [
+  '#FF6B6B',  // Coral Red
+  '#4ECDC4',  // Turquoise
+  '#45B7D1',  // Sky Blue
+  '#96CEB4',  // Sage Green
+  '#FFEEAD',  // Cream Yellow
+  '#D4A5A5',  // Dusty Rose
+  '#9B59B6',  // Purple
+  '#3498DB',  // Blue
+  '#E67E22',  // Orange
+  '#27AE60',  // Emerald Green
+  '#E84393',  // Pink
+  '#74B9FF',  // Light Blue
+  '#FFA502',  // Dark Yellow
+  '#16A085',  // Green Sea
+  '#8E44AD',  // Wisteria
+  '#2980B9',  // Belize Hole
+  '#F1C40F',  // Sun Flower
+  '#D35400',  // Pumpkin
+  '#2ECC71',  // Emerald
+  '#E74C3C'   // Alizarin
+];
+
+interface TimeCount {
+  time: string;
+  count: number;
+}
 
 export const AnalyticsPage: React.FC = () => {
-  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const {teams, members} = useTeamsContext();
-   const { standups, standupQuestions } = useStandupContext();
-   const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>();
+  const { standups, standupQuestions } = useStandupContext();
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>();
+  const [allConfiguredMoods, setAllConfiguredMoods] = useState<TeamMood[]>([]);
+  const [allMoodResponses, setAllMoodResponses] = useState<MoodResponse[]>([]);
+  const [radarData, setRadarChartData] = useState<RadarDataPoint[]>();
+  const [kudosDistributionData, setKudosDistributionData] = useState<{ name: string; value: number }[]>([]);
+  
+  const [selectedTeam, setSelectedTeam] = useState<string>("");
+  const [teamsList, setTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
+  const [teamMoodSummaryByDate, setTeamMoodSummaryByDate] = useState<MoodData[]>()
+
+  const [standupTimingDistribution, setStandupTimingDistribution] = useState<TimeCount[] | []>([]);
+
+  const handleTeamChange = (value: string) => {
+    setSelectedTeam(value);
+  };
+
+  // Populate teamsList
+  useEffect(() => {
+    setTeamsList(
+      teams?.map((team) => ({
+        value: team.id,
+        label: team.teamName,
+      }))
+    );
+
+  }, [teams]);
+
+  useEffect(() => {
+    const fetchMoodData = async (teamId: string) => {
+      const data = await moodService.getMoodAnalyticsForTeam(teamId);
+      console.log("Selected Team: ", teamId);
+      console.log("Mood Data For Selected Team", data);
+      setTeamMoodSummaryByDate(data);
+    };
+    
+    if (selectedTeam) {
+      fetchMoodData(selectedTeam);
+
+    } 
+  }, [selectedTeam]);
+
+useEffect(() => {
+  const fetchMoodData = async () => {
+    try {
+      const moods = await moodService.getMoods();
+      const moodResponses = await moodService.getAllmoodResponses();
+      
+      setAllConfiguredMoods(moods);
+      setAllMoodResponses(moodResponses);
+    } catch (err) {
+      console.error("Failed to fetch mood data", err);
+    }
+  };
+
+  fetchMoodData();
+}, []); // Empty dependency array ensures it runs only once when the component mounts
+
+
   const [teamWithMostStandups, setTeamWithMostStandups] = useState<Team | null | undefined>(null);
+
+
 
    const findTeamWithMostStandupResponses = () => {
     if (!standups || standups.length === 0) return null;
@@ -320,7 +246,61 @@ export const AnalyticsPage: React.FC = () => {
   
     return maxTeam? teams?.find((team) => team.id == maxTeam.teamId) : null;
   };
+
+
+  const findKudosDistribution = async () => {
+    try {
+      const allKudos: Kudos[] = await kudosService.getAllKudos();
+
+      // Define categories to track
+      const categories = ["teamwork", "innovation", "leadership", "creativity"];
+      const categoryCount: Record<string, number> = {
+        teamwork: 0,
+        innovation: 0,
+        leadership: 0,
+        creativity: 0,
+      };
+
+      // Count occurrences
+      allKudos.forEach(({ category }) => {
+        const normalizedCategory = category.toLowerCase();
+        if (categories.includes(normalizedCategory)) {
+          categoryCount[normalizedCategory]++;
+        }
+      });
+
+      // Convert to array format
+      const formattedData = Object.entries(categoryCount).map(([name, value]) => ({
+        name,
+        value,
+      }));
+
+      setKudosDistributionData(formattedData);
+    } catch (err) {
+      console.error("Failed to fetch All Kudos in Analytics page", err);
+    }
+  };
   
+
+  const generateStandupTimingDistribution = () => {
+    const timeCounts: Record<string, number> = {}; // Explicitly define the type
+  
+    standups?.forEach((team) => {
+      team.standup.forEach((question:StandupResponse) => {
+        question.response.forEach((response:UserResponse) => {
+          const date = new Date(response.date);
+          const hours = date.getHours();
+          const minutes = Math.floor(date.getMinutes() / 15) * 15; // Round to nearest 15 min
+          const timeKey: string = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  
+          timeCounts[timeKey] = (timeCounts[timeKey] || 0) + 1;
+        });
+      });
+    });
+  
+    // Convert the counts into an array of objects
+    return Object.entries(timeCounts).map(([time, count]) => ({ time, count }));
+  };
 
   useEffect(() => {
     const calculateStandupCompletion = (teamId: string ) => {
@@ -446,19 +426,39 @@ export const AnalyticsPage: React.FC = () => {
     };
     
 
-    // const calculateAvgTeamMood = async (teamId: string) => {
+    const calculateAvgTeamMood = async (teamId: string) => {
+      try {
 
-    //   try{
-    //     const allConfiguredMoods = await moodService.getMoods();
-    //     const allMoodResponses = await moodService.getAllmoodResponses();
-
-
-
-    //   }catch(err){
-    //     console.error("Failed to calculate avg mood for team", err);
-    //     return 0;
-    //   }
-    // }
+        // Step 1: Filter valid moods
+        const validMoodNames = ["excited", "smile", "meh", "angry", "sad"];
+        const filteredMoods: TeamMood[] = allConfiguredMoods.filter(mood =>
+          validMoodNames.includes(mood.mood.toLowerCase())
+        );
+    
+        // Step 2: Map moods by their names (for quick lookup)
+        const moodMap: { [key: string]: number } = {};
+        filteredMoods.forEach((mood: TeamMood) => {
+          moodMap[mood.mood.toLowerCase()] = mood.moodScore;
+        });
+    
+        // Step 3: Get relevant mood responses for the given team
+        const teamMoodResponses = allMoodResponses.filter(
+          response => response.teamId === teamId && moodMap[response.moodId.toLowerCase()]
+        );
+    
+        if (teamMoodResponses.length === 0) return 0; // No valid mood responses
+    
+        // Step 4: Calculate average mood score
+        const totalScore = teamMoodResponses.reduce(
+          (sum, response) => sum + moodMap[response.moodId.toLowerCase()], 0
+        );
+    
+        return totalScore / teamMoodResponses.length;
+      } catch (err) {
+        console.error("Failed to calculate avg mood for team", err);
+        return 0;
+      }
+    };
 
 
     const fetchData = async () => {
@@ -471,8 +471,8 @@ export const AnalyticsPage: React.FC = () => {
           avgResponseTime: Number(calculateAvgResponseTime(team.id)),
           kudosGiven: await calculateKudosGiven(team.id),
           pollParticipation: await calculateAverageParticipationPercentage(team.id),
-          // avgMood: await calculateAvgTeamMood(team.id)
-          avgMood: 4
+          avgMood: await calculateAvgTeamMood(team.id)
+          // avgMood: 4
         }))
       );
 
@@ -484,12 +484,123 @@ export const AnalyticsPage: React.FC = () => {
     fetchData();
     const teamwithmoststandups = findTeamWithMostStandupResponses();
     setTeamWithMostStandups(teamwithmoststandups);
+    findKudosDistribution();
+    const timingDistribution = generateStandupTimingDistribution()
+    setStandupTimingDistribution(timingDistribution);
 
   }, [teams, standups])
+
+
+  const calculateRadarData = (analyticsData: AnalyticsData[]) => {
+    // We'll create metrics based on the data we're already calculating:
+    // 1. Standups: standupCompletion (already a percentage)
+    // 2. Mood: avgMood (scale of 0-5, convert to percentage)
+    // 3. Kudos: normalize kudosGiven to percentage
+    // 4. Polls: pollParticipation (already a percentage)
+    
+    const radarData = [
+      {
+        metric: 'Standups',
+        ...Object.fromEntries(
+          analyticsData.map(team => [team.teamName, team.standupCompletion])
+        )
+      },
+      {
+        metric: 'Mood',
+        ...Object.fromEntries(
+          analyticsData.map(team => [team.teamName, (team.avgMood / 5) * 100])
+        )
+      },
+      {
+        metric: 'Kudos',
+        ...Object.fromEntries(
+          analyticsData.map(team => {
+            const maxKudos = Math.max(...analyticsData.map(t => t.kudosGiven));
+            return [team.teamName, (team.kudosGiven / maxKudos) * 100];
+          })
+        )
+      },
+      {
+        metric: 'Polls',
+        ...Object.fromEntries(
+          analyticsData.map(team => [team.teamName, team.pollParticipation])
+        )
+      }
+    ];
+  
+    return radarData;
+  };
+  
+  // Usage in component:
+  useEffect(() => {
+    if (analyticsData) {
+      const radarData = calculateRadarData(analyticsData);
+      console.log("RAdarData: ", radarData);
+      setRadarChartData(radarData); // You'll need to add this state
+    }
+  }, [analyticsData]);
 
   const handleExport = () => {
     // Implement export functionality
     console.log('Exporting data...');
+  };
+
+
+
+  const DynamicRadarChart: React.FC<{ data: RadarDataPoint[] | undefined }> = ({ data }) => {
+    if (!data) {
+      return (
+        <div>
+          <p>No RadarData</p>
+        </div>
+      );
+    }
+  
+    // Extract unique team names from the first data point
+    const teamNames = Object.keys(data[0] || {}).filter(key => key !== 'metric');
+  
+    // Randomly assign colors to teams
+    const teamColors = useMemo(() => {
+      const availableColors = [...COLOR_PALETTE];
+  
+      // Fisher-Yates shuffle algorithm
+      for (let i = availableColors.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [availableColors[i], availableColors[j]] = [availableColors[j], availableColors[i]];
+      }
+  
+      // Create a map of team names to colors
+      return teamNames.reduce((acc, team, index) => ({
+        ...acc,
+        [team]: availableColors[index % availableColors.length]
+      }), {} as Record<string, string>); // Ensure the accumulator is typed
+    }, [teamNames.join(',')]);
+  
+    return (
+      <RadarChart
+        cx={175}
+        cy={125}
+        outerRadius={80}
+        width={450}
+        height={250}
+        data={data}
+      >
+        <PolarGrid />
+        <PolarAngleAxis dataKey="metric" />
+        {teamNames.map((teamName) => (
+          <Radar
+            key={teamName}
+            name={teamName}
+            dataKey={teamName}
+            stroke={teamColors[teamName]}
+            fill={teamColors[teamName]}
+            fillOpacity={0.6}
+          />
+        ))}
+        <Legend />
+        <Tooltip />
+      </RadarChart>
+    );
   };
 
   return (
@@ -557,190 +668,150 @@ export const AnalyticsPage: React.FC = () => {
         </TabsList>
 
         <TabsContent value="overview">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {/* Top Performers Card */}
-            <Card className="col-span-full">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Trophy className="mr-2 h-5 w-5 text-yellow-500" />
-                  Top Performers
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-3 gap-4">
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <h3 className="font-semibold">Standup Champion</h3>
-                  <p className="text-2xl"> {teamWithMostStandups?.teamName} </p>
-                  <p className="text-sm text-green-600 mt-1">Most Standup Responses</p>
-                </div>
-                {/* Add more top performer categories */}
-              </CardContent>
-            </Card>
+  <div className="flex flex-col gap-12">
+    {/* Top Performers Card */}
+    <Card className="bg-white">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <Trophy className="mr-2 h-5 w-5 text-yellow-500" />
+          Top Performers
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-3 gap-4">
+        <div className="p-4 bg-green-50 rounded-lg">
+          <h3 className="font-semibold">Standup Champion</h3>
+          <p className="text-2xl">{teamWithMostStandups?.teamName}</p>
+          <p className="text-sm text-green-600 mt-1">Most Standup Responses</p>
+        </div>
+      </CardContent>
+    </Card>
 
-            {/* Detailed Engagement Table */}
-            <Card className="bg-white col-span-full">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Detailed Team Engagement Metrics</CardTitle>
-                {/* Export Button */}
-                <Button onClick={handleExport}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Team</TableHead>
-                      <TableHead>Standup Completion</TableHead>
-                      <TableHead>Avg Mood Score</TableHead>
-                      <TableHead>Kudos Given</TableHead>
-                      <TableHead>Poll Participation</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {analyticsData?.map((data) => {
-                      return (
-                        <TableRow>
-                          <TableCell>{data.teamName}</TableCell>
-                          <TableCell>{data.standupCompletion}</TableCell>
-                          <TableCell>{data.avgMood}</TableCell>
-                          <TableCell>{data.kudosGiven}</TableCell>
-                          <TableCell>{data.pollParticipation}</TableCell>
-                        </TableRow>
-                      )
-                    }) }
-                    
-                    {/* <TableRow>
-                      <TableCell>Marketing</TableCell>
-                      <TableCell>88%</TableCell>
-                      <TableCell>3.9</TableCell>
-                      <TableCell>35</TableCell>
-                      <TableCell>85%</TableCell>
-                    </TableRow> */}
-                    {/* More rows... */}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-            {/* Team Comparison Radar Chart */}
-            <Card className="bg-white ">
+    {/* Detailed Engagement Table */}
+    <Card className="bg-white">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Detailed Team Engagement Metrics</CardTitle>
+        <Button onClick={handleExport}>
+          <Download className="mr-2 h-4 w-4" />
+          Export
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Team</TableHead>
+              <TableHead>Standup Completion</TableHead>
+              <TableHead>Avg Mood Score</TableHead>
+              <TableHead>Kudos Given</TableHead>
+              <TableHead>Poll Participation</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {analyticsData?.map((data) => (
+              <TableRow key={data.teamName}>
+                <TableCell>{data.teamName}</TableCell>
+                <TableCell>{data.standupCompletion}</TableCell>
+                <TableCell>{data.avgMood}</TableCell>
+                <TableCell>{data.kudosGiven}</TableCell>
+                <TableCell>{data.pollParticipation}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
 
-              <CardHeader>
-                <CardTitle>Team Performance Radar</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <RadarChart 
-                  cx={175} 
-                  cy={125} 
-                  outerRadius={80} 
-                  width={450} 
-                  height={250} 
-                  data={radarData}
-                >
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="metric" />
-                  <Radar 
-                    name="Engineering" 
-                    dataKey="Engineering" 
-                    stroke="#8884d8" 
-                    fill="#8884d8" 
-                    fillOpacity={0.6} 
-                  />
-                  <Radar 
-                    name="Marketing" 
-                    dataKey="Marketing" 
-                    stroke="#82ca9d" 
-                    fill="#82ca9d" 
-                    fillOpacity={0.6} 
-                  />
-                  <Radar 
-                    name="Sales" 
-                    dataKey="Sales" 
-                    stroke="#ffc658" 
-                    fill="#ffc658" 
-                    fillOpacity={0.6} 
-                  />
-                  <Legend />
-                  <Tooltip />
-                </RadarChart>
-              </CardContent>
-            </Card>
+    {/* Team Performance Row */}
+    <div className="flex flex-row  gap-12 w-full">
+      {/* Team Comparison Radar Chart */}
+      <Card className="bg-white flex-1">
+        <CardHeader>
+          <CardTitle>Team Performance Radar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DynamicRadarChart data={radarData} />
+        </CardContent>
+      </Card>
 
-            {/* Team Performance Comparison Card */}
-            <Card className="bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Trophy className="mr-2 h-5 w-5 text-yellow-500" />
-                  Team Performance
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={analyticsData}>
-                    <XAxis dataKey="teamName" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="standupCompletion" fill="#3b82f6" name="Standup Completion %" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+      {/* Team Performance Comparison Card */}
+      <Card className="bg-white flex-1">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Trophy className="mr-2 h-5 w-5 text-yellow-500" />
+            Team Performance
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={analyticsData}>
+              <XAxis dataKey="teamName" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="standupCompletion" fill="#3b82f6" name="Standup Completion %" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </div>
 
-            {/* Kudos Distribution Card */}
-            <Card className="bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <CheckCircle2 className="mr-2 h-5 w-5 text-green-500" />
-                  Kudos Distribution
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={analyticsData}
-                      dataKey="kudosGiven"
-                      nameKey="teamName"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      label
-                    >
-                      {analyticsData?.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={`hsl(${index * 60}, 70%, 50%)`} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+    {/* Kudos and Response Time Row */}
+    <div className="flex flex-row gap-12 w-full">
+      {/* Kudos Distribution Card */}
+      <Card className="bg-white flex-1">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <CheckCircle2 className="mr-2 h-5 w-5 text-green-500" />
+            Kudos Distribution
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={analyticsData}
+                dataKey="kudosGiven"
+                nameKey="teamName"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                label
+              >
+                {analyticsData?.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={`hsl(${index * 60}, 70%, 50%)`} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
-            {/* Response Time Trends Card */}
-            <Card className="bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <TrendingUp className="mr-2 h-5 w-5 text-purple-500" />
-                  Response Time Trends
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={analyticsData}>
-                    <XAxis dataKey="teamName" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="avgResponseTime" stroke="#10b981" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
+      {/* Response Time Trends Card */}
+      <Card className="bg-white flex-1">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <TrendingUp className="mr-2 h-5 w-5 text-purple-500" />
+            Response Time Trends
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={analyticsData}>
+              <XAxis dataKey="teamName" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="avgResponseTime" stroke="#10b981" />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</TabsContent>
 
         {/* Additional tabs would be implemented similarly */}
-        <TabsContent value="standup">
+        <TabsContent value="standup" className="flex flex-col gap-10">
           {/* Standup-specific metrics */}
           <Card className="bg-white">
             <CardHeader>
@@ -759,7 +830,7 @@ export const AnalyticsPage: React.FC = () => {
           </Card>
 
           {/* Standup Timing Distribution */}
-          <Card>
+          <Card className="bg-white">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Clock className="mr-2 h-5 w-5" />
@@ -768,12 +839,7 @@ export const AnalyticsPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={[
-                    { time: '9:00', count: 5 },
-                    { time: '9:15', count: 12 },
-                    { time: '9:30', count: 8 },
-                    { time: '9:45', count: 3 }
-                  ]}>
+                  <AreaChart data={standupTimingDistribution}>
                     <XAxis dataKey="time" />
                     <YAxis />
                     <Tooltip />
@@ -783,23 +849,9 @@ export const AnalyticsPage: React.FC = () => {
               </CardContent>
             </Card>
 
-          {/* Standup Completion */}
-          {/* <Card className="bg-white">
-            <CardHeader>
-              <CardTitle>Standup Completion Rates</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <BarChart width={350} height={250} data={standupCompletionData}>
-                <XAxis dataKey="team" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="completion" fill="#8884d8" />
-              </BarChart>
-            </CardContent>
-          </Card> */}
         </TabsContent>
 
-        <TabsContent value="engagement">
+        <TabsContent value="engagement" className="space-y-12">
           {/* Engagement-specific metrics */}
           <Card className="bg-white">
             <CardHeader>
@@ -827,10 +879,10 @@ export const AnalyticsPage: React.FC = () => {
               <PieChart width={350} height={250} >
                 <Pie
                   data={kudosDistributionData}
-                  cx={175}
-                  cy={125}
+                  cx={"50%"}
+                  cy={"50%"}
                   labelLine={false}
-                  outerRadius={80}
+                  outerRadius={120}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -851,24 +903,69 @@ export const AnalyticsPage: React.FC = () => {
 
         <TabsContent value="mood">
           {/* Mood tracking metrics */}
-          {/* <Card className="bg-white">
-            <CardHeader>
-              <CardTitle>Team Mood Trends</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={dummyTeamData}>
-                  <XAxis dataKey="teamName" />
-                  <YAxis domain={[0, 5]} />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="avgMood" stroke="#f43f5e" />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card> */}
+          <div>
+            <TeamInputDropdown
+                  inputName="Select a Team To Check Its Mood Recently"
+                  options={teamsList}
+                  selectedValue={selectedTeam}
+                  onOptionChange={handleTeamChange}
+            />
+            {/* </div> */}
+
+            {selectedTeam?.length ? 
+              teamMoodSummaryByDate?.length !== 0?
+                <Card className="bg-white shadow-2xl rounded-2xl">
+                  <CardHeader>
+                    <CardTitle>Team Mood Trends</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={teamMoodSummaryByDate} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" stroke="#888" />
+                        <YAxis stroke="#888" />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Line type="monotone" dataKey="excited" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Excited" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="smile" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Smile" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="angry" stroke="#F87171" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Angry" stroke="#F87171" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="meh" stroke="#A1A1AA" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Meh" stroke="#A1A1AA" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="sad" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Sad" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card> : 
+                <Card className="bg-white shadow-2xl rounded-2xl">
+                  <CardHeader>
+                    <CardTitle>Team Mood Trends</CardTitle>
+                  </CardHeader>
+                <CardContent className="w-full">
+                  <p className="text-center text-gray-500">No mood data available</p>
+                </CardContent>
+              </Card>
+            :
+            <Card className='bg-white'>
+                <CardHeader>
+                    <CardTitle className="text-lg font-medium">
+                        No Team Selected
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-sm text-gray-500">
+                        Please select a team to view the mood results.
+                    </div>
+                </CardContent>
+            </Card>
+
+            }
+          </div>
 
           {/* Mood Trends */}
-          <Card className="bg-white">
+          {/* <Card className="bg-white">
             <CardHeader>
               <CardTitle>Team Mood Trends</CardTitle>
             </CardHeader>
@@ -886,10 +983,10 @@ export const AnalyticsPage: React.FC = () => {
               </ResponsiveContainer>
 
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Mood vs Workload Correlation */}
-          <Card>
+          {/* <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Battery className="mr-2 h-5 w-5" />
@@ -908,7 +1005,7 @@ export const AnalyticsPage: React.FC = () => {
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
-            </Card>
+            </Card> */}
         </TabsContent>
       </Tabs>
 
