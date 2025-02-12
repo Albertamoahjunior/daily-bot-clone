@@ -27,7 +27,7 @@ export const EditTeamPage = () => {
     const { selectedTimezone, handleTimezoneChange, timezoneOptions } = useTimeZoneSelection({ timezone: (teamObj as Team).timezone });
     const {  standupQuestions } = useStandupContext();
     // Find the current team's standups
-    const teamStandupQuestions: StandupQuestion[] = standupQuestions.filter(s => s.teamID === teamId);
+    const teamStandupQuestions: StandupQuestion[] = standupQuestions.filter(s => s.teamId === teamId);
 
     // console.log(members)
 
@@ -105,7 +105,7 @@ export const EditTeamPage = () => {
 
                 { teamStandupQuestions.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {teamStandupQuestions.map((question, idx) => (
+                    {teamStandupQuestions.map((question:StandupQuestion, idx) => (
                         <StandupQuestionCard
                         key={idx}
                         question={question}

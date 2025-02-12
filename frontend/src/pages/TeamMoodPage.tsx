@@ -20,7 +20,10 @@ import {moodService} from "../services/api"
 import {toast} from "react-toastify";
 import {CustomTooltip} from "../components/CustomTooltip"
 
-
+interface MoodSummary {
+  date: string;
+  [mood: string]: number | string; // Keys are mood types (e.g., "angry", "excited") with count values
+};
 
 
 
@@ -35,7 +38,7 @@ export const TeamMoodPage: React.FC = () => {
   // const [moodQuestion, setMoodQuestion] = useState("");
 
 
-  const [selectedTeam, setSelectedTeam] = useState('');
+  const [selectedTeam, setSelectedTeam] = useState<string>('');
   const [membersList, setMembersList] = useState<{ value: string; label: string }[] | undefined>(undefined);
   const [teamsList, setTeamsList] = useState<{ value: string; label: string }[] | undefined>(undefined);
   const [selectedUser, setSelectedUser] = useState<string>("");
@@ -48,9 +51,28 @@ export const TeamMoodPage: React.FC = () => {
   const [moodHistDate, setMoodHistDate] = useState<string>("");
 
   const [teamMoodSummaryByDate, setTeamMoodSummaryByDate] = useState<MoodData[]>()
-
+  const [moodSummaryByDate, setMoodSummaryByDate] = useState<MoodSummary[] |undefined>()
     const [filteredMoodResponses, setFilteredMoodResponses] = useState<MoodResponse[] | undefined>(undefined);
   
+
+
+    // Function to generate mood summary by date
+    const calculateMoodSummaryByDate = (moodResponses:MoodResponse[] | undefined) => {
+      const summary: Record<string, MoodSummary>  = {};
+
+      moodResponses?.forEach((response) => {
+        const date = response.createdAt.split("T")[0]; // Extract date only
+        const mood = response.moodId.toLowerCase(); // Convert mood to lowercase
+
+        if (!summary[date]) {
+          summary[date] = { date };
+        }
+
+        summary[date][mood] = (summary[date][mood] as number || 0) + 1;
+      });
+
+      return Object.values(summary); // Convert object to array
+    };
 
     // Filter logic
     const handleFilter = async () => {
@@ -67,8 +89,8 @@ export const TeamMoodPage: React.FC = () => {
       if (selectedMoodHistTeam && moodHistSelectedUser) {
         console.log("Filters Mood Hist Team: ", selectedMoodHistTeam);
         console.log("Filters Mood Hist Member: ", moodHistSelectedUser);
-        filtered = await moodService.getMoodResponse(moodHistSelectedUser);
-        // console.log("Filtered Mood Responses", filtered);
+        // filtered = await moodService.getMoodResponse(moodHistSelectedUser);
+        // console.log("Filtered Mood Responses before filtered && filtered.length", filtered);
         if(filtered && filtered.length > 1)
           filtered = filtered?.filter((moodResponse) => (moodResponse.teamId === selectedMoodHistTeam && moodResponse.userId === moodHistSelectedUser ));
       }
@@ -76,9 +98,14 @@ export const TeamMoodPage: React.FC = () => {
       if(moodHistDate){
         console.log("Date", moodHistDate);
 
-        filtered = filtered?.filter((moodResponse) => (moodResponse.createdAt.split("T")[0] == moodHistDate.split('T')[0]  ));
+        filtered = filtered?.filter((moodResponse) => (moodResponse.createdAt.split("T")[0] == moodHistDate ));
       }
 
+
+      // Calculate mood summary
+      const moodSummaryByDate = calculateMoodSummaryByDate(filtered);
+      console.log("Mood Summary By Date", moodSummaryByDate);
+      setMoodSummaryByDate(moodSummaryByDate);
 
       console.log("Filtered MoodResponses", filtered);
       setFilteredMoodResponses(filtered);
@@ -331,21 +358,28 @@ export const TeamMoodPage: React.FC = () => {
              />
 
 
-            {selectedTeam.length ? 
+            {selectedMoodHistTeam.length > 0 ? 
             <Card className="bg-white shadow-2xl rounded-2xl">
               <CardHeader>
                 <CardTitle>Check Individual Mood Trend</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={teamMoodSummaryByDate} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <LineChart data={moodSummaryByDate} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" stroke="#888" />
                     <YAxis stroke="#888" />
                     <Tooltip contentStyle={{ backgroundColor: "#f3f4f6", color: "#111" }} />
-                    <Line type="monotone" dataKey="happy" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
-                    <Line type="monotone" dataKey="neutral" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
-                    <Line type="monotone" dataKey="unhappy" stroke="#F87171" strokeWidth={2} dot={{ r: 5 }} />
+                    <Line type="monotone" dataKey="excited" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Excited" stroke="#34D399" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="smile" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Smile" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="angry" stroke="#F87171" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Angry" stroke="#F87171" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="meh" stroke="#A1A1AA" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Meh" stroke="#A1A1AA" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="sad" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
+                        <Line type="monotone" dataKey="Sad" stroke="#FBBF24" strokeWidth={2} dot={{ r: 5 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -354,12 +388,12 @@ export const TeamMoodPage: React.FC = () => {
             <Card className='bg-white'>
                 <CardHeader>
                     <CardTitle className="text-lg font-medium">
-                        No Poll Selected
+                        No Team And Member Selected
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="text-sm text-gray-500">
-                        Please select a team poll to view the results.
+                        Please select a team selected to view the results.
                     </div>
                 </CardContent>
             </Card>

@@ -30,7 +30,7 @@ const StandupsContextProvider = ({children}: IStandupsContextProvider) => {
                 ]);
 
                 const standupsResult = results[0];
-                const standupQuestionsResult = results[0];
+                const standupQuestionsResult = results[1];
 
                 
 

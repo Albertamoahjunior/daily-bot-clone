@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Trash2, MessageCircle, Type, List, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { StandupQuestion } from '@/types/StandupDashboard';
@@ -10,6 +10,11 @@ export const StandupQuestionCard: React.FC<{
     question: StandupQuestion; 
     onDelete: () => void;
 }> = ({ question, onDelete }) => {
+
+    useEffect(() => {
+        console.log("Question In StandupQuestionCard", question)
+    }, []);
+    
     const {teamId} = useParams();
     const { standups } = useStandupContext();
     const teamStandupResponses = standups.find(standup => standup.teamId === teamId)
