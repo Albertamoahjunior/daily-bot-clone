@@ -25,7 +25,8 @@ const DashBoardLayout = () => {
   const user = members?.find(member=> member.id === userId)
   const user_standups = standups.filter(standup => user?.teams.includes(standup.teamId) && standup.standup.length)
 
-  console.log(userId);
+  console.log("standups", standups)
+  console.log(user);
 
     return (
     <>
@@ -64,7 +65,7 @@ const DashBoardLayout = () => {
           alt="User avatar"
           className="w-8 h-8 rounded-full bg-gray-100"
         />
-        <span className="text-gray-400 font-medium flex">{user?.memberName}</span>
+        <span className="text-gray-400 font-medium flex">{user? user.memberName : 'John Doe' }</span>
         <FontAwesomeIcon icon={faAngleDown} className="text-gray-400" />
       </div>
     </div>
@@ -103,6 +104,7 @@ const DashBoardLayout = () => {
 
               {/* </div> */}
               {
+                user_standups.length?
                 user_standups.map(standup=>{
                   return(
                     <div className="text-left ml-2 ">
@@ -111,6 +113,11 @@ const DashBoardLayout = () => {
                   </div>
                   )
                 })
+
+                :
+                <div className="text-left ml-2 ">
+                      <p className='text-gray-400 text-center'>No standups to display</p>
+                </div>
               }
             
 
