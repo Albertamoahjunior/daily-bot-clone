@@ -6,6 +6,7 @@ import axios, {
   AxiosError 
 } from 'axios';
 import axiosRetry from 'axios-retry';
+import { LOGIN } from '@/state/authState/authSlice';
 import { Store as store } from '../state/store';
 import { RootState } from '../state/store';
 
@@ -66,7 +67,7 @@ const createApiClient = (config: ApiClientConfig = defaultConfig): AxiosInstance
               `${config.baseURL}/auth/verify?token=${refreshToken}`,
           );
 
-          store.dispatch({ type: 'LOGIN', payload: response.data });
+          store.dispatch(LOGIN(response.data)); //dispatch the data
           return response.data.token;
       } catch (error) {
           store.dispatch({ type: 'LOGOUT' });
