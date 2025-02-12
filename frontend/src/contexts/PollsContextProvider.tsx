@@ -11,6 +11,7 @@ interface IPollsContextProvider {
 export const teamPollsContext = createContext<{
     allPolls: Poll[] | undefined;
     allPollsResponse: PollResponse[] | undefined;
+    everyPollsResponse: PollResponse[] | undefined;
     teamId: string;
     setTeamId: React.Dispatch<React.SetStateAction<string>>;
 } | undefined>(undefined);
@@ -94,11 +95,9 @@ const PollsContextProvider = ({children}: IPollsContextProvider) => {
         //     }
         // ];
         
-
-        
-        
         const [allPolls, setAllPolls] = useState<Poll[] | undefined>(undefined);
         const [allPollsResponse, setAllPollsResponses] = useState<PollResponse[] | undefined>(undefined)
+        const [everyPollsResponse, setEveryPollsResponses] = useState<PollResponse[] | undefined>(undefined)
         const [teamId, setTeamId] = useState<string>(""); 
 
         useEffect( () => {
@@ -128,16 +127,27 @@ const PollsContextProvider = ({children}: IPollsContextProvider) => {
                     }
                 }
             };
+            const fetchEveryPollResponse = async () => {
+                try {
+                    const result = await pollService.getAllPolls();
+                    if (result && result.length) {
+                        setEveryPollsResponses(result);
+                    }
+                } catch (err) {
+                    console.log("Error Fetching Every Poll For Every Team", err);
+                }
+            };
         
             fetchPollQuestions();
             fetchPollResponses();
+            fetchEveryPollResponse();
 
         }, [teamId])
 
 
 
     return (
-        <teamPollsContext.Provider value={{ allPolls, allPollsResponse, teamId, setTeamId }}>
+        <teamPollsContext.Provider value={{ allPolls, allPollsResponse, everyPollsResponse, teamId, setTeamId }}>
             {children}
         </teamPollsContext.Provider>
     )

@@ -83,8 +83,13 @@ function App() {
 
           <Route path='analytics' element={
             <TeamsContextProvider>
+
               <PollsContextProvider>
+              <StandupsContextProvider>
+              <TeamMoodContextProvider>
                   <AnalyticsPage/>
+              </TeamMoodContextProvider>
+              </StandupsContextProvider>
               </PollsContextProvider>
             </TeamsContextProvider>
           } />

@@ -3,20 +3,23 @@ import { AnimationWrapper } from '../common/page-animation';
 import { TeamInputDropdown } from '../components/TeamDropdownInput';
 import { Button } from '@/components/ui/button';
 import {  faSquarePollVertical } from '@fortawesome/free-solid-svg-icons';
+import { CheckCircle2, Settings2 } from 'lucide-react';
 import {useTeamsContext} from '../hooks/useTeamsContext';
 import {usePollsContext} from '../hooks/usePollsContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {TeamPollsMetrics} from '../components/TeamPollsMetrics'
 import {TeamPollsDropdown } from '../components/TeamPollsDropdown '
 import {CreateTeamPollModal } from '../components/CreateTeamPollModal'
-
+import {pollService} from "../services/api"
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 
 export const TeamPollsPage = () => {
     const [pageState, setPageState] = useState<"insights"|"all-polls">("insights");
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
       const { teams, members } = useTeamsContext();
-      const { allPolls, allPollsResponse, setTeamId } = usePollsContext();
+      const { allPolls, allPollsResponse, everyPollsResponse, setTeamId } = usePollsContext();
     
     const [selectedTeam, setSelectedTeam] = useState('');
     const [membersList, setMembersList] = useState<{ value: string; label: string }[] | undefined>(undefined);
@@ -27,6 +30,52 @@ export const TeamPollsPage = () => {
 
     const [selectedTeamPoll, setSelectedTeamPoll] = useState<Poll | undefined>(undefined);
     const [selectedTeamPollResponses, setselectedTeamPollResponses] = useState<PollResponse[] | undefined>(undefined);
+
+    const [pollQuestions, setPollQuestions] = useState<Poll[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchPollQuestions = async () => {
+            try {
+                setIsLoading(true);
+                
+                // Get unique teamIds from the response data
+                const pollResponses: PollResponse[]|undefined = everyPollsResponse;
+                const uniqueTeamIds = [...new Set(pollResponses?.map(response => response.teamId))];
+                
+                // Fetch poll questions for each unique teamId
+                const allPollQuestions: Poll[] = [];
+                
+                for (const teamId of uniqueTeamIds) {
+                    try {
+                        const data = await pollService.getTeamPollQuestions(teamId);
+                        
+                        if (data && data.length) {
+                            // Add new questions that aren't already in the array
+                            data.forEach((question: Poll) => {
+                                const exists = allPollQuestions.some(q => q.id === question.id);
+                                if (!exists) {
+                                    allPollQuestions.push(question);
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching poll questions for team ${teamId}:`, error);
+                    }
+                }
+
+                setPollQuestions(allPollQuestions);
+            } catch (error) {
+                console.error('Error fetching poll questions:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchPollQuestions();
+    }, [everyPollsResponse]); 
+
+
 
     useEffect(() => {
         if(selectedPoll){
@@ -93,7 +142,7 @@ export const TeamPollsPage = () => {
                  </div>
                 <div className="flex gap-4">
                     <Button variant="ghost" onClick={() => setPageState("insights")} className={`text-slate-600 hover:underline ${pageState === "insights"? "underline":""}`}>Insights</Button>
-                    <Button variant="ghost" onClick={() => setPageState("all-polls")} className={`text-slate-600 hover:underline ${pageState === "all-polls"? "underline":""}`}>All Polls</Button>
+                    <Button variant="ghost" onClick={() => setPageState("all-polls")} className={`text-slate-600 hover:underline ${pageState === "all-polls"? "underline":""}`}>All Polls Responses</Button>
                 </div>
             </div>
 
@@ -137,7 +186,45 @@ export const TeamPollsPage = () => {
 
           {pageState === "all-polls" && 
             <main className="flex flex-col gap-6">
-                <p>All Polls Page</p>
+                {everyPollsResponse?.map(pollResponse => (
+                    <div className="w-full p-4 border border-slate-900 rounded-lg ">
+                    <div className="mb-6">
+                        <div className="flex items-center gap-2 mb-1">
+                        <CheckCircle2 className="h-5 w-5 text-slate-600" />
+                        <h2 className="text-lg font-medium text-slate-900">{pollQuestions?.find((poll) => poll.id === pollResponse.pollId)?.choiceType} Choice</h2>
+                        </div>
+                        <p className="text-sm text-slate-600 ml-7">
+                        {pollQuestions?.find((poll) => poll.id === pollResponse.pollId)?.question}
+                        </p>
+                        <div className="flex justify-between items-center">
+                            <p className="text-sm text-slate-600 ml-7 mt-1">
+                            By: {members?.find((member) => member.id === pollResponse.userId)?.memberName.toUpperCase()}
+                            </p>
+                            <p className="text-sm text-slate-600 ml-7 mt-1">
+                            In: {teams?.find((team) => team.id === pollResponse.teamId)?.teamName.toUpperCase()}
+                            </p>
+
+
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        {pollQuestions?.find((poll) => poll.id === pollResponse.pollId)?.options.map((option) => (
+                        <div
+                            key={option}
+                            className={`${pollResponse.answer.includes(option) ? "border border-slate-900 bg-white":"border border-slate-200 "} flex items-center space-x-3 p-4 rounded-lg  `}
+                        >
+                            <div className="flex items-center space-x-3">
+                            <Settings2 className="h-5 w-5 text-slate-600" />
+                            <span className="text-sm font-medium text-slate-900">
+                                {option}
+                            </span>
+                            </div>
+                        </div>
+                        ))}
+                    </div>
+                    </div>
+                ))}
 
             </main>
           }

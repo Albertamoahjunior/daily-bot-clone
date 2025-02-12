@@ -97,7 +97,7 @@ export const MemberMoodHistory = ({
                                     <div className="space-y-2">
                                         <div className='flex w-full justify-between'>
                                             <p>{moodHistMembersList?.find((member) => member.value === moodResponse.userId)?.label}</p>
-                                            <p className="text-black">{allEmojis?.find((emoji) => emoji.emojiId === moodResponse.emojiID)?.icon}</p>
+                                            <p className="text-black">{allEmojis?.find((emoji) => emoji.emoji.toLowerCase() === moodResponse.moodID.toLowerCase())?.icon}</p>
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="text-sm text-gray-500">

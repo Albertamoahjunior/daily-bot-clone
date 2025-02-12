@@ -57,8 +57,9 @@ export const TeamMoodPage: React.FC = () => {
       let filtered = allMoodResponses;
       
 
-      if (selectedMoodHistTeam && !moodHistSelectedUser) {
-        toast.error("Select A Member to view his/her mood response")
+      if (!selectedMoodHistTeam || !moodHistSelectedUser) {
+        toast.error("Select A Team and Its Member to view his/her mood response for that team")
+        return;
         // filtered = filtered?.filter((team) => team.teamId === selectedMoodHistTeam);
       }
 
@@ -74,7 +75,7 @@ export const TeamMoodPage: React.FC = () => {
       if(moodHistDate){
         console.log("Date", moodHistDate);
 
-        filtered = filtered?.filter((moodResponse) => (moodResponse.createdAt == moodHistDate.split('T')[0]  ));
+        filtered = filtered?.filter((moodResponse) => (moodResponse.createdAt.split("T")[0] == moodHistDate.split('T')[0]  ));
       }
 
 
