@@ -1,14 +1,17 @@
-import React,{useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import { AnimationWrapper } from '../common/page-animation';
 import { TeamInputDropdown } from '../components/TeamDropdownInput';
 import { Button } from '@/components/ui/button';
 import {  faSquarePollVertical } from '@fortawesome/free-solid-svg-icons';
+
+
 import {useTeamsContext} from '../hooks/useTeamsContext';
 import {usePollsContext} from '../hooks/usePollsContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {TeamPollsMetrics} from '../components/TeamPollsMetrics'
 import {TeamPollsDropdown } from '../components/TeamPollsDropdown '
 import {CreateTeamPollModal } from '../components/CreateTeamPollModal'
+//import { usePolls } from '@/services/query_hooks/usePolls';
 
 
 
@@ -16,7 +19,9 @@ export const TeamPollsPage = () => {
     const [pageState, setPageState] = useState<"insights"|"all-polls">("insights");
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
       const { teams, members } = useTeamsContext();
-      const { allPolls, allPollsResponse, setTeamId } = usePollsContext();
+      const {  allPolls, allPollsResponse, setTeamId } = usePollsContext(); //removed allPolls
+
+    //const { data: allPolls} = usePolls();
     
     const [selectedTeam, setSelectedTeam] = useState('');
     const [membersList, setMembersList] = useState<{ value: string; label: string }[] | undefined>(undefined);

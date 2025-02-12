@@ -2,15 +2,21 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { authService } from '../api'
 
 export function useLogin() {
-  return useMutation(authService().login)
+  return useMutation({
+    mutationFn: authService().login
+  })
 }
 
 export function useVerifyUser() {
-  return useMutation(authService().verifyUser)
+  return useMutation({
+    mutationFn: authService().verifyUser
+})
 }
 
 export function useLogout() {
-  return useMutation(authService().logout)
+  return useMutation({
+    mutationFn: authService().logout
+  })
 }
 
 export function useGetUser() {
