@@ -152,14 +152,6 @@ export const TeamPollsMetrics = ({selectedTeamPoll, selectedTeamPollResponses, t
     }, [selectedTeamPoll, selectedTeamPollResponses])
 
 
-  const reportStreaks = [
-    { name: 'Kate Martinez', streak: 1248, avatar: '/api/placeholder/30/30' },
-    { name: 'Brandon Clark', streak: 748, avatar: '/api/placeholder/30/30' },
-    { name: 'Dwayne Washington', streak: 139, avatar: '/api/placeholder/30/30' },
-    { name: 'Helen Flanagan', streak: 98, avatar: '/api/placeholder/30/30' },
-    { name: 'Susan Green', streak: 75, avatar: '/api/placeholder/30/30' },
-  ];
-
   return (
     <div className="flex gap-6 mt-6">
       <div className='flex flex-col w-[75%] space-y-10'>
@@ -176,7 +168,7 @@ export const TeamPollsMetrics = ({selectedTeamPoll, selectedTeamPollResponses, t
                 {selectedTeamPoll.options.map((option, index) => (
                 <div key={index} className="flex items-center justify-between">
                     <div className="flex-1">
-                    <div className="text-sm">{selectedTeamPoll.question}</div>
+                    <div className="text-sm">{option}</div>
                     <div className="h-2 mt-1 rounded-full bg-gray-100 overflow-hidden">
                         <div 
                         className="h-full bg-teal-400" 

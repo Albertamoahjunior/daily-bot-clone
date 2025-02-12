@@ -156,7 +156,7 @@ export const TeamPollsPage = () => {
             </div>
 
             <div className="flex w-full justify-between">
-            <p className="text-left text-lg mt-2">Track and analyze your team's mood trends and engagement</p>
+            <p className="text-left text-lg mt-2">Track and analyze your team's polls trends and engagement</p>
             { is_admin && <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 bg-black text-white hover:bg-slate-800 rounded-lg px-4 py-2 transition-colors duration-200 "> Create Polls</button>}
             </div>
           </header>
