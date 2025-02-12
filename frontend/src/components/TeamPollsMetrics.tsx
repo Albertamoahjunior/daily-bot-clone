@@ -176,7 +176,7 @@ export const TeamPollsMetrics = ({selectedTeamPoll, selectedTeamPollResponses, t
                 {selectedTeamPoll.options.map((option, index) => (
                 <div key={index} className="flex items-center justify-between">
                     <div className="flex-1">
-                    <div className="text-sm">{selectedTeamPoll.question}</div>
+                    <div className="text-sm">{option}</div>
                     <div className="h-2 mt-1 rounded-full bg-gray-100 overflow-hidden">
                         <div 
                         className="h-full bg-teal-400" 
