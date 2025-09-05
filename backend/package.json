@@ -12,16 +12,25 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.10.10",
-    "prisma": "^6.2.1",
+    "@types/node-schedule": "^2.1.7",
+    "@types/nodemailer": "^6.4.17",
+    "prisma": "^6.3.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@prisma/client": "^6.2.1",
     "@slack/bolt": "^4.2.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
     "body-parser": "^2.0.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.0.1",
-    "@prisma/client": "^6.2.1",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "node-schedule": "^2.1.1",
+    "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9"
   }
 }
